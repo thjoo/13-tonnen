@@ -70,7 +70,7 @@ main{max-width:none;margin:0;padding:0}
 .panel{position:sticky;top:150px;max-height:calc(100vh - 160px);overflow:auto;border:1px solid var(--edge);padding:16px 18px;background:#fff}
 .panel hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card{position:relative;border:1px solid var(--edge);padding:12px 14px 12px 18px;background:#fff;display:flex;flex-direction:column;gap:6px;min-height:170px}
+.card{position:relative;border:1px solid var(--edge);padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:6px;min-height:170px}
 .card:hover{border-color:var(--ink)}
 .card.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
 .card.off{color:var(--faint)}
@@ -820,7 +820,7 @@ function cardHTML(id){
  const gtxt=g<0?"2 Geld zurück":GD(g);
  const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
   :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
- return `<div class="card ${on?"on":""} ${b&&!on?"off":""}"><span class="stripe" style="background:${AREASH[id[0]]}"></span>
+ return `<div class="card ${on?"on":""} ${b&&!on?"off":""}">
  <div class="hd"><span class="lbl">${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
