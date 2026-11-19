@@ -115,6 +115,62 @@ tr.sum td{font-weight:700;border-top:1px solid var(--ink)}
 input.codein{font:700 18px var(--mono);width:7em;text-transform:uppercase;padding:5px 8px;border:1px solid var(--edge);border-radius:0;background:var(--soft)}
 .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 @media(max-width:1000px){.layout{grid-template-columns:1fr}.panel{position:static;max-height:none}.top-in{grid-template-columns:1fr}.stats{justify-content:flex-start}.cards{grid-template-columns:1fr}}
+/* ---- Pixel-Rahmen ---- */
+:root{--p:3px;--fc:var(--ink);--sh:rgba(55,53,47,.18);
+ --dither:repeating-conic-gradient(rgba(55,53,47,.35) 0 25%,transparent 0 50%) 0 0/4px 4px}
+.st,.ibox,.card,.panel,.fig,.tab,button,.callout,.bar,input.codein,.foot-btn{
+ border:0!important;
+ box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc),
+  calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh);
+ margin:var(--p);
+}
+.st,.ibox,.panel,.fig,.card{--fc:var(--edge)}
+.st.big,.ibox.hi{--fc:var(--ink)}
+.callout{--fc:var(--g4);--sh:transparent}
+.bar{--sh:transparent;--fc:var(--ink);height:18px}
+.card:hover,.fig:hover{--fc:var(--ink);transform:translate(-1px,-1px)}
+.card.on,.fig.on{--fc:var(--ink);box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink),inset 0 0 0 var(--p) var(--ink),calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh)}
+.cards,.figs,.boxes{gap:18px}
+.stats{gap:14px}
+.tabs{gap:12px}
+/* Knöpfe mit Pixelkante */
+button{--fc:var(--ink);padding:6px 14px;
+ box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc),
+  inset calc(-1*var(--p)) calc(-1*var(--p)) 0 0 rgba(55,53,47,.18),calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh)}
+button.primary{box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc),
+  inset calc(-1*var(--p)) calc(-1*var(--p)) 0 0 rgba(0,0,0,.45),inset var(--p) var(--p) 0 0 rgba(255,255,255,.18),calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh)}
+button:active:not(:disabled){transform:translate(var(--p),var(--p));
+ box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc)}
+button:disabled{--fc:var(--g4);--sh:transparent}
+button.small{padding:1px 10px}
+.tab{--sh:transparent;--fc:var(--edge)}
+.tab.on{--fc:var(--ink)}
+.tab .n{box-shadow:none}
+input.codein{--fc:var(--edge);--sh:transparent}
+/* Pixelmuster statt Schraffur */
+.seg::after,.legend i::after,.card .stripe::after,.cbar i::after{background:var(--dither)}
+.card .stripe{left:0;top:0;bottom:0;width:6px}
+.cbar{height:12px;background:var(--g5);box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin:6px 2px 10px}
+.cbar i{background:var(--g2)}
+.pips i{width:12px;height:12px;border:0;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin:2px}
+.pips i.f{background:var(--ink)}
+.pips{gap:6px}
+.mark{width:3px;background:var(--ink)}
+/* Kästchen und Häkchen */
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:14px;height:14px;margin:0 4px 0 2px;vertical-align:-2px;background:#fff;
+ box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);cursor:pointer}
+input[type=checkbox]:checked{background:var(--ink);box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink),inset 0 0 0 3px #fff}
+input[type=checkbox]:disabled{opacity:.4;cursor:default}
+/* Trennlinien gepunktet wie Pixel */
+.top{border-bottom:0;background-image:linear-gradient(90deg,var(--ink) 50%,transparent 50%);background-size:6px 3px;background-repeat:repeat-x;background-position:bottom;background-color:#fff}
+.panel hr,.vote{border-top:0}
+.panel hr{height:3px;background:linear-gradient(90deg,var(--g4) 50%,transparent 50%) 0 0/6px 3px repeat-x}
+.vote+.vote{background:linear-gradient(90deg,var(--g4) 50%,transparent 50%) 0 0/6px 3px repeat-x;padding-top:15px}
+td,th{border-bottom:0;background:linear-gradient(90deg,var(--g5) 50%,transparent 50%) 0 100%/6px 2px repeat-x}
+tr.sum td{border-top:0;background:linear-gradient(90deg,var(--ink) 50%,transparent 50%) 0 0/6px 3px repeat-x}
+.fig .im{box-shadow:0 -2px 0 0 var(--g4),0 2px 0 0 var(--g4),-2px 0 0 0 var(--g4),2px 0 0 0 var(--g4);margin:2px}
+.callout .ic{box-shadow:none}
+.panel{top:156px}
 </style>
 </head>
 <body>
@@ -765,7 +821,7 @@ function cardHTML(id){
  const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
   :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
  return `<div class="card ${on?"on":""} ${b&&!on?"off":""}"><span class="stripe" style="background:${AREASH[id[0]]}"></span>
- <div class="hd"><span class="lbl">${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e)} t</span></div>
+ <div class="hd"><span class="lbl">${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
  ${details(t)}
@@ -845,7 +901,7 @@ function viewEnd(){
  const ch=(no-vo)*9, chS=(sN-sV)*9;
  return `<div class="wrap"><div class="who">${figImg(S.fig,3)}<div><div class="lbl">Auswertung</div><h1>${S.fig} im Jahr 2050</h1></div></div>
  <div class="boxes" style="margin-top:18px">
-  <div class="ibox" style="border-color:var(--ink)"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div><div class="hint">pro Jahr, Ziel 0.6 t</div></div>
+  <div class="ibox hi"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div><div class="hint">pro Jahr, Ziel 0.6 t</div></div>
   <div class="ibox"><div class="lbl">Summe 2026 bis 2050</div><div class="v">${fmt(sA,0)} t</div><div class="hint">ohne Änderung wären es ${fmt(s0,0)} t</div></div>
   <div class="ibox"><div class="lbl">Ohne eigene Karten</div><div class="v">${fmt(vo)} t</div><div class="hint">nur Trend und angenommene Vorlagen</div></div>
   <div class="ibox"><div class="lbl">Schweiz, 9 Mio.</div><div class="v">${fmt(ch)} Mio. t</div><div class="hint">weniger pro Jahr dank Vorlagen</div></div></div>
@@ -947,7 +1003,7 @@ const Group={
   const ps=G.players(),me=ROOM.players[NET.uid]||{},host=ROOM.host===NET.uid;
   const ready=ps.length>=1&&ps.every(p=>p.fig);
   return `<div class="wrap"><div class="lbl">13 Tonnen · Gruppenspiel</div><h1 style="margin:4px 0 14px">Raum ${G.code}</h1>
-  <div class="boxes"><div class="ibox" style="border-color:var(--ink)"><div class="lbl">Code für die anderen</div><div class="code">${G.code}</div></div>
+  <div class="boxes"><div class="ibox hi"><div class="lbl">Code für die anderen</div><div class="code">${G.code}</div></div>
   <div class="ibox"><div class="lbl">Version</div>${host?`<div class="tabs" style="margin:8px 0 0">
    <label class="tab ${ROOM.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('kurz')"><span class="n">4</span>Kurz</label>
    <label class="tab ${ROOM.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('lang')"><span class="n">8</span>Lang</label></div>`:`<div class="v" style="font-family:var(--titel);font-weight:800;font-size:28px">${ROOM.mode=="lang"?"Lang":"Kurz"}</div><div class="hint">wählt, wer den Raum eröffnet hat</div>`}</div></div>
