@@ -88,6 +88,10 @@ details{font-size:13px;color:var(--text)}
 details p{margin:6px 0 0}
 summary{cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 .vote{border-top:1px solid var(--line);padding:12px 0}
+.crisis{margin:0 0 18px;padding:14px 16px;background:var(--paper,#fff);box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);position:relative}
+.crisis::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:repeating-linear-gradient(135deg,var(--ink) 0 3px,transparent 3px 7px)}
+.crisis .lbl{margin-top:6px}.crisis h3{margin:2px 0 4px;font-family:var(--titel);font-size:20px}.crisis .tx{margin:0 0 6px;font-size:14px}
+.crisis .how{margin:6px 0 4px;font-weight:700;font-size:14px}.crisis table{margin-top:6px}
 .vote:first-of-type{border-top:0}
 .chance{font-family:var(--titel);font-weight:800;font-size:22px}
 .cbar{height:9px;background:var(--g5);margin:4px 0 8px;position:relative}
@@ -667,7 +671,7 @@ const esc=s=>esc0(NAMES(s));
 
 let S, G=null;
 function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
- flags:{},events:[],happened:[],ballot:[],alloc:{},results:null,event:null,log:[],snap:[]};}
+ flags:{},pdone:{},plog:{},palloc:0,carry:0,events:[],happened:[],ballot:[],alloc:{},results:null,event:null,log:[],snap:[]};}
 fresh();
 
 /* ---------- Modell ---------- */
@@ -698,6 +702,8 @@ function subs(y,opt){
    const m=M.VORL[id].mult;for(const k in m)v[k]*=m[k];}
   if(opt.extraVorl){const m=M.VORL[opt.extraVorl].mult;for(const k in m)v[k]*=m[k];}
   if(S.adopted.K12!==undefined&&S.adopted.K12<=y&&opt.without!=="K12")v.oeff-=0.002;
+  for(const id in (S.pdone||{})){if(S.pdone[id]>y)continue;const m=PROJ[id].mult;for(const k in m)v[k]*=m[k];}
+  if(opt.extraProj){const m=PROJ[opt.extraProj].mult;for(const k in m)v[k]*=m[k];}
  }
  const a=adds(y,opt.own);
  if(opt.own&&opt.extraOwn==="I2")a.oev=(a.oev||0)+0.1;
@@ -759,11 +765,80 @@ function choose(id){
  render();
 }
 
+
+/* ---------- Projekte im Quartier (Schwelle statt Würfel) ---------- */
+const PROJ={
+ P1:{t:"Wärmeverbund im Quartier",d:"Ein Netz mit Holz und Abwärme soll die Öl- und Gasheizungen in deiner Strasse ersetzen. Es kommt nur, wenn genug Leute mitziehen.",mult:{heiz:0.6},
+  back:"Ein Wärmeverbund versorgt viele Häuser aus einer zentralen Anlage, oft mit Holz, Abwärme oder Seewasser. Im Spiel sinkt der Heizanteil um 40 Prozent, weil nicht alle Häuser angeschlossen werden."},
+ P2:{t:"Carsharing und Velostation",d:"Beim Bahnhof soll es Autos zum Teilen und eine gedeckte Velostation geben. Dafür braucht es Unterschriften und Leute, die mithelfen.",mult:{auto:0.85},
+  back:"Wer Carsharing nutzt, fährt meist weniger Auto, weil jede Fahrt etwas kostet. Im Spiel sinken die Autoemissionen um 15 Prozent."},
+ P3:{t:"Solardach auf dem Schulhaus",d:"Eine Genossenschaft will das Schulhausdach mit Solarpanels decken. Wer mitmacht, bezieht den Strom.",mult:{strom:0.6},
+  back:"Solarstrom vom eigenen Dach ersetzt Strom aus dem Netz, der im Winter teils aus dem Ausland kommt. Im Spiel sinkt der Stromanteil um 40 Prozent."},
+ P4:{t:"Repair-Café und Tauschbörse",d:"Einmal im Monat reparieren Freiwillige Kleider, Velos und Geräte. Daneben gibt es eine Tauschbörse.",mult:{kleider:0.8,moebel:0.85,elek:0.8},
+  back:"Jedes Ding, das länger hält, muss nicht neu hergestellt werden. Das meiste davon entsteht im Ausland. Im Spiel sinken Kleider, Möbel und Elektronik um 15 bis 20 Prozent."},
+ P5:{t:"Foodsave-Kühlschrank und Hofladen",d:"Ein öffentlicher Kühlschrank für übrige Lebensmittel und ein Laden mit Gemüse aus der Region.",mult:{waste:0.6,saison:0.7},
+  back:"Rund ein Drittel der Lebensmittel geht verloren. Was geteilt statt weggeworfen wird, muss nicht produziert werden. Im Spiel sinken Food Waste und Treibhausgemüse."}};
+const PWIN=2, PNEED=2;
+function projList(){return G?((ROOM&&ROOM.proj)||[]):(S.projList||[])}
+function projOf(r){return projList()[Math.floor(r/PWIN)]}
+function projNeed(){return PNEED*(G?G.n():1)}
+function projRounds(r){const w=Math.floor(r/PWIN),a=w*PWIN;return [a,Math.min(LAST,a+PWIN-1)]}
+function projHist(r){ // Herzen der ganzen Gruppe in Runde r (abgeschlossen)
+ if(G){const st=ROOM&&ROOM.stage&&ROOM.stage[r];if(!st||!st.contrib)return null;return Object.values(st.contrib).reduce((s,c)=>s+(c.p||0),0);}
+ return S.plog&&S.plog[r]!=null?S.plog[r]:null;}
+function projLive(){if(G){let h=0;for(const p of G.players()){if(p.uid===NET.uid){h+=S.palloc||0;continue;}h+=(p.palloc&&p.palloc[S.r])||0;}return h;}return S.palloc||0;}
+function projState(r){ // {pid,acc,need,done,doneAt,fail,first,last}
+ const pid=projOf(r);if(!pid)return null;const [a,b]=projRounds(r),need=projNeed();let acc=0,doneAt=null;
+ for(let q=a;q<=b;q++){const h=projHist(q);if(h==null)break;acc+=h;if(doneAt==null&&acc>=need)doneAt=q;}
+ const closed=projHist(b)!=null;
+ return {pid,acc,need,done:doneAt!=null,doneAt,fail:closed&&doneAt==null,first:a,last:b};}
+function updPdone(){const d={};const ws=Math.ceil(PER.length/PWIN);for(let w=0;w<ws;w++){const s=projState(w*PWIN);if(s&&s.done)d[s.pid]=vorlFrom(s.doneAt);}S.pdone=d;}
+function palloc(d){if(S.results||S.waiting)return;const s=projState(S.r);if(!s||s.done)return;
+ if(d>0&&(freeH()<=0||s.acc+projLive()>=s.need))return;if(d<0&&!(S.palloc>0))return;S.palloc=(S.palloc||0)+d;if(G)G.push();render();}
+function vProj(pid){const y=vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraProj:pid});}
+function totalProj(pid){const a=vorlFrom(S.r);let s=0;for(let y=a;y<=2050;y++)s+=val(y,ACT)-val(y,{...ACT,extraProj:pid});return s;}
+function projHTML(){
+ const s=projState(S.r);if(!s)return"";const p=PROJ[s.pid],live=S.results?0:projLive(),tot=s.acc+live,need=s.need;
+ const rleft=s.last-S.r;
+ let h=`<div class="lbl">Projekt im Quartier · Runde ${S.r-s.first+1} von ${s.last-s.first+1}</div><h3 style="margin:2px 0 6px">${esc0(p.t)}</h3><p class="tx" style="font-size:14px;margin:0 0 6px">${esc0(p.d)}</p>`;
+ if(s.done){h+=`<div class="callout"><span class="ic">✓</span><span>Steht. Wirkt sicher ab ${S.pdone[s.pid]}, für alle${G?" in der Gruppe":""}.</span></div>`;return h+`<hr>`;}
+ const pct=Math.min(100,tot/need*100);
+ h+=`<div class="row" style="justify-content:space-between"><span class="lbl">Herzen ${G?"der Gruppe":""}</span><span class="chance">${tot} / ${need}</span></div>
+ <div class="cbar"><i style="width:${pct}%"></i></div>
+ <p class="hint" style="margin:0 0 6px">Kein Würfel: Kommen bis Ende ${rleft>0?"nächster Runde":"dieser Runde"} ${HZ(need)} zusammen, wird es gebaut. ${G?`Das sind 2 pro Person, wer wie viel gibt, ist eure Sache.`:`Den Rest übernimmt die Nachbarschaft.`} Sonst scheitert es, und die Herzen sind weg.</p>
+ <div class="meta2"><span>bringt dir <b>${sgn(-vProj(s.pid),2)} t</b>/Jahr</span><span>bis 2050: <b>${sgn(-totalProj(s.pid),0)} t</b></span></div>`;
+ if(!S.results)h+=`<div class="ctl"><button class="small" onclick="palloc(-1)">−</button><span class="mono">${HZ(S.palloc||0)}</span><button class="small" onclick="palloc(1)">+</button>${G?`<span class="hint" style="margin-left:auto">davon du</span>`:""}</div>`;
+ h+=`<details><summary>Woher die Zahl?</summary><p>${esc0(p.back)}</p></details>`;
+ return h+`<hr>`;}
+function projResultHTML(){const s=projState(S.r);if(!s)return"";const p=PROJ[s.pid];
+ if(s.done&&s.doneAt===S.r)return `<div class="callout"><span class="ic">✓</span><span>«${esc0(p.t)}» kommt zustande. Wirkt ab ${S.pdone[s.pid]}.</span></div>`;
+ if(s.fail)return `<div class="callout"><span class="ic">✗</span><span>«${esc0(p.t)}» ist gescheitert: ${s.acc} von ${s.need} Herzen.</span></div>`;
+ if(!s.done)return `<div class="callout"><span class="ic">…</span><span>«${esc0(p.t)}»: ${s.acc} von ${s.need} Herzen. Es fehlen noch ${s.need-s.acc}, nächste Runde ist die letzte Chance.</span></div>`;
+ return"";}
+function shuffle(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);}
+function pickProj(){return shuffle(Object.keys(PROJ));}
+
+/* ---------- Krisen offen ---------- */
+const EVKIND={E1:"Krise",E2:"Krise",E3:"Gelegenheit",E4:"Krise"};
+function evHow(e){
+ if(e=="E1")return "Trifft dich, weil du ein E-Auto fährst. Nimmst du es in dieser Runde zurück, fällt sie weg.";
+ if(e=="E2")return `Abwenden: Wähle in dieser Runde «${T.W2.title}». Die Karte liegt in deiner Auswahl.`;
+ if(e=="E3")return "Fällt weg, wenn du schon vegetarisch oder vegan isst.";
+ if(e=="E4")return `Abwenden: Wähle in dieser Runde «${T.C4.title}». Die Karte liegt in deiner Auswahl.`;
+ return "";}
+function evStatus(e){if(S.happened.includes(e))return "schon passiert";if(e===S.nextEvent)return "droht jetzt";if(eventCands().includes(e))return "kann noch kommen";return "betrifft dich nicht";}
+function crisisHTML(){const ne=S.nextEvent;
+ let h=`<div class="crisis"><div class="lbl">${ne=="ruhig"?"Nach dieser Runde":EVKIND[ne]+" nach dieser Runde"}</div>`;
+ if(ne=="ruhig")h+=`<h3>Ruhig</h3><p class="tx">Diesmal ist nichts in Sicht.</p>`;
+ else{const t=T[ne];h+=`<h3>${esc(t.title)}</h3><p class="tx">${esc(t.front||t.back)}</p>${t.game?`<p class="tx"><i>Folge:</i> ${esc(t.game)}</p>`:""}<p class="how">${esc(evHow(ne))}</p>`;}
+ h+=`<details><summary>Alle Ereignisse im Spiel</summary><table>${["E2","E4","E1","E3"].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table></details></div>`;
+ return h;}
+
 /* ---------- Ablauf ---------- */
 const HAND=6;
 function income(f,r){if(S.chal=="knapp")return 0;const c=M.INC[f];return c[r%c.length];}
 function incText(f){const c=M.INC[f];return c.length==1?c[0]+" pro Runde":"1 jede zweite Runde";}
-const usedH=()=>Object.values(S.alloc).reduce((a,b)=>a+b,0);
+const usedH=()=>Object.values(S.alloc).reduce((a,b)=>a+b,0)+(S.palloc||0);
 const freeH=()=>S.hearts-usedH();
 function avail(id){ // kommt grundsätzlich noch in Frage (ohne Kosten)
  const f=fig(),c=M.CARDS[id];
@@ -779,24 +854,27 @@ function drawHand(){
  const pool=Object.keys(M.CARDS).filter(avail),hand=[];
  const take=id=>{if(pool.includes(id)&&!hand.includes(id))hand.push(id)};
  if(S.flags.e2==S.r)take("W2"); if(S.flags.e3==S.r)take("N2");
+ if(S.nextEvent=="E2")take("W2"); if(S.nextEvent=="E4")take("C4");
  const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
  for(const a of "IWNC"){if(hand.length>=HAND)break;const c=shuf(pool.filter(k=>k[0]==a&&!hand.includes(k)));if(c.length)hand.push(c[0]);}
  for(const k of shuf(pool.filter(k=>!hand.includes(k)))){if(hand.length>=HAND)break;hand.push(k);}
  const ord="IWNC";hand.sort((x,y)=>ord.indexOf(x[0])-ord.indexOf(y[0]));
  S.hand=hand;
 }
-function startFig(f){S.fig=f;S.r=0;S.money=M.START[f];beginRound();}
+function startFig(f){S.fig=f;S.r=0;S.money=M.START[f];S.projList=pickProj();beginRound();}
 function beginRound(){
- S.hearts=3;S.money+=income(S.fig,S.r);S.thisRound=[];drawHand();if(G)G.ballotFor(S.r);else drawBallot();S.results=null;S.event=null;S.waiting=false;
+ S.hearts=3+(S.carry||0);S.money+=income(S.fig,S.r);S.thisRound=[];S.palloc=0;updPdone();announceEvent();drawHand();if(G)G.ballotFor(S.r);else drawBallot();S.results=null;S.event=null;S.waiting=false;
  let note=[];
  if(S.adopted.K6!==undefined&&S.adopted.K6<=PER[S.r].a){
   if(S.chosen.I1b!==undefined){S.money+=1;note.push("Flugticketabgabe: Du fliegst nicht mehr und bekommst 1 Geld zurück.");}
   else{const d=Math.min(1,S.money);S.money-=d;note.push("Flugticketabgabe: Du fliegst noch und zahlst 1 Geld.");}
  }
  if(S.freeNote){note.push(S.freeNote);S.freeNote=null;}
+ if(S.carry)note.push("Du hast 1 Herz aus der letzten Runde mitgenommen. Diese Runde hast du 4.");
+ S.carry=0;
  S.roundNote=note;
  S.snap[S.r]={y:PER[S.r].a,act:val(PER[S.r].a,ACT)};
- announceEvent();S.revealed=null;
+ S.revealed=null;
  if(S.r==0&&!lsGet("13t_tut"))S.coach=0;
  if(G)NET.update(G.path(),{now:+val(PER[S.r].a,ACT).toFixed(2)});
  S.screen="round";render();window.scrollTo(0,0);
@@ -816,11 +894,13 @@ function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(G)G.push();render();}
 function freeRide(){}
 function vote(){
+ S.carry=Math.min(1,freeH());
  if(G){G.ready();return;}
+ S.plog[S.r]=projState(S.r)&&!projState(S.r).done?(S.palloc||0):0;updPdone();
  S.results=S.ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);const ok=roll<c;
   if(ok)S.adopted[k]=vorlFrom(S.r);else{S.rejects=S.rejects||{};S.rejects[k]=(S.rejects[k]||0)+1;}return {k,c,ok,roll}});
  freeRide();
- S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
+ S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
  render();
 }
 function toEvent(){
@@ -909,16 +989,16 @@ function viewRound(){
  if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
   L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
+ L+=crisisHTML();
  L+=`<div class="sec"><h2>Deine Auswahl</h2><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
- P=(G?groupPanel():"")+ballotHTML();
- const ne=S.nextEvent;P+=`<hr><div class="lbl">Droht nach dieser Runde</div><p style="margin:4px 0 0">${ne=="ruhig"?"Nichts Besonderes in Sicht.":`<b>${esc(T[ne].title)}</b>. ${esc(T[ne].front||"")}`}</p>${ne!="ruhig"&&AVERT[ne]?`<p class="hint">Wer vorsorgt, kann es abwenden.</p>`:""}`;
+ P=(G?groupPanel():"")+projHTML()+ballotHTML();
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
- P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
+ P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
- :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. Herzen verfallen am Ende der Runde.</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
+ :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
  return header()+`<div class="wrap">${tabs(0)}<div class="layout"><div>${L}</div><aside class="panel" id="panel">${P}</aside></div></div>`;
 }
 function viewEvent(){
@@ -1224,7 +1304,7 @@ const Group={
  async start(){
   const ps=Object.keys(ROOM.players).filter(u=>ROOM.players[u].online!==false);
   setMode(ROOM.mode);
-  await NET.update("rooms/"+G.code,{status:"play",n:ps.length,ballot0:pickBallot({},[])});
+  await NET.update("rooms/"+G.code,{status:"play",n:ps.length,ballot0:pickBallot({},[]),proj:pickProj()});
  },
  viewLobby(){
   if(!ROOM)return `<div class="wrap"><p>Verbinde …</p></div>`;
@@ -1266,10 +1346,10 @@ function makeG(code){
     const a=p.alloc&&p.alloc[r];const dn=p.don&&p.don[r];
     h+=(a&&a[k])||0;d+=(dn&&dn[k])||0;}
    return {h,d};},
-  push(){NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don});},
+  push(){NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don,["palloc/"+S.r]:S.palloc||0});},
   ballotFor(r){const b=r==0?ROOM.ballot0:(ROOM.stage&&ROOM.stage[r-1]&&ROOM.stage[r-1].next);
    S.ballot=b||[];S.alloc={};S.don={};S.ballot.forEach(k=>{S.alloc[k]=0;S.don[k]=0});this.push();},
-  ready(){S.waiting=true;NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don,["ready/"+S.r]:true});render();tryResolve();},
+  ready(){S.waiting=true;NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don,["palloc/"+S.r]:S.palloc||0,["ready/"+S.r]:true});render();tryResolve();},
   unready(){if(ROOM.stage&&ROOM.stage[S.r])return;S.waiting=false;NET.update(this.path(),{["ready/"+S.r]:false});render();},
   active(){return this.players().filter(p=>p.online!==false&&p.fig)},
   missing(){return this.active().filter(p=>p.uid!==NET.uid&&!(p.ready&&p.ready[S.r])).map(p=>p.fig+" ("+p.color+")")},
@@ -1297,7 +1377,8 @@ async function tryResolve(){
   const res=ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);return {k,c,ok:roll<c,roll}});
   const ad={...adoptedBefore};res.forEach(x=>{if(x.ok)ad[x.k]=1});
   const contrib={};for(const p of act){const a=p.uid===NET.uid?S.alloc:((p.alloc||{})[r]||{});const dn=p.uid===NET.uid?S.don:((p.don||{})[r]||{});
-   contrib[p.uid]={fig:p.fig,color:p.color,h:Object.values(a).reduce((x,y)=>x+(y||0),0),d:Object.values(dn).reduce((x,y)=>x+(y||0),0)};}
+   const pa=p.uid===NET.uid?(S.palloc||0):((p.palloc||{})[r]||0);
+   contrib[p.uid]={fig:p.fig,color:p.color,h:Object.values(a).reduce((x,y)=>x+(y||0),0),d:Object.values(dn).reduce((x,y)=>x+(y||0),0),p:pa};}
   return {res,contrib,next:r<LAST?pickBallot(ad,ballot):[]};
  });
 }
@@ -1312,12 +1393,12 @@ function onRoom(){
   }
   render();return;
  }
- S.adopted=adoptedFrom(ROOM);
+ S.adopted=adoptedFrom(ROOM);updPdone();
  const st=ROOM.stage&&ROOM.stage[S.r];
  if(S.screen==="round"){
   if(st&&!S.results){
    S.results=st.res;S.waiting=false;freeRide();
-   S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
+   S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
    render();return;
   }
   if(S.waiting)tryResolve();
