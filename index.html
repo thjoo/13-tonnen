@@ -221,6 +221,9 @@ details.rules>summary{font-size:13px}
  .coach{left:8px;right:8px;bottom:8px;max-width:none}
  .tabs .tab{font-size:12px}
 }
+.meta2{display:flex;flex-wrap:wrap;gap:2px 16px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.meta2 b{color:var(--text)}
+.cwhy{font-size:12.5px;color:var(--text);background:var(--soft);padding:4px 8px}
 </style>
 </head>
 <body>
@@ -876,7 +879,9 @@ function cardHTML(id){
  <div class="hd"><span class="lbl">${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
+ <div class="meta2"><span>bis 2050: <b>${sgn(-totalOwn(id),0)} t</b></span>${h>0?`<span>pro Herz: <b>${sgn(-e/h,2)} t</b>/Jahr</span>`:""}</div>
  ${details(t)}
+ ${costWhy(id).length?`<div class="cwhy">${costWhy(id).map(esc).join("<br>")}</div>`:""}
  <div class="ft"><span class="cost">${HZ(h)} · ${gtxt}</span>${btn}</div></div>`;
 }
 function vEff(k){const y=vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
@@ -889,6 +894,7 @@ function ballotHTML(){
   <div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl">Chance</span><span class="chance">${c} %</span></div>
   <div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
+  <div class="meta2"><span>pro Herz für dich: <b>${sgn(-vEff(k)*(G?30/G.n():30)/100,3)} t</b>/Jahr</span><span>angenommen bis 2050: <b>${sgn(-totalVorl(k),0)} t</b> für dich, <b>${fmt(vEff(k)*9,vEff(k)*9<0.1?2:1)} Mio. t</b>/Jahr für die Schweiz</span></div>
   ${CONTRA[k]?`<div class="hint"><b>Dagegen spricht:</b> ${CONTRA[k]}</div>`:""}
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
   ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
@@ -910,7 +916,7 @@ function viewRound(){
  P=(G?groupPanel():"")+ballotHTML();
  const ne=S.nextEvent;P+=`<hr><div class="lbl">Droht nach dieser Runde</div><p style="margin:4px 0 0">${ne=="ruhig"?"Nichts Besonderes in Sicht.":`<b>${esc(T[ne].title)}</b>. ${esc(T[ne].front||"")}`}</p>${ne!="ruhig"&&AVERT[ne]?`<p class="hint">Wer vorsorgt, kann es abwenden.</p>`:""}`;
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
- P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p><button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
+ P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
  :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. Herzen verfallen am Ende der Runde.</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
  return header()+`<div class="wrap">${tabs(0)}<div class="layout"><div>${L}</div><aside class="panel" id="panel">${P}</aside></div></div>`;
@@ -1119,6 +1125,26 @@ function viewTeacher(){
  <div class="callout"><span class="ic">1</span><span><b>Erleben schildern.</b> Wie ging es euch? Wo war es knapp, wo frustrierend?</span></div>
  <div class="callout"><span class="ic">2</span><span><b>Analysieren.</b> Was brachte am meisten: eigene Karten oder Vorlagen? Warum kam keine Gruppe auf 0.6 t?</span></div>
  <div class="callout"><span class="ic">3</span><span><b>Übertragen.</b> Welche Vorlagen gibt es in der Schweiz wirklich? Was vereinfacht das Spiel?</span></div></div>`;}
+
+/* Kosten begründen und Wirkung über die Zeit */
+const MODWHY={
+ Lia:{I1a:"Lia reist für ihr Leben gern",I2:"Lia hat den ÖV vor der Tür",I4:"Lia hat den ÖV vor der Tür"},
+ Noah:{I2:"Noah wohnt auf dem Land, der Bus fährt stündlich",I3:"Noah wohnt auf dem Land",I4:"Noah wohnt auf dem Land",I6:"Noah wohnt auf dem Land",N1:"Noah isst gern Fleisch",N2:"Noah isst gern Fleisch"},
+ Ruth:{W4:"Ruth zieht ungern um",I1b:"Ruth fliegt ohnehin selten"},
+ Elif:{C1:"Elif hat wenig eigenes Geld",C2:"Elif hat wenig eigenes Geld",C3:"Elif hat wenig eigenes Geld",C4:"Elif hat wenig eigenes Geld",C5:"Elif hat wenig eigenes Geld",C6:"Elif hat wenig eigenes Geld"}};
+function costWhy(id){const out=[];const f=fig(),mod=f.mod[id]||0;
+ if(mod)out.push(`${mod>0?"+":"−"}${Math.abs(mod)} Herz: ${(MODWHY[S.fig]||{})[id]||"Lebenslage"}`);
+ for(const k in S.adopted){const s=M.SYN[k];if(!s)continue;
+  if(s.h&&s.h.includes(id))out.push(`−1 Herz dank «${T[k].title}»`);
+  if(s.g&&s.g.includes(id))out.push(`−1 Geld dank «${T[k].title}»`);}
+ if(id=="N2"&&S.flags.e3==S.r)out.push("−1 Herz: neue Rezepte ausprobiert");
+ if(id=="W2"&&S.flags.e2==S.r)out.push("−1 Geld: Ersatz ist ohnehin fällig");
+ return out;}
+function totalOwn(id){const a=PER[S.r].a;let s=0;
+ for(let y=a;y<=2050;y++)s+=S.chosen[id]!==undefined?val(y,{...ACT,without:id})-val(y,ACT):val(y,ACT)-val(y,{...ACT,extraOwn:id});
+ return s;}
+function totalVorl(k){const a=vorlFrom(S.r);let s=0;for(let y=a;y<=2050;y++)s+=val(y,ACT)-val(y,{...ACT,extraVorl:k});return s;}
+function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.h||[]),...(s.g||[])])].filter(id=>!fig().ban.includes(id)&&S.chosen[id]===undefined);}
 
 function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
