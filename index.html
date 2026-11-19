@@ -811,7 +811,7 @@ function chance(k){
 function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;}else{if(S.money<SPENDE)return;S.don[k]=1;S.money-=SPENDE;}if(G)G.push();render();}
 function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(G)G.push();render();}
-function freeRide(){if(usedH()==0&&!S.chalNoFree){S.money+=1;S.freeNote="Du hast kein Herz fürs Engagement eingesetzt und dafür 1 Geld verdient (Zeit für den Nebenjob).";}}
+function freeRide(){}
 function vote(){
  if(G){G.ready();return;}
  S.results=S.ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);const ok=roll<c;
@@ -912,7 +912,7 @@ function viewRound(){
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
  P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p><button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
- :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. Herzen verfallen am Ende der Runde.</p>${usedH()==0?`<p class="hint">Gibst du kein Herz fürs Engagement, verdienst du 1 Geld.</p>`:""}<button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
+ :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. Herzen verfallen am Ende der Runde.</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
  return header()+`<div class="wrap">${tabs(0)}<div class="layout"><div>${L}</div><aside class="panel" id="panel">${P}</aside></div></div>`;
 }
 function viewEvent(){
