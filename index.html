@@ -7,50 +7,114 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#111;--mid:#666;--line:#d8d8d8;--soft:#f4f4f2;--bg:#fff}
+:root{
+ --titel:"Montserrat",ui-sans-serif,sans-serif;--fliess:"Open Sans",ui-sans-serif,sans-serif;--mono:"Inconsolata",ui-monospace,monospace;
+ --text:#37352f;--muted:#787774;--faint:#a5a49f;--line:#e9e9e7;--edge:#b9b8b3;--ink:#3d3b37;--ink-h:#2f2e2b;--hover:#f1f1ef;--soft:#f7f6f3;
+ --g1:#3d3b37;--g2:#6e6c67;--g3:#9e9c96;--g4:#c8c6c0;--g5:#e6e5e1;
+ --hatch:repeating-linear-gradient(135deg,rgba(55,53,47,.22) 0 1.5px,transparent 1.5px 6px);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Open Sans",system-ui,sans-serif}
-main{max-width:860px;margin:0 auto;padding:24px 18px 80px}
-h1,h2,h3{font-family:Montserrat,system-ui,sans-serif;font-weight:700;line-height:1.2;margin:0 0 .5em}
-h1{font-size:28px}h2{font-size:20px;margin-top:1.4em}h3{font-size:15px}
-.num{font-family:Inconsolata,ui-monospace,monospace}
-.muted{color:var(--mid)}
-.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0;background:var(--bg)}
-.soft{background:var(--soft)}
-button{font:600 14px "Open Sans",system-ui,sans-serif;border:1px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}
-button.primary{background:var(--ink);color:#fff}
-button:disabled{opacity:.35;cursor:default}
-button.small{padding:3px 10px;font-size:13px}
-.grid{display:grid;gap:10px}
-.figs{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
-.fig{cursor:pointer}
+body{margin:0;background:#fff;color:var(--text);font-family:var(--fliess);line-height:1.5;font-size:15px}
+h1,h2,h3{font-family:var(--titel);margin:0}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+h2{font-size:21px;font-weight:800;letter-spacing:-.01em;margin:0 0 4px}
+h3{font-size:16px;font-weight:700}
+p{margin:0 0 10px}
+.num,.mono{font-family:var(--mono)}
+.lbl{font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;font-size:12px;color:var(--muted)}
+.sub{color:var(--muted);margin:0 0 14px;max-width:900px}
+.hint{font-size:13px;color:var(--muted)}
+.muted{color:var(--muted)}
+button{font:inherit;font-size:14px;border:1px solid var(--edge);background:#fff;color:var(--text);padding:6px 12px;border-radius:0;cursor:pointer}
+button:hover{background:var(--hover)}
+button.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+button.primary:hover{background:var(--ink-h)}
+button:disabled{opacity:.4;cursor:default;background:#fff}
+button.small{padding:2px 10px;font-size:13px}
+input[type=radio],input[type=checkbox]{accent-color:var(--ink)}
+.px{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+main{max-width:none;margin:0;padding:0}
+.wrap{padding:24px 32px 90px;max-width:1360px;margin:0 auto}
+.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line)}
+.top-in{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;padding:12px 32px 8px;max-width:1360px;margin:0 auto}
+.who{display:flex;gap:12px;align-items:center}
+.who .kick{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.who h1{font-size:24px}
+.stats{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.st{border:1px solid var(--edge);padding:6px 14px;min-width:130px}
+.st .v{font-family:var(--titel);font-weight:800;font-size:22px;line-height:1.15;white-space:nowrap}
+.st.big{min-width:170px;border-color:var(--ink)}
+.st.big .v{font-size:28px}
+.st .s{font-size:12px;color:var(--muted)}
+.pips{display:flex;gap:3px;margin-top:5px}
+.pips i{width:12px;height:12px;border:1px solid var(--ink);display:block}
+.pips i.f{background:var(--ink)}
+.barbox{padding:0 32px 12px;max-width:1360px;margin:0 auto}
+.bar{position:relative;height:16px;display:flex;background:#fff;border:1px solid var(--edge)}
+.seg{position:relative;height:100%;border-right:1px solid #fff}
+.seg::after{content:"";position:absolute;inset:0;background:var(--hatch)}
+.mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:2px 18px;margin-top:6px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.legend .k{display:inline-flex;align-items:center;gap:6px}
+.legend i{position:relative;display:inline-block;width:12px;height:12px}
+.legend i::after{content:"";position:absolute;inset:0;background:var(--hatch)}
+.legend b{color:var(--text);font-weight:700}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
+.tab{display:flex;align-items:center;gap:10px;border:1px solid var(--edge);padding:5px 12px 5px 5px;font-size:14px;background:#fff}
+.tab .n{font-family:var(--mono);font-size:12px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:var(--hover);color:var(--muted)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tab.on .n{background:#fff;color:var(--ink)}
+.callout{display:flex;gap:10px;background:var(--soft);padding:10px 14px;margin:8px 0;font-size:14px}
+.callout .ic{width:20px;flex:0 0 20px;height:20px;background:#e3e2de;color:#5f5e5b;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
+.panel{position:sticky;top:150px;max-height:calc(100vh - 160px);overflow:auto;border:1px solid var(--edge);padding:16px 18px;background:#fff}
+.panel hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{position:relative;border:1px solid var(--edge);padding:12px 14px 12px 18px;background:#fff;display:flex;flex-direction:column;gap:6px;min-height:170px}
+.card:hover{border-color:var(--ink)}
+.card.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
+.card.off{color:var(--faint)}
+.card.off .ti,.card.off .pts{color:var(--faint)}
+.card .stripe{position:absolute;left:-1px;top:-1px;bottom:-1px;width:5px}
+.card .stripe::after{content:"";position:absolute;inset:0;background:var(--hatch)}
+.card .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card .pts{font-family:var(--titel);font-weight:800;font-size:16px;white-space:nowrap}
+.card .ti{font-family:var(--titel);font-weight:700;font-size:15px;line-height:1.25}
+.card .tx{font-size:14px}
+.card .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:6px}
+.cost{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.why{font-size:12.5px;color:var(--muted);font-style:italic}
+details{font-size:13px;color:var(--text)}
+details p{margin:6px 0 0}
+summary{cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.vote{border-top:1px solid var(--line);padding:12px 0}
+.vote:first-of-type{border-top:0}
+.chance{font-family:var(--titel);font-weight:800;font-size:22px}
+.cbar{height:9px;background:var(--g5);margin:4px 0 8px;position:relative}
+.cbar i{display:block;height:100%;background:var(--g2);position:relative}
+.cbar i::after{content:"";position:absolute;inset:0;background:var(--hatch)}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.res{font-family:var(--titel);font-weight:800}
+.boxes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:10px 0 18px}
+.ibox{border:1px solid var(--edge);padding:12px 14px}
+.ibox .v{font-family:var(--titel);font-weight:800;font-size:28px;line-height:1.15}
+.figs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fig{border:1px solid var(--edge);padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:flex-start;background:#fff}
 .fig:hover{border-color:var(--ink)}
-.top{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0 12px;z-index:5}
-.row{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
-.big{font-family:Inconsolata,monospace;font-size:46px;font-weight:700;line-height:1}
-.res{font-family:Inconsolata,monospace;font-size:18px}
-.bar{position:relative;height:26px;border:1px solid var(--ink);margin:8px 0 4px;display:flex;background:var(--bg)}
-.seg{height:100%;border-right:1px solid var(--bg)}
-.mark{position:absolute;top:-6px;bottom:-6px;width:2px;background:#c00}
-.px{image-rendering:pixelated;image-rendering:crisp-edges;vertical-align:middle}
-.ic{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
-.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px}
-.sw{display:inline-block;width:10px;height:10px;border:1px solid var(--ink);margin-right:4px;vertical-align:-1px}
-.card{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
-.card.off{opacity:.55}
-.card.on{border-color:var(--ink);border-width:2px;padding:13px 15px}
-.tag{font-size:12px;border:1px solid var(--line);border-radius:10px;padding:0 7px;color:var(--mid);white-space:nowrap}
-.eff{font-family:Inconsolata,monospace;font-weight:700;font-size:16px}
-details{grid-column:1/-1;font-size:13.5px;color:#333}
-summary{cursor:pointer;color:var(--mid);font-size:13px}
-.why{grid-column:1/-1;font-size:13px;color:var(--mid)}
+.fig.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
+.fig .im{flex:0 0 auto;background:var(--soft);padding:6px}
+section{margin-bottom:32px}
+.sec{margin:26px 0 10px}
 table{border-collapse:collapse;width:100%;font-size:14px}
-td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
-td.n,th.n{text-align:right;font-family:Inconsolata,monospace}
-.steps{font-size:13px;color:var(--mid)}
-.steps b{color:var(--ink)}
-.cost{font-family:Inconsolata,monospace;white-space:nowrap}
-.hint{font-size:13px;color:var(--mid)}
+td,th{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+tr.sum td{font-weight:700;border-top:1px solid var(--ink)}
+.foot{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--edge);padding:10px 0;display:flex;gap:12px;align-items:center;margin-top:14px}
+.code{font-family:var(--mono);font-size:44px;font-weight:700;letter-spacing:.2em}
+input.codein{font:700 18px var(--mono);width:7em;text-transform:uppercase;padding:5px 8px;border:1px solid var(--edge);border-radius:0;background:var(--soft)}
+.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.panel{position:static;max-height:none}.top-in{grid-template-columns:1fr}.stats{justify-content:flex-start}.cards{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -470,8 +534,7 @@ const ICK={"Mobilität":"mobil","Wohnen":"wohnen","Ernährung":"ernaehrung","Kon
 const AREAK={I:"mobil",W:"wohnen",N:"ernaehrung",C:"konsum"};
 function ico(k,s=16){return `<img class="px" src="${(FARBE?SPR.icoc:SPR.ico)[k]}" width="${s}" height="${s}" alt="">`}
 function figImg(f,sc=4){return `<img class="px" src="${(FARBE?SPR.figc:SPR.fig)[f]}" width="${17*sc}" height="${22*sc}" alt="${f}">`}
-const HZ=n=>`<span class="ic">${ico("herz")}<span class="num">${n}</span></span>`;
-const GD=n=>`<span class="ic">${ico("geld")}<span class="num">${n}</span></span>`;
+
 const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
 let PER=[],LAST=3;
 function setMode(m){PER=MODES[m].map(([a,b])=>({a,b,l:a+" bis "+b}));LAST=PER.length-1;}
@@ -668,90 +731,110 @@ function nextRound(){
 }
 
 /* ---------- Ansicht ---------- */
-function barHTML(v,big){
- const c=bycat(v),t=tot(v),W=13.5;
- let segs=CATS.map((x,i)=>`<div class="seg" title="${x}: ${fmt(c[x])} t" style="width:${c[x]/W*100}%;background:${SHADE[i]}"></div>`).join("");
+const AREAN={I:"Mobilität",W:"Wohnen",N:"Ernährung",C:"Konsum"};
+const GSH=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)"];
+const AREASH={I:GSH[0],W:GSH[1],N:GSH[2],C:GSH[3]};
+const CATSHORT={"Mobilität":"Mobilität","Wohnen":"Wohnen","Ernährung":"Ernährung","Konsum und Freizeit":"Konsum","Öffentliche Leistungen":"Öffentlich"};
+function pips(n,max=3){let s="";for(let i=0;i<Math.max(max,n);i++)s+=`<i class="${i<n?"f":""}"></i>`;return `<div class="pips">${s}</div>`}
+function barHTML(v){
+ const c=bycat(v),W=13.5;
+ const segs=CATS.map((x,i)=>`<div class="seg" title="${x}: ${fmt(c[x])} t" style="width:${c[x]/W*100}%;background:${GSH[i]}"></div>`).join("");
  return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>
- <div class="legend">${CATS.map((x,i)=>`<span class="ic"><span class="sw" style="background:${SHADE[i]}"></span>${ico(ICK[x],14)} ${x} <span class="num">${fmt(c[x])}</span></span>`).join("")}<span style="color:#c00">| Ziel 0.6 t</span></div>`;
+ <div class="legend">${CATS.map((x,i)=>`<span class="k"><i style="background:${GSH[i]}"></i>${CATSHORT[x]} <b>${fmt(c[x])}</b></span>`).join("")}<span class="k">▏Ziel <b>0.6</b></span></div>`;
 }
 function header(){
  const p=PER[S.r],y=p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),so=S.r?sum(2026,y-1,ACT):0;
- const hl=freeH();
- return `<div class="top">
- <div class="row">${figImg(S.fig,2)}<b style="font-family:Montserrat">${S.fig}${G?" ("+G.myColor()+")":""}</b>${G?`<span class="tag">Raum ${G.code}</span>`:""}<span class="muted">Runde ${S.r+1} von ${PER.length} · ${p.l}</span>
- <span class="steps">${["Eigene Entscheide und Abstimmungssonntag","Ereignis"].map((s,i)=>(i==({round:0,event:1}[S.screen]))?`<b>${s}</b>`:s).join(" → ")}</span></div>
- <div class="row" style="margin-top:6px"><span class="big">${fmt(a)} t</span><span class="muted">pro Jahr ab ${y}</span>
- <span style="margin-left:auto" class="res">${HZ(hl)} &nbsp; ${GD(S.money)}</span></div>
- ${barHTML(v)}
- <div class="row hint" style="margin-top:4px"><span>Ohne dein Zutun (nur Trend): <span class="num">${fmt(n)} t</span></span>
- <span>Summe seit 2026 bisher: <span class="num">${fmt(so,0)} t</span></span></div></div>`;
+ return `<div class="top"><div class="top-in">
+ <div class="who">${figImg(S.fig,2)}<div><div class="kick">13 Tonnen · Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
+ <div class="stats">
+  <div class="st big"><div class="lbl">Fussabdruck ${y}</div><div class="v">${fmt(a)} t</div><div class="s">pro Jahr</div></div>
+  <div class="st"><div class="lbl">Ohne dein Zutun</div><div class="v">${fmt(n)} t</div><div class="s">nur Trend</div></div>
+  <div class="st"><div class="lbl">Summe seit 2026</div><div class="v">${S.r?fmt(so,0)+" t":"–"}</div><div class="s">${S.r?"bis "+(y-1):"noch keine"}</div></div>
+  <div class="st"><div class="lbl">Herzen</div><div class="v">${freeH()}</div>${pips(freeH())}</div>
+  <div class="st"><div class="lbl">Geld</div><div class="v">${S.money}</div><div class="s">nimmst du mit</div></div>
+ </div></div><div class="barbox">${barHTML(v)}</div></div>`;
 }
+function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<div class="tab" style="padding-left:12px;border-style:dashed">${PER[S.r].l}</div></div>`}
+const HZ=n=>`${n} ${n==1||n=="1"?"Herz":"Herzen"}`;
+const GD=n=>`${n} Geld`;
+function details(t){return `<details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details>`}
 function cardHTML(id){
  const t=T[id],b=blocked(id),on=S.chosen[id]!==undefined,mine=S.thisRound.includes(id);
  const e=effOwn(id),h=costH(id),g=costG(id);
- const gtxt=g<0?`${GD("+2")} zurück`:GD(g);
- let btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="tag">seit ${S.chosen[id]}</span>`)
-  :`<button class="small" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
- const banned=fig().ban.includes(id);
- return `<div class="box card ${on?"on":""} ${b&&!on?"off":""}">
- <div><h3 style="margin:0">${ico(AREAK[id[0]])} ${esc(t.title)} <span class="tag">${strat(id)}</span></h3>
- <div>${esc(t.front)}</div></div>
- <div style="text-align:right"><div class="eff">${banned?"":sgn(-e)+" t/Jahr"}</div>
- <div class="cost">${banned?"":HZ(h)+" · "+gtxt}</div><div style="margin-top:4px">${btn}</div></div>
+ const gtxt=g<0?"2 Geld zurück":GD(g);
+ const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
+  :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
+ return `<div class="card ${on?"on":""} ${b&&!on?"off":""}"><span class="stripe" style="background:${AREASH[id[0]]}"></span>
+ <div class="hd"><span class="lbl">${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e)} t</span></div>
+ <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
- <details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;
+ ${details(t)}
+ <div class="ft"><span class="cost">${HZ(h)} · ${gtxt}</span>${btn}</div></div>`;
 }
-function vEff(k){const y=vorlFrom(S.r);
- return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
-function viewStart(){
- return `<h1>13 Tonnen</h1><p class="muted">Prototyp. Allein oder in der Gruppe, kurz mit 4 Runden oder lang mit 8.</p>
- <div class="box soft"><p><b>Worum es geht.</b> Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr. Damit das Klima stabil bleibt, dürften es 0.6 Tonnen sein. Du übernimmst eine Figur und versuchst, ihren Fussabdruck bis 2050 so weit wie möglich zu senken.</p>
- <p><b>Herzen und Geld.</b> In jeder Runde bekommst du 3 Herzen. Geld hast du zu Beginn etwas und bekommst pro Runde wenig dazu; jede Figur anders. Herzen stehen für Aufwand und Verzicht und verfallen am Ende der Runde. Geld steht für Anschaffungen und Kampagnen; was du nicht ausgibst, nimmst du mit. Wer das Auto abgibt, kleiner wohnt oder weniger kauft, bekommt einmalig 2 Geld zurück.</p>
- <p><b>Eine Runde hat zwei Teile.</b> 1. Eigene Entscheide und Abstimmungssonntag auf einer Seite: Du bekommst eine Auswahl von 6 Karten aus allen Bereichen. Jede Karte, die du wählst, gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen, jede mit kleiner Grundchance. Du entscheidest selbst, wie du deine Herzen zwischen Karten und Engagement aufteilst. Jedes Herz fürs Engagement erhöht die Chance um 30 Prozentpunkte. Mit 2 Geld kannst du zusätzlich eine Kampagne unterstützen (+15 Prozentpunkte). Angenommene Vorlagen wirken ab der nächsten Runde für alle. Abgelehnte Vorlagen können später wieder kommen. 2. Ereignis: Etwas passiert, das du nicht planen konntest.</p>
- <p><b>Die Welt ändert sich auch ohne dich.</b> Alte Autos und Heizungen werden ersetzt, der Strom wird sauberer: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</p></div>
- <h2>Kurz oder lang?</h2><div class="row"><label><input type="radio" name="mode" ${S.mode=="kurz"?"checked":""} onchange="S.mode='kurz';setMode('kurz');render()"> Kurz: 4 Runden</label><label><input type="radio" name="mode" ${S.mode=="lang"?"checked":""} onchange="S.mode='lang';setMode('lang');render()"> Lang: 8 Runden zu je 3 Jahren</label></div>
- <h2>In der Gruppe spielen</h2><div class="box"><p>Jede Person spielt auf ihrem eigenen Gerät eine eigene Figur. Beim Abstimmungssonntag zählen die Herzen der ganzen Gruppe. Niemand gibt einen Namen ein.</p>
- <div class="row"><button class="primary" onclick="Group.create()">Raum eröffnen</button><span class="muted">oder</span>
- <input id="code" maxlength="5" placeholder="Code" style="font:700 18px Inconsolata,monospace;width:7em;text-transform:uppercase;padding:6px;border:1px solid var(--ink);border-radius:6px">
- <button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div>
- ${S.netErr?`<p style="color:#c00">${esc0(S.netErr)}</p>`:""}</div>
- <h2>Allein spielen: wähle deine Figur</h2><div class="grid figs">${Object.keys(M.FIG).map(f=>`<div class="box fig" onclick="startFig('${f}')"><div class="row" style="align-items:center">${figImg(f,3)}<h3 style="margin:0">${f}</h3></div><div>${esc(M.FIG[f].life)}</div><div class="hint" style="margin-top:6px">Start 12.8 t · Startgeld ${M.START[f]} · Geld ${incText(f)}</div></div>`).join("")}</div><p class="hint" style="margin-top:28px">Figuren und Symbole teilweise aus «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Herz, Haus, Auto, Tasche und Gebäude: eigene Zeichnungen im gleichen Stil.</p>`;
+function vEff(k){const y=vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
+function ballotHTML(){
+ let h=`<div class="lbl">Abstimmungssonntag</div><h3 style="margin:2px 0 6px">Zwei Vorlagen</h3>
+ <p class="hint">${G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz bringt +30 Prozentpunkte, eine Kampagne (2 Geld) +15.`} Angenommen wirkt ab ${vorlFrom(S.r)}.</p>`;
+ for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k),c=chance(k);
+  h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${strat(k)} · ${sgn(-vEff(k),2)} t für dich</span></div>
+  <div class="ti" style="font-family:var(--titel);font-weight:700">${esc(t.title)}</div><div class="tx" style="font-size:14px">${esc(t.front)}</div>
+  <div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl">Chance</span><span class="chance">${c} %</span></div>
+  <div class="cbar"><i style="width:${c}%"></i></div>
+  ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
+  ${S.results?`<div class="res" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
+  `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
+   <label class="hint" style="margin-left:auto"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&S.money<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne, 2 Geld</label></div>`}
+  ${details(t)}</div>`;}
+ return h;
 }
 function viewRound(){
- let h=header();
- if(S.roundNote&&S.roundNote.length)h+=`<div class="box soft">${S.roundNote.join("<br>")}</div>`;
+ let L="",P="";
+ if(S.roundNote&&S.roundNote.length)L+=S.roundNote.map(x=>`<div class="callout"><span class="ic">!</span><span>${x}</span></div>`).join("");
  if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
-  h+=`<div class="box"><b>Seit der letzten Runde:</b> <span class="num">${sgn(d)} t</span> pro Jahr. Davon Trend <span class="num">${sgn(dt)}</span>, Vorlagen <span class="num">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="num">${sgn(d-dt-dv)}</span>.</div>`;}
- h+=`<h2>Deine Auswahl in dieser Runde</h2><p class="hint">${S.hand.length} Karten aus allen Bereichen. Was du nicht nimmst, kann in einer späteren Runde wieder auftauchen.</p>`;
- h+=S.hand.map(cardHTML).join("");
+  L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
+ L+=`<div class="sec"><h2>Deine Auswahl</h2><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
+ <div class="cards">${S.hand.map(cardHTML).join("")}</div>`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
- if(old.length)h+=`<h2>Deine Vorsätze bisher</h2><div class="box">${old.map(k=>`<div class="row"><span>${esc(T[k].title)}</span><span class="hint">seit ${S.chosen[k]}</span><span class="num" style="margin-left:auto">${sgn(-effOwn(k))} t/Jahr</span></div>`).join("")}</div>`;
- h+=ballotHTML();
- h+=S.results?`<div class="box soft row" style="position:sticky;bottom:0"><span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide für diese Runde stehen fest.</span><button class="primary" style="margin-left:auto" onclick="toEvent()">Weiter zum Ereignis</button></div>`
- :S.waiting?`<div class="box soft row" style="position:sticky;bottom:0"><span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button style="margin-left:auto" onclick="G.unready()">Doch noch ändern</button></div>`
- :`<div class="box soft row" style="position:sticky;bottom:0"><span>Übrig: ${HZ(freeH())} · ${GD(S.money)}. Herzen verfallen am Ende der Runde.</span><button class="primary" style="margin-left:auto" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button></div>`;
- return h;
-}
-function ballotHTML(){
- let h=`<h2>Abstimmungssonntag</h2><p class="hint">Verteile deine Herzen zwischen eigenen Karten und Engagement: Unterschriften sammeln, Leserbriefe, Gespräche. ${G?`Ihr seid ${G.n()} in der Gruppe: Jedes Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne mit 2 Geld +${fmt(SPENDEP/G.n(),0)}. Es zählen die Herzen und Kampagnen aller.`:`Jedes Herz bringt +30 Prozentpunkte. Mit 2 Geld kannst du zusätzlich eine Kampagne unterstützen: +15 Prozentpunkte.`} Angenommen wirkt die Vorlage ab ${vorlFrom(S.r)}.</p>`;
- for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k);
-  h+=`<div class="box card"><div><h3 style="margin:0">${esc(t.title)} <span class="tag">${strat(k)}</span></h3><div>${esc(t.front)}</div></div>
-  <div style="text-align:right"><div class="eff">${sgn(-vEff(k),2)} t/Jahr</div><div class="hint">für dich ab ${vorlFrom(S.r)}</div>
-  <div class="res" style="margin-top:6px">Chance ${chance(k)} %</div>${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · Kampagnen ${G.totals(k).d}</div>`:""}
-  ${S.results?`<div style="margin-top:6px"><b>${r.ok?"Angenommen":"Abgelehnt"}</b> <span class="hint">(Wurf ${r.roll})</span></div>`:
-  `<div style="margin-top:6px"><button class="small" onclick="alloc('${k}',-1)">−</button> ${HZ(S.alloc[k])} <button class="small" onclick="alloc('${k}',1)">+</button></div>
-  <div style="margin-top:6px"><label class="hint"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&S.money<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne mit ${SPENDE} Geld unterstützen (+${G?fmt(SPENDEP/G.n(),0):SPENDEP} %)</label></div>`}</div>
-  <details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;}
- return h;
+ if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
+ P=ballotHTML();
+ P+=`<hr>`+(S.results?`<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p><button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
+ :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
+ :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. Herzen verfallen am Ende der Runde.</p><button class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
+ return header()+`<div class="wrap">${tabs(0)}<div class="layout"><div>${L}</div><aside class="panel">${P}</aside></div></div>`;
 }
 function viewEvent(){
- let h=header()+`<h2>Ereignis</h2>`;
- if(S.event=="ruhig")h+=`<div class="box"><h3>Ein ruhiges Jahr</h3><p>Nichts Besonderes passiert. Deine Vorsätze halten.</p></div>`;
- else{const t=T[S.event];h+=`<div class="box"><h3>${esc(t.title)}</h3><p>${esc(t.front||"")}</p><p class="hint">${esc(t.head.replace(/^ · /,""))}</p>${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}<p class="hint">${esc(t.back)}</p></div>`;
-  if(S.event=="E1")h+=`<p class="hint">Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</p>`;}
- h+=`<div class="box soft row"><span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" style="margin-left:auto" onclick="nextRound()">${S.r<LAST?"Weiter":"Zur Auswertung"}</button></div>`;
- return h;
+ let h="";
+ if(S.event=="ruhig")h=`<div class="lbl">Ereignis</div><h2>Ein ruhiges Jahr</h2><p class="sub">Nichts Besonderes passiert. Deine Vorsätze halten.</p>`;
+ else{const t=T[S.event];h=`<div class="lbl">Ereignis · ${esc(t.head.replace(/^ · /,""))}</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${esc(t.front||"")}</p>${t.game?`<div class="callout"><span class="ic">!</span><span>${esc(t.game)}</span></div>`:""}<p class="hint">${esc(t.back)}</p>`;
+  if(S.event=="E1")h+=`<div class="callout"><span class="ic">!</span><span>Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</span></div>`;}
+ return header()+`<div class="wrap">${tabs(1)}<div class="ibox" style="max-width:760px;padding:20px 22px">${h}</div>
+ <div class="row" style="margin-top:16px"><span class="hint">${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" onclick="nextRound()">${S.r<LAST?"Weiter":"Zur Auswertung"}</button></div></div>`;
+}
+function rulesHTML(){
+ return `<div class="boxes">
+ <div class="ibox"><div class="lbl">Start</div><div class="v">12.8 t</div><div class="hint">pro Person und Jahr, Schweizer Durchschnitt</div></div>
+ <div class="ibox"><div class="lbl">Ziel</div><div class="v">0.6 t</div><div class="hint">damit das Klima stabil bleibt</div></div>
+ <div class="ibox"><div class="lbl">Pro Runde</div><div class="v">3 Herzen</div><div class="hint">für Aufwand und Verzicht, verfallen am Rundenende</div></div>
+ <div class="ibox"><div class="lbl">Geld</div><div class="v">wenig</div><div class="hint">für Anschaffungen und Kampagnen, bleibt dir</div></div></div>
+ <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 6 Karten. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
+ <div class="callout"><span class="ic">2</span><span><b>Ereignis.</b> Etwas passiert, das du nicht planen konntest.</span></div>
+ <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
+}
+function figCard(f,onclick,on){return `<div class="fig ${on?"on":""}" onclick="${onclick}"><div class="im">${figImg(f,3)}</div><div><h3>${f}</h3><div style="font-size:14px">${esc(M.FIG[f].life)}</div><div class="lbl" style="margin-top:6px">Startgeld ${M.START[f]} · Geld ${incText(f)}</div></div></div>`}
+function viewStart(){
+ return `<div class="wrap"><div class="lbl">KKN4.02 Klimawandel · Spiel</div><h1 style="margin:4px 0 8px">13 Tonnen</h1>
+ <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr. Du übernimmst eine Figur und versuchst, ihren Fussabdruck bis 2050 so weit wie möglich zu senken: mit eigenen Entscheiden und mit Engagement für Vorlagen.</p>
+ ${rulesHTML()}
+ <div class="sec"><h2>Version</h2></div><div class="tabs">
+  <label class="tab ${S.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='kurz';setMode('kurz');render()"><span class="n">4</span>Kurz: 4 Runden</label>
+  <label class="tab ${S.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='lang';setMode('lang');render()"><span class="n">8</span>Lang: 8 Runden zu 3 Jahren</label></div>
+ <div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Jede Person spielt auf ihrem Gerät eine eigene Figur. Beim Abstimmungssonntag zählen die Herzen der ganzen Gruppe. Niemand gibt einen Namen ein.</p></div>
+ <div class="row"><button class="primary" onclick="Group.create()">Raum eröffnen</button><span class="lbl">oder</span><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div>
+ ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
+ <div class="sec"><h2>Allein spielen</h2><p class="sub">Wähle deine Figur. Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht.</p></div>
+ <div class="figs">${Object.keys(M.FIG).map(f=>figCard(f,`startFig('${f}')`,false)).join("")}</div>
+ <p class="hint" style="margin-top:28px">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert.</p></div>`;
 }
 function viewEnd(){
  if(G)G.finish();
@@ -760,23 +843,28 @@ function viewEnd(){
  const own=Object.keys(S.chosen).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
  const pol=Object.keys(S.adopted).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
  const ch=(no-vo)*9, chS=(sN-sV)*9;
- let h=`<div class="row" style="align-items:center">${figImg(S.fig,3)}<h1 style="margin:0">Auswertung: ${S.fig}</h1></div>
- <div class="box"><div class="row"><span class="big">${fmt(a)} t</span><span class="muted">pro Jahr im Jahr 2050</span><span style="margin-left:auto" class="res">Summe 2026 bis 2050: ${fmt(sA,0)} t · übriges Geld ${S.money}</span></div>${barHTML(subs(Y,ACT))}</div>
- <table><tr><th></th><th class="n">2050 pro Jahr</th><th class="n">Summe 2026 bis 2050</th></tr>
+ return `<div class="wrap"><div class="who">${figImg(S.fig,3)}<div><div class="lbl">Auswertung</div><h1>${S.fig} im Jahr 2050</h1></div></div>
+ <div class="boxes" style="margin-top:18px">
+  <div class="ibox" style="border-color:var(--ink)"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div><div class="hint">pro Jahr, Ziel 0.6 t</div></div>
+  <div class="ibox"><div class="lbl">Summe 2026 bis 2050</div><div class="v">${fmt(sA,0)} t</div><div class="hint">ohne Änderung wären es ${fmt(s0,0)} t</div></div>
+  <div class="ibox"><div class="lbl">Ohne eigene Karten</div><div class="v">${fmt(vo)} t</div><div class="hint">nur Trend und angenommene Vorlagen</div></div>
+  <div class="ibox"><div class="lbl">Schweiz, 9 Mio.</div><div class="v">${fmt(ch)} Mio. t</div><div class="hint">weniger pro Jahr dank Vorlagen</div></div></div>
+ ${barHTML(subs(Y,ACT))}
+ <div class="sec"><h2>Woher die Veränderung kommt</h2></div>
+ <table><tr><th></th><th class="n">2050 pro Jahr</th><th class="n">Summe bis 2050</th></tr>
  <tr><td>Start: alles bleibt wie 2026</td><td class="n">${fmt(START)}</td><td class="n">${fmt(s0,0)}</td></tr>
- <tr><td>Trend (die Welt ändert sich auch ohne dich)</td><td class="n">${sgn(no-START)}</td><td class="n">${sgn(sN-s0,0)}</td></tr>
+ <tr><td>Trend: die Welt ändert sich auch ohne dich</td><td class="n">${sgn(no-START)}</td><td class="n">${sgn(sN-s0,0)}</td></tr>
  <tr><td>Angenommene Vorlagen</td><td class="n">${sgn(vo-no)}</td><td class="n">${sgn(sV-sN,0)}</td></tr>
  <tr><td>Deine eigenen Entscheide und Ereignisse</td><td class="n">${sgn(a-vo)}</td><td class="n">${sgn(sA-sV,0)}</td></tr>
- <tr><th>Du</th><th class="n">${fmt(a)}</th><th class="n">${fmt(sA,0)}</th></tr></table>
- <div class="box soft"><b>Eine Person, die selbst nichts geändert hat,</b> stünde 2050 bei <span class="num">${fmt(vo)} t</span> (Summe <span class="num">${fmt(sV,0)} t</span>). Sie ist nur vom Trend und von den angenommenen Vorlagen betroffen.</div>
- <div class="box"><b>Für die ganze Schweiz</b> (9 Mio. Menschen) bringen die angenommenen Vorlagen 2050 <span class="num">${fmt(ch)} Mio. t</span> weniger pro Jahr, über alle Jahre zusammen <span class="num">${fmt(chS,0)} Mio. t</span>.</div>
- <h2>Deine grössten Hebel</h2><p class="hint">Notiere beide mit der Zahl in Tonnen. Du brauchst sie für Auftrag 4.3.</p>
- <div class="box"><b>Eigener Hebel:</b> ${own.length?`${esc(T[own[0].id].title)}, <span class="num">${sgn(-own[0].d)} t</span> pro Jahr im Jahr 2050`:"keine eigene Karte gewählt"}<br>
- <b>Politischer Hebel:</b> ${pol.length?`${esc(T[pol[0].id].title)}, <span class="num">${sgn(-pol[0].d)} t</span> pro Jahr im Jahr 2050`:"keine Vorlage angenommen"}</div>
- <h2>Verlauf</h2><table><tr><th>Runde</th><th>Karten</th><th>Engagement</th><th>Abstimmungen</th><th>Ereignis</th></tr>
- ${S.log.map(l=>`<tr><td>${PER[l.r].l}</td><td>${l.cards.map(c=>esc(T[c].title)).join(", ")||"–"}</td><td class="n">${HZ(l.hearts)}${l.don?" · "+GD(l.don):""}</td><td>${l.votes.map(v=>esc(T[v.k].title)+(v.ok?" ✓":" ✗")).join("<br>")}</td><td>${l.event=="ruhig"?"ruhig":esc(T[l.event].title)}</td></tr>`).join("")}</table>
- ${G?G.endTable():""}<p style="margin-top:20px"><button class="primary" onclick="if(G)G.leave();fresh();render()">Neues Spiel</button></p>`;
- return h;
+ <tr class="sum"><td>Du</td><td class="n">${fmt(a)}</td><td class="n">${fmt(sA,0)}</td></tr></table>
+ <p class="hint" style="margin-top:8px">Über alle Jahre bringen die angenommenen Vorlagen der Schweiz ${fmt(chS,0)} Mio. t weniger.</p>
+ <div class="sec"><h2>Deine grössten Hebel</h2><p class="sub">Notiere beide mit der Zahl in Tonnen. Du brauchst sie für Auftrag 4.3.</p></div>
+ <div class="boxes">
+  <div class="ibox"><div class="lbl">Eigener Hebel</div><div class="v">${own.length?sgn(-own[0].d)+" t":"–"}</div><div>${own.length?esc(T[own[0].id].title):"keine eigene Karte gewählt"}</div></div>
+  <div class="ibox"><div class="lbl">Politischer Hebel</div><div class="v">${pol.length?sgn(-pol[0].d)+" t":"–"}</div><div>${pol.length?esc(T[pol[0].id].title):"keine Vorlage angenommen"}</div></div></div>
+ <div class="sec"><h2>Verlauf</h2></div><table><tr><th>Runde</th><th>Karten</th><th>Engagement</th><th>Abstimmungen</th><th>Ereignis</th></tr>
+ ${S.log.map(l=>`<tr><td class="mono">${PER[l.r].l}</td><td>${l.cards.map(c=>esc(T[c].title)).join(", ")||"–"}</td><td class="mono">${HZ(l.hearts)}${l.don?", "+GD(l.don):""}</td><td>${l.votes.map(v=>esc(T[v.k].title)+(v.ok?" ✓":" ✗")).join("<br>")}</td><td>${l.event=="ruhig"?"ruhig":esc(T[l.event].title)}</td></tr>`).join("")}</table>
+ ${G?G.endTable():""}<div class="row" style="margin-top:22px"><button class="primary" onclick="if(G)G.leave();fresh();render()">Neues Spiel</button><span class="hint">übriges Geld: ${S.money}</span></div></div>`;
 }
 function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
@@ -855,16 +943,18 @@ const Group={
   await NET.update("rooms/"+G.code,{status:"play",n:ps.length,ballot0:pickBallot({},[])});
  },
  viewLobby(){
-  if(!ROOM)return `<p>Verbinde …</p>`;
+  if(!ROOM)return `<div class="wrap"><p>Verbinde …</p></div>`;
   const ps=G.players(),me=ROOM.players[NET.uid]||{},host=ROOM.host===NET.uid;
   const ready=ps.length>=1&&ps.every(p=>p.fig);
-  return `<h1>13 Tonnen · Gruppenspiel</h1>
-  <div class="box"><div class="hint">Raumcode für die anderen</div><div class="big" style="letter-spacing:.15em">${G.code}</div></div>
-  <h2>Version</h2><p>${host?`<label><input type="radio" name="gm" ${ROOM.mode=="kurz"?"checked":""} onchange="Group.setMode('kurz')"> Kurz: 4 Runden</label> &nbsp; <label><input type="radio" name="gm" ${ROOM.mode=="lang"?"checked":""} onchange="Group.setMode('lang')"> Lang: 8 Runden</label>`:(ROOM.mode=="lang"?"Lang: 8 Runden":"Kurz: 4 Runden")+` <span class="hint">(wählt, wer den Raum eröffnet hat)</span>`}</p>
-  <h2>Mitspielende</h2><table><tr><th>Farbe</th><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.color}${p.uid===NET.uid?" (du)":""}</td><td>${p.fig?figImg(p.fig,1)+" "+p.fig:"<span class='hint'>wählt noch</span>"}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
-  <h2>Deine Figur</h2><div class="grid figs">${Object.keys(M.FIG).map(f=>`<div class="box fig" style="${me.fig==f?"border:2px solid var(--ink)":""}" onclick="Group.pickFig('${f}')"><div class="row" style="align-items:center">${figImg(f,3)}<h3 style="margin:0">${f}</h3></div><div>${esc(M.FIG[f].life)}</div><div class="hint" style="margin-top:6px">Startgeld ${M.START[f]} · Geld ${incText(f)}</div></div>`).join("")}</div>
-  <p style="margin-top:16px">${host?`<button class="primary" ${ready?"":"disabled"} onclick="Group.start()">Spiel starten (${ps.length} ${ps.length==1?"Person":"Personen"})</button> <span class="hint">Starten geht, sobald alle eine Figur gewählt haben.</span>`:`<span class="hint">Warten, bis das Spiel gestartet wird …</span>`}
-  <button style="margin-left:8px" onclick="G.leave();fresh();render()">Raum verlassen</button></p>`;
+  return `<div class="wrap"><div class="lbl">13 Tonnen · Gruppenspiel</div><h1 style="margin:4px 0 14px">Raum ${G.code}</h1>
+  <div class="boxes"><div class="ibox" style="border-color:var(--ink)"><div class="lbl">Code für die anderen</div><div class="code">${G.code}</div></div>
+  <div class="ibox"><div class="lbl">Version</div>${host?`<div class="tabs" style="margin:8px 0 0">
+   <label class="tab ${ROOM.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('kurz')"><span class="n">4</span>Kurz</label>
+   <label class="tab ${ROOM.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('lang')"><span class="n">8</span>Lang</label></div>`:`<div class="v" style="font-family:var(--titel);font-weight:800;font-size:28px">${ROOM.mode=="lang"?"Lang":"Kurz"}</div><div class="hint">wählt, wer den Raum eröffnet hat</div>`}</div></div>
+  <div class="sec"><h2>Mitspielende</h2></div><table><tr><th>Farbe</th><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.color}${p.uid===NET.uid?" (du)":""}</td><td>${p.fig?`<span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}</span>`:"<span class='hint'>wählt noch</span>"}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
+  <div class="sec"><h2>Deine Figur</h2></div><div class="figs">${Object.keys(M.FIG).map(f=>figCard(f,`Group.pickFig('${f}')`,me.fig==f)).join("")}</div>
+  <div class="row" style="margin-top:18px">${host?`<button class="primary" ${ready?"":"disabled"} onclick="Group.start()">Spiel starten (${ps.length} ${ps.length==1?"Person":"Personen"})</button><span class="hint">Starten geht, sobald alle eine Figur gewählt haben.</span>`:`<span class="hint">Warten, bis das Spiel gestartet wird …</span>`}
+  <button onclick="G.leave();fresh();render()">Raum verlassen</button></div></div>`;
  }
 };
 
@@ -905,7 +995,7 @@ function makeG(code){
   endTable(){const ps=this.players();const vo=val(2050,VO);
    return `<h2>Eure Gruppe</h2><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
    <table><tr><th>Figur</th><th class="n">2050 pro Jahr</th><th class="n">davon eigene Entscheide</th><th class="n">Summe bis 2050</th><th class="n">Karten</th></tr>
-   ${ps.map(p=>`<tr><td>${figImg(p.fig,1)} ${p.fig} (${p.color})${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
+   ${ps.map(p=>`<tr><td><span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig} (${p.color})</span>${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
   leave(){if(UNWATCH)UNWATCH();UNWATCH=null;NET.update(this.path(),{online:false});G=null;ROOM=null;}
  };
 }
