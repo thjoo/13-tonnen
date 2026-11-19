@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 Tonnen Prototyp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111;--mid:#666;--line:#d8d8d8;--soft:#f4f4f2;--bg:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Open Sans",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 18px 80px}
+h1,h2,h3{font-family:Montserrat,system-ui,sans-serif;font-weight:700;line-height:1.2;margin:0 0 .5em}
+h1{font-size:28px}h2{font-size:20px;margin-top:1.4em}h3{font-size:15px}
+.num{font-family:Inconsolata,ui-monospace,monospace}
+.muted{color:var(--mid)}
+.box{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:10px 0;background:var(--bg)}
+.soft{background:var(--soft)}
+button{font:600 14px "Open Sans",system-ui,sans-serif;border:1px solid var(--ink);background:var(--bg);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}
+button.primary{background:var(--ink);color:#fff}
+button:disabled{opacity:.35;cursor:default}
+button.small{padding:3px 10px;font-size:13px}
+.grid{display:grid;gap:10px}
+.figs{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.fig{cursor:pointer}
+.fig:hover{border-color:var(--ink)}
+.top{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0 12px;z-index:5}
+.row{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+.big{font-family:Inconsolata,monospace;font-size:46px;font-weight:700;line-height:1}
+.res{font-family:Inconsolata,monospace;font-size:18px}
+.bar{position:relative;height:26px;border:1px solid var(--ink);margin:8px 0 4px;display:flex;background:var(--bg)}
+.seg{height:100%;border-right:1px solid var(--bg)}
+.mark{position:absolute;top:-6px;bottom:-6px;width:2px;background:#c00}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px}
+.sw{display:inline-block;width:10px;height:10px;border:1px solid var(--ink);margin-right:4px;vertical-align:-1px}
+.card{display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.card.off{opacity:.55}
+.card.on{border-color:var(--ink);border-width:2px;padding:13px 15px}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:10px;padding:0 7px;color:var(--mid);white-space:nowrap}
+.eff{font-family:Inconsolata,monospace;font-weight:700;font-size:16px}
+details{grid-column:1/-1;font-size:13.5px;color:#333}
+summary{cursor:pointer;color:var(--mid);font-size:13px}
+.why{grid-column:1/-1;font-size:13px;color:var(--mid)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+td.n,th.n{text-align:right;font-family:Inconsolata,monospace}
+.steps{font-size:13px;color:var(--mid)}
+.steps b{color:var(--ink)}
+.cost{font-family:Inconsolata,monospace;white-space:nowrap}
+.hint{font-size:13px;color:var(--mid)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const T={
+ "I1a": {
+  "id": "I1a",
+  "title": "Halb so viel fliegen",
+  "head": " · −0.7 t pro Jahr · 1 Herz (Lia 2, Ruth 1) · Geld 0 · Suffizienz",
+  "front": "Ab jetzt lässt du jede zweite Flugreise weg.",
+  "back": "Flüge verursachen pro Person in der Schweiz rund 1.4 t pro Jahr, etwa ein Zehntel des ganzen Fussabdrucks (BAFU/EBP 2025). Zum Vergleich: Ein einziger Flug Zürich–New York und zurück sind je nach Rechner 1.9 bis 2.9 t (myclimate 2.3 t). Im Schnitt fliegt man also etwas mehr als eine solche Reise alle zwei Jahre.",
+  "game": "",
+  "why": ""
+ },
+ "I1b": {
+  "id": "I1b",
+  "title": "Gar nicht mehr fliegen",
+  "head": " · −1.4 t pro Jahr (−0.7 t, wenn I1a schon gilt) · 3 Herzen (Ruth 2) · Geld 0 · Suffizienz",
+  "front": "Ab jetzt reist du nur noch auf dem Landweg.",
+  "back": "Ein Zehntel des Fussabdrucks fällt weg. Das ist mehr als dreimal so viel, wie ein Wechsel auf vegetarische Ernährung bringt (0.4 t).",
+  "game": "",
+  "why": ""
+ },
+ "I2": {
+  "id": "I2",
+  "title": "Auto abgeben",
+  "head": " · −1.2 t pro Jahr · 2 Herzen (Lia 1, Noah 3) · Geld +2 · Suffizienz · nicht für Elif",
+  "front": "Du verkaufst dein Auto. Dafür kaufst du ein Abo für Bahn und Bus und ein gutes Velo.",
+  "back": "Im Schnitt fährt jede Person in der Schweiz rund 21 km pro Tag im Auto (Mikrozensus Mobilität 2021). Das gibt rund 1.3 t pro Jahr; der ÖV kommt für die gleichen Wege auf rund 0.1 t. Zum Vergleich: 10 000 km allein im Benzinauto verursachen rund 2.6 t, die Herstellung eingerechnet (Nos Gestes Climat); das ist 40 Mal Zürich–Bern und zurück.",
+  "game": "",
+  "why": ""
+ },
+ "I3": {
+  "id": "I3",
+  "title": "Aufs E-Auto umsteigen",
+  "head": " · −0.9 t pro Jahr · 0 Herzen (Noah 1) · Geld 4 (3, wenn K1 angenommen ist) · Konsistenz · nicht für Elif",
+  "front": "Du ersetzt dein Benzinauto durch ein Elektroauto. Du fährst gleich viel wie vorher.",
+  "back": "Ein E-Auto kommt mit Schweizer Strom auf rund einen Drittel der Emissionen eines Benzinautos; der grösste Teil davon ist die Herstellung, vor allem der Batterie (Nos Gestes Climat). Fehlvorstellung: «Ein E-Auto ist klimaneutral.» Es ist besser, aber nicht null.",
+  "game": "",
+  "why": ""
+ },
+ "I4": {
+  "id": "I4",
+  "title": "Fahrgemeinschaft",
+  "head": " · −0.6 t pro Jahr · 1 Herz (Noah 2) · Geld 0 · Effizienz · nicht für Elif",
+  "front": "Für den Arbeitsweg und regelmässige Fahrten nimmst du jemanden mit oder fährst bei jemandem mit. Ihr wechselt euch ab.",
+  "back": "Zwei Personen im gleichen Auto teilen sich die Emissionen. Dein Anteil am Auto halbiert sich ungefähr.",
+  "game": "",
+  "why": ""
+ },
+ "K1": {
+  "id": "K1",
+  "title": "Neue Autos nur noch elektrisch",
+  "head": " · −0.9 t für alle · Chance 14 % · Konsistenz",
+  "front": "Ab 2035 dürfen in der Schweiz nur noch Autos ohne Auspuff neu verkauft werden.",
+  "back": "Bis 2050 ist die ganze Autoflotte ersetzt. Ein E-Auto verursacht mit Schweizer Strom rund einen Drittel eines Benzinautos (Nos Gestes Climat), darum fallen rund zwei Drittel der Auto-Emissionen weg. Die ZHAW rechnet schon bis 2030 mit 5.8 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Die 0.9 t bis 2050 sind eine Modellannahme.",
+  "game": "I3 (E-Auto) kostet danach 1 Geld weniger. Die EU hat eine solche Regel beschlossen, die Schweiz nicht (**Beleg EU noch einsetzen**).",
+  "why": "Warum 14 %? Ein Verbot ist an der Urne schwieriger als ein Anreiz; in der Schweiz gab es dazu noch keine Abstimmung."
+ },
+ "K6": {
+  "id": "K6",
+  "title": "Flugticketabgabe mit Rückverteilung",
+  "head": " · Hälfte der verbleibenden Flugemissionen für alle, beim Mittelwert −0.7 t · Chance 18 % · Suffizienz",
+  "front": "Auf jedes Flugticket kommt eine Abgabe. Mehr als die Hälfte des Geldes geht an die ganze Bevölkerung zurück, jede Person bekommt gleich viel.",
+  "back": "Genau so eine Abgabe war Teil des CO₂-Gesetzes. Die Stimmberechtigten haben es am 13. Juni 2021 mit 51.6 % Nein abgelehnt. Wer wenig fliegt, hätte mehr zurückbekommen, als er bezahlt.",
+  "game": "Ab der nächsten Runde zahlt jede Figur, die noch fliegt, 1 Geld pro Runde. Jede Figur, die nicht mehr fliegt, bekommt 1 Geld pro Runde zurück. I1a und I1b kosten danach 1 Herz weniger.",
+  "why": "Warum 18 %? Das Ergebnis von 2021 war knapp."
+ },
+ "K9": {
+  "id": "K9",
+  "title": "Halb so viele Autokilometer",
+  "head": " · −0.5 t für alle · Chance 18 % · Suffizienz",
+  "front": "Kurze Wege durch Raumplanung, dichtere Takte im ÖV, sichere Velowege.",
+  "back": "Die ZHAW rechnet bis 2030 mit 1.8 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Bis 2050 nimmt das Spiel 40 % weniger Auto-Emissionen an; das ist eine Modellannahme.",
+  "game": "I2 (Auto abgeben) und I4 (Fahrgemeinschaft) kosten danach 1 Herz weniger.",
+  "why": "Warum 18 %? Einzelne Projekte wie Velowege oder ÖV-Ausbau finden oft Mehrheiten, als Gesamtpaket ist es offen."
+ },
+ "E1": {
+  "id": "E1",
+  "title": "Rebound",
+  "head": " · gilt nur, wenn I3 (E-Auto) gewählt wurde · +0.1 t (ein Viertel mehr Kilometer auf die verbleibenden 0.4 t)",
+  "front": "",
+  "back": "Wenn etwas effizienter und billiger wird, braucht man oft mehr davon. Das heisst Rebound-Effekt. Ein Teil der Einsparung geht so wieder verloren.",
+  "game": "",
+  "why": ""
+ },
+ "W1": {
+  "id": "W1",
+  "title": "Zwei Grad weniger heizen",
+  "head": " · −0.1 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+  "front": "Ab jetzt heizt du auf 20 statt auf 22 Grad. Im Schlafzimmer reichen 18.",
+  "back": "Jedes Grad weniger spart rund 6 % Heizenergie (EnergieSchweiz). Das tönt nach wenig, kostet aber nichts und spart sofort Geld. Fehlvorstellung: «Wenn alle die Heizung runterdrehen, ist das Problem gelöst.» Die Heizung selbst ist der viel grössere Hebel.",
+  "game": "",
+  "why": ""
+ },
+ "W2": {
+  "id": "W2",
+  "title": "Heizung auf Wärmepumpe umstellen",
+  "head": " · −0.8 t pro Jahr · 0 Herzen · Geld 4 (3, wenn K3 angenommen ist) · Konsistenz · nur Mittelwert und Ruth",
+  "front": "Die Öl- oder Gasheizung fliegt raus, eine Wärmepumpe holt die Wärme aus Luft oder Boden.",
+  "back": "Ein Liter Heizöl gibt beim Verbrennen 2.65 kg CO₂ (BAFU). Ein älteres Einfamilienhaus braucht schnell 2 000 Liter im Jahr, das sind über 5 t. Die Wärmepumpe braucht Strom, darum fallen nicht 100 %, sondern rund 90 % weg. 2025 heizten in der Schweiz noch 58 % der Haushalte mit Öl oder Gas (BFS).",
+  "game": "",
+  "why": ""
+ },
+ "W2b": {
+  "id": "W2b",
+  "title": "Eltern oder Vermieterin überzeugen",
+  "head": " · −0.8 t pro Jahr · 3 Herzen · Geld 0 · Konsistenz · nur Lia, Noah, Elif",
+  "front": "Du zahlst die Heizung nicht und entscheidest nicht allein. Aber du kannst Gespräche führen, Offerten zeigen und Förderbeiträge heraussuchen.",
+  "back": "Mehr als die Hälfte der Menschen in der Schweiz wohnt zur Miete. Über die Heizung entscheidet, wem das Haus gehört. Darum kostet diese Karte so viele Herzen.",
+  "game": "",
+  "why": ""
+ },
+ "W3": {
+  "id": "W3",
+  "title": "Haus dämmen",
+  "head": " · −0.3 t pro Jahr (nach W2 nur noch −0.03 t) · 1 Herz · Geld 4 · Effizienz · nur Mittelwert und Ruth",
+  "front": "Dach, Fassade und Fenster werden neu gedämmt. Es zieht nicht mehr, und die Heizung muss weniger leisten.",
+  "back": "Eine neue Fassadendämmung spart in Beispielrechnungen 14 bis 26 % Heizenergie, neue Fenster 13 bis 23 % (co2online); im Spiel rechnen wir für alles zusammen mit 30 %. Wer schon eine Wärmepumpe hat, spart damit vor allem Strom, kaum noch CO₂.",
+  "game": "",
+  "why": ""
+ },
+ "W4": {
+  "id": "W4",
+  "title": "Kleiner wohnen",
+  "head": " · −0.5 t pro Jahr · 2 Herzen (Ruth 3) · Geld +2 · Suffizienz · nicht für Elif",
+  "front": "Du ziehst in eine kleinere Wohnung, in eine WG oder vermietest ein Zimmer unter. Ein Viertel weniger Fläche pro Person.",
+  "back": "In der Schweiz hat jede Person im Schnitt 46.6 m² Wohnfläche (BFS 2024). Weniger Fläche heisst weniger heizen, weniger bauen, weniger einrichten.",
+  "game": "",
+  "why": ""
+ },
+ "W5": {
+  "id": "W5",
+  "title": "Ökostrom wählen",
+  "head": " · −0.2 t pro Jahr · 0 Herzen · Geld 1 · Konsistenz",
+  "front": "Du wechselst beim Elektrizitätswerk auf ein Stromprodukt aus Sonne, Wind oder Wasser.",
+  "back": "Ökostrom verursacht rund 93 % weniger CO₂ als der durchschnittliche Schweizer Strommix (ESU-services). Weil Schweizer Strom schon recht sauber ist, bringt die Karte weniger, als viele denken.",
+  "game": "",
+  "why": ""
+ },
+ "W6": {
+  "id": "W6",
+  "title": "Möbel und Geräte länger nutzen",
+  "head": " · −0.1 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+  "front": "Du reparierst, kaufst Secondhand und ersetzt erst, wenn etwas wirklich kaputt ist.",
+  "back": "Möbel und Haushaltgeräte machen im Schnitt 0.4 t pro Person aus (BAFU/EBP 2025), fast alles davon entsteht bei der Herstellung im Ausland.",
+  "game": "",
+  "why": ""
+ },
+ "K3": {
+  "id": "K3",
+  "title": "Keine neuen Öl- und Gasheizungen, mit Förderbeitrag",
+  "head": " · −0.8 t für alle · Chance 22 % · Konsistenz",
+  "front": "Wer eine Heizung ersetzen muss, baut eine erneuerbare ein. Der Bund zahlt einen Teil.",
+  "back": "Eine Heizung hält 20 bis 25 Jahre. Wenn ab jetzt nur noch erneuerbar ersetzt wird, ist bis 2050 fast jede Öl- und Gasheizung weg; das Spiel rechnet mit 90 % weniger Heiz-Emissionen (Modellannahme). Die ZHAW rechnet schon bis 2030 mit 3.1 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Das Klima- und Innovationsgesetz mit Geld für den Heizungsersatz wurde 2023 mit 59.1 % Ja angenommen.",
+  "game": "W2 kostet ab der nächsten Runde 1 Geld weniger, W2b 1 Herz weniger.",
+  "why": "Warum 22 %? Förderung kommt an der Urne gut an, ein Verbot weniger."
+ },
+ "K4": {
+  "id": "K4",
+  "title": "Solaroffensive",
+  "head": " · −0.1 t für alle · Chance 24 % · Konsistenz",
+  "front": "Auf geeignete Dächer und Fassaden kommen Solaranlagen, der Bund erleichtert Bewilligungen und zahlt Beiträge.",
+  "back": "Die ZHAW rechnet mit 1 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Die Wirkung ist klein, weil der Schweizer Strom schon wenig CO₂ enthält.",
+  "game": "",
+  "why": "Warum 24 %? Der Ausbau erneuerbarer Energie findet an der Urne meistens eine Mehrheit."
+ },
+ "K8": {
+  "id": "K8",
+  "title": "Weniger Wohnfläche fördern",
+  "head": " · −0.2 t für alle · Chance 12 % · Suffizienz",
+  "front": "Gemeinden fördern Wohnungstausch und gemeinschaftliches Wohnen, neue Wohnungen dürfen pro Person weniger Fläche haben.",
+  "back": "Die ZHAW rechnet mit 1.9 Mio. t weniger pro Jahr, zusammen mit tieferen Raumtemperaturen (Siegwart u. a. 2020).",
+  "game": "",
+  "why": "Warum 12 %? Vorschriften zur Wohnfläche greifen ins Private ein und haben es schwer."
+ },
+ "E2": {
+  "id": "E2",
+  "title": "Die Heizung ist kaputt",
+  "head": " · nur wenn W2 möglich und noch nicht gewählt",
+  "front": "Mitten im Winter fällt die Ölheizung aus. Wenn du in dieser Runde nicht W2 wählst, wird wieder eine Ölheizung eingebaut.",
+  "back": "Eine Heizung hält 20 bis 25 Jahre. Wer heute wieder fossil einbaut, legt sich bis weit über 2040 fest. Das nennt man Lock-in.",
+  "game": "W2 kostet in der nächsten Runde 1 Geld weniger und liegt sicher in deiner Auswahl. Wählst du W2 dann nicht, ist die Karte bis 2050 gesperrt.",
+  "why": ""
+ },
+ "N1": {
+  "id": "N1",
+  "title": "Fleisch nur noch zwei- bis dreimal pro Woche",
+  "head": " · −0.3 t pro Jahr · 1 Herz (Noah 2) · Geld 0 · Suffizienz",
+  "front": "Fleisch gibt es noch an zwei, drei Tagen pro Woche. An den anderen Tagen isst du vegetarisch.",
+  "back": "Heute essen wir in der Schweiz etwa dreimal so viel Fleisch, wie die Ernährungsempfehlungen raten (zwei- bis dreimal pro Woche je 100 bis 120 g). Wer auf die Empfehlung zurückgeht, spart rund zwei Drittel der Wirkung einer vegetarischen Ernährung (ZHAW 2021).",
+  "game": "",
+  "why": ""
+ },
+ "N2": {
+  "id": "N2",
+  "title": "Vegetarisch essen",
+  "head": " · −0.4 t pro Jahr (−0.1 t, wenn N1 schon gilt) · 2 Herzen (Noah 3) · Geld 0 · Suffizienz",
+  "front": "Ab jetzt isst du kein Fleisch und keinen Fisch mehr. Milchprodukte und Eier bleiben.",
+  "back": "Die ZHAW rechnet für eine Durchschnittsperson mit 0.43 t weniger pro Jahr (Rohrer 2021). Fleisch ist pro Kilo am klimaschädlichsten, weil Tiere ein Vielfaches ihres Gewichts an Futter brauchen und Rinder beim Verdauen Methan ausstossen.",
+  "game": "",
+  "why": ""
+ },
+ "N3": {
+  "id": "N3",
+  "title": "Vegan essen",
+  "head": " · −0.7 t pro Jahr gegenüber dem Durchschnitt (−0.3 t, wenn N2 schon gilt) · 3 Herzen · Geld 0 · Suffizienz · nicht für Noah",
+  "front": "Ab jetzt isst du keine tierischen Produkte mehr, auch keinen Käse und keine Milch.",
+  "back": "Die ZHAW rechnet mit 0.69 t weniger pro Jahr (Rohrer 2021). Käse braucht viel Milch: Für ein Kilo Hartkäse rechnet man rund zehn Liter. Fehlvorstellung: «Vegetarisch ist schon das Maximum.» Milchprodukte machen einen grossen Teil aus.",
+  "game": "",
+  "why": ""
+ },
+ "N4": {
+  "id": "N4",
+  "title": "Kein Food Waste mehr zu Hause",
+  "head": " · −0.2 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+  "front": "Du planst den Einkauf, verwertest Reste und schaust und riechst, bevor du etwas nach dem Datum wegwirfst.",
+  "back": "Ein Viertel der Umweltbelastung unserer Ernährung geht auf vermeidbare Lebensmittelverluste zurück (BAFU). Pro Person landen im Haushalt Lebensmittel für rund 620 Franken im Jahr im Abfall (Too Good To Go 2025). Die ZHAW rechnet mit 0.19 t weniger pro Jahr.",
+  "game": "",
+  "why": ""
+ },
+ "N5": {
+  "id": "N5",
+  "title": "Saisonal und regional, nichts Eingeflogenes",
+  "head": " · −0.1 t pro Jahr · 1 Herz · Geld 1 · Konsistenz",
+  "front": "Du kaufst Gemüse und Obst, wenn sie hier Saison haben, und lässt eingeflogene Ware wie Spargeln im Januar oder Beeren aus Übersee liegen.",
+  "back": "Fehlvorstellung: «Regional ist das Wichtigste.» Der Transport macht bei den meisten Lebensmitteln nur einen kleinen Teil aus; wichtiger ist, was man isst. Ausnahmen sind eingeflogene Produkte und Gemüse aus dem beheizten Gewächshaus.",
+  "game": "",
+  "why": ""
+ },
+ "K7": {
+  "id": "K7",
+  "title": "Lebensmittelverluste halbieren",
+  "head": " · −0.2 t für alle (−0.15 t, wenn N4 schon gilt) · Chance 26 % · Suffizienz",
+  "front": "Handel und Industrie müssen ihre Verluste halbieren. Was nicht verkauft wird, geht an Hilfswerke oder wird weiterverarbeitet.",
+  "back": "Die ZHAW rechnet mit 2.0 Mio. t weniger pro Jahr (Siegwart u. a. 2020). In der Schweiz gehen pro Jahr rund 2.8 Mio. t Lebensmittel verloren, rund 310 kg pro Person, vom Feld bis zum Teller (BAFU).",
+  "game": "",
+  "why": "Warum 26 %? Gegen Verschwendung sind fast alle."
+ },
+ "K10": {
+  "id": "K10",
+  "title": "Vegetarisch als Standard in Mensen, Spitälern und Armee",
+  "head": " · −0.06 t für alle · Chance 18 % · Suffizienz",
+  "front": "In öffentlichen Kantinen ist das vegetarische Menü der Normalfall. Wer Fleisch will, bestellt es ausdrücklich.",
+  "back": "In der Schweizer Gemeinschaftsgastronomie werden jährlich etwa 500 Mio. Mahlzeiten serviert (ZHAW 2026). Die Wirkung pro Person ist klein, aber die Vorlage erreicht auch Menschen, die selbst nie eine Ernährungskarte wählen würden.",
+  "game": "N2 (vegetarisch) kostet danach 1 Herz weniger.",
+  "why": "Warum 18 %? Vorgaben beim Essen lösen viel Widerstand aus."
+ },
+ "E3": {
+  "id": "E3",
+  "title": "Neue Rezepte",
+  "head": " · nur wenn N2 noch nicht gewählt",
+  "front": "Eine Freundin kocht für dich und zeigt dir drei vegetarische Gerichte, die dir wirklich schmecken.",
+  "back": "Gewohnheiten ändern sich leichter, wenn andere mitmachen und man es selbst ausprobiert hat.",
+  "game": "N2 kostet in der nächsten Runde 1 Herz weniger und liegt sicher in deiner Auswahl.",
+  "why": ""
+ },
+ "C1": {
+  "id": "C1",
+  "title": "Halb so viele neue Kleider",
+  "head": " · −0.15 t pro Jahr · 2 Herzen (Elif 1) · Geld 0 · Suffizienz",
+  "front": "Du kaufst nur noch halb so viele neue Kleider. Den Rest holst du Secondhand, tauschst oder flickst.",
+  "back": "Kleider machen im Schnitt 0.3 t pro Person und Jahr aus (BAFU/EBP 2025), fast alles davon entsteht bei der Herstellung im Ausland.",
+  "game": "",
+  "why": ""
+ },
+ "C2": {
+  "id": "C2",
+  "title": "Handy und Laptop zwei Jahre länger nutzen",
+  "head": " · −0.05 t pro Jahr · 2 Herzen (Elif 1) · Geld 0 · Suffizienz",
+  "front": "Du wechselst Handy und Laptop erst, wenn sie wirklich nicht mehr gehen. Ein neuer Akku ist billiger als ein neues Gerät.",
+  "back": "70 bis 90 % der Emissionen eines Smartphones entstehen bei der Herstellung. Wer ein Handy fünf statt drei Jahre nutzt, senkt dessen Bilanz pro Jahr um rund ein Drittel (Fraunhofer IZM).",
+  "game": "",
+  "why": ""
+ },
+ "C3": {
+  "id": "C3",
+  "title": "Weniger streamen",
+  "head": " · −0.03 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+  "front": "Du schaust weniger Serien und Videos, und wenn, dann in tieferer Auflösung.",
+  "back": "Fehlvorstellung: «Streaming ist ein grosses Klimaproblem.» Pro Person geht es um wenige Kilo im Jahr (Nos Gestes Climat). Das Gerät selbst herzustellen ist viel wichtiger als das Streamen darauf.",
+  "game": "",
+  "why": ""
+ },
+ "C4": {
+  "id": "C4",
+  "title": "Allgemein weniger kaufen",
+  "head": " · −0.4 t pro Jahr · 3 Herzen (Elif 2) · Geld +2 · Suffizienz",
+  "front": "Bevor du etwas kaufst, wartest du eine Woche. Was du dann nicht mehr willst, brauchst du nicht.",
+  "back": "Geräte, Haushaltsartikel und Freizeit machen zusammen 1.3 t pro Person aus. Die Karte rechnet mit 30 % weniger; das ist eine Annahme. Die ZHAW rechnet für eine Reduktion auf einen Viertel mit 2.85 t weniger (Rohrer 2021, dort weiter gefasst).",
+  "game": "",
+  "why": ""
+ },
+ "C5": {
+  "id": "C5",
+  "title": "Teilen, leihen, mieten",
+  "head": " · −0.1 t pro Jahr · 1 Herz · Geld 0 · Suffizienz (die günstigste Konsumkarte bei den Herzen)",
+  "front": "Bohrmaschine, Zelt oder Skis leihst oder mietest du, statt sie zu kaufen. Bücher holst du in der Bibliothek.",
+  "back": "Die meisten Werkzeuge werden nur wenige Minuten im Jahr gebraucht. Die Karte rechnet mit 10 % weniger Neukauf in diesem Bereich; das ist eine Annahme.",
+  "game": "",
+  "why": ""
+ },
+ "C6": {
+  "id": "C6",
+  "title": "Konsequent recyceln und Plastik meiden",
+  "head": " · −0.02 t pro Jahr · 1 Herz · Geld 0 · Effizienz",
+  "front": "Du trennst alles sauber und kaufst wenig Verpackung.",
+  "back": "Fehlvorstellung: «Recycling rettet das Klima.» Das ganze heutige Recycling in der Schweiz spart rund 0.06 t pro Person und Jahr (Swiss Recycling). Das ist schon im Durchschnitt enthalten; noch konsequenter bringt nur wenige Kilo. Recycling ist sinnvoll, aber ein kleiner Hebel.",
+  "game": "",
+  "why": ""
+ },
+ "K2": {
+  "id": "K2",
+  "title": "Liefer- und Lastwagen elektrisch",
+  "head": " · −0.4 t für alle · Chance 20 % · Konsistenz",
+  "front": "Neue Lieferwagen und Lastwagen fahren ab 2035 elektrisch oder mit Wasserstoff.",
+  "back": "Die ZHAW rechnet bis 2030 mit 2.1 Mio. t weniger pro Jahr (Siegwart u. a. 2020); bis 2050 sind alle Lastwagen ersetzt, das Spiel rechnet mit 0.4 t pro Person (Modellannahme). Die Waren, die du kaufst, werden dann sauberer zu dir gebracht.",
+  "game": "",
+  "why": "Warum 20 %? Die Kosten tragen zuerst die Transportfirmen, das ist umstritten."
+ },
+ "K5": {
+  "id": "K5",
+  "title": "Industrie ohne Erdgas und Kohle",
+  "head": " · −0.2 t für alle · Chance 22 % · Konsistenz",
+  "front": "Zementwerke und Fabriken stellen ihre Prozesswärme auf Biogas, Abfälle oder Strom um.",
+  "back": "Die ZHAW rechnet bis 2030 mit 0.6 Mio. t weniger pro Jahr (Siegwart u. a. 2020); bis 2050 rechnet das Spiel mit 0.2 t pro Person (Modellannahme). Klein, weil vieles, was wir kaufen, im Ausland hergestellt wird.",
+  "game": "",
+  "why": "Warum 22 %? Viele Firmen wollen das selbst, wenn sie Planungssicherheit bekommen."
+ },
+ "K15": {
+  "id": "K15",
+  "title": "Recht auf Reparatur",
+  "head": " · −0.05 t für alle · Chance 24 % · Suffizienz",
+  "front": "Hersteller müssen Geräte reparieren und Ersatzteile anbieten. Wer reparieren lässt statt ersetzt, bekommt ein Jahr mehr Garantie.",
+  "back": "So eine Regel gilt in der EU seit 2024 (Richtlinie 2024/1799). Die Wirkung im Spiel (5 % weniger neue Geräte) ist eine Annahme.",
+  "game": "C2 (Geräte länger nutzen) kostet danach 1 Herz weniger.",
+  "why": "Warum 24 %? Reparieren ist populär, nur die Hersteller wehren sich."
+ },
+ "K11": {
+  "id": "K11",
+  "title": "Öffentliche Hand baut und kauft klimafreundlich",
+  "head": " · −0.8 t für alle · Chance 20 % · Konsistenz",
+  "front": "Schulen, Spitäler, Verwaltung und Armee bauen klimafreundlich, fahren elektrisch und kaufen klimafreundlich ein.",
+  "back": "Die öffentliche Beschaffung verursacht weltweit rund 15 % aller Emissionen; rund 40 % davon lassen sich günstig vermeiden (WEF/BCG 2022). In der Schweiz macht der Block «Öffentliche Leistungen» 2.1 t pro Person aus. Diesen Teil kannst du allein nicht ändern, nur über die Politik.",
+  "game": "",
+  "why": "Warum 20 %? Es kostet am Anfang Steuergeld."
+ },
+ "K12": {
+  "id": "K12",
+  "title": "Moore wiedervernässen",
+  "head": " · −0.002 t für alle · Chance 28 % · Konsistenz",
+  "front": "Entwässerte Moore werden wieder nass gemacht, damit der Torf kein CO₂ mehr abgibt.",
+  "back": "Die ZHAW rechnet für die Schweiz mit nur 0.02 Mio. t weniger pro Jahr (Siegwart u. a. 2020); es gibt hier wenige grosse Moore. Weltweit speichern Moore aber sehr viel Kohlenstoff.",
+  "game": "",
+  "why": "Warum 28 %? Moorschutz ist in der Schweiz seit Langem breit akzeptiert."
+ },
+ "K16": {
+  "id": "K16",
+  "title": "CO₂-Preis auf allen Gütern, mit Grenzausgleich",
+  "head": " · −1.4 t für alle · Chance 16 % · Konsistenz",
+  "front": "Alles, was bei der Herstellung CO₂ verursacht, wird teurer, im Inland und beim Import. Das Geld geht pro Kopf an die Bevölkerung zurück.",
+  "back": "69 % des Schweizer Fussabdrucks entstehen im Ausland (BAFU/EBP 2025). Ein CO₂-Preis mit Grenzausgleich setzt dort an; das Spiel rechnet mit einem Viertel weniger Emissionen in Konsum, Ernährung und Wohnen bis 2050. Das ist eine Modellannahme. Studien zum EU-Grenzausgleich finden kurzfristig nur eine bescheidene Wirkung; die grösste Wirkung ist indirekt, weil andere Länder selbst CO₂-Preise einführen.",
+  "game": "",
+  "why": "Warum 16 %? Neue Abgaben haben es an der Urne schwer; das CO₂-Gesetz scheiterte 2021 knapp."
+ },
+ "E4": {
+  "id": "E4",
+  "title": "Schnäppchen",
+  "head": " · solange C4 nicht gewählt ist",
+  "front": "Black Friday, «3 für 2», Ausverkauf: Bei sehr günstigen Aktionen schlägst du immer wieder zu, auch bei Dingen, die du nicht geplant hattest.",
+  "back": "Aktionen sind so gemacht, dass man mehr kauft, als man geplant hat. Alles, was du zusätzlich kaufst, muss zuerst hergestellt und transportiert werden, meist im Ausland.",
+  "game": "Du verlierst einmalig 2 Geld. Solange du C4 nicht gewählt hast, steigt dein Fussabdruck um 0.1 t pro Jahr.",
+  "why": ""
+ },
+ "I5": {
+  "id": "I5",
+  "title": "Zug statt Flug in Europa",
+  "head": " · −0.4 t pro Jahr · 0 Herzen · Geld 2 · Konsistenz",
+  "front": "Für Reisen innerhalb Europas nimmst du ab jetzt den Zug, auch wenn er teurer ist und länger dauert.",
+  "back": "Von den Treibhausgasen der Flüge aus Europa stammt knapp die Hälfte von Langstreckenflügen, obwohl sie nur 6 % der Flüge sind; Flüge unter 500 km machen nur 4.3 % aus (Eurocontrol 2019). Das Spiel rechnet damit, dass du mit dem Zug 30 % deiner Flugemissionen ersetzt. Das ist eine Annahme. Fehlvorstellung: «Kurzstrecken sind das grosse Problem.» Pro Kilometer sind sie schlecht, in der Summe zählen die langen Reisen.",
+  "game": "",
+  "why": ""
+ },
+ "I6": {
+  "id": "I6",
+  "title": "E-Bike für Alltagswege",
+  "head": " · −0.2 t pro Jahr · 1 Herz (Noah 2) · Geld 1 · Konsistenz · nicht für Elif",
+  "front": "Für den Einkauf, den Arbeitsweg und kurze Fahrten nimmst du das E-Bike statt das Auto.",
+  "back": "Im Schnitt legt eine Person in der Schweiz 30 km pro Tag im Inland zurück (Mikrozensus Mobilität 2021). Viele Autofahrten sind nur wenige Kilometer lang. Das Spiel rechnet damit, dass das E-Bike 15 % deiner Autokilometer ersetzt. Das ist eine Annahme.",
+  "game": "",
+  "why": ""
+ },
+ "W7": {
+  "id": "W7",
+  "title": "Sparsame Geräte und LED",
+  "head": " · −0.04 t pro Jahr · 0 Herzen · Geld 1 · Effizienz",
+  "front": "Wenn ein Gerät kaputtgeht, kaufst du das sparsamste. Alle Lampen werden LED.",
+  "back": "Strom in der Schweiz kommt grösstenteils aus Wasserkraft und Kernenergie und verursacht wenig CO₂. Darum bringen sparsame Geräte fürs Klima hier wenig, für den Strombedarf aber viel. Das Spiel rechnet mit 20 % weniger Emissionen beim Strom. Das ist eine Annahme. Fehlvorstellung: «Licht ausschalten rettet das Klima.»",
+  "game": "",
+  "why": ""
+ },
+ "N6": {
+  "id": "N6",
+  "title": "Bio kaufen",
+  "head": " · −0.1 t pro Jahr · 0 Herzen · Geld 2 · Konsistenz",
+  "front": "Bei Gemüse, Obst, Brot und Eiern greifst du zu Bio, auch wenn es mehr kostet.",
+  "back": "Ob Bio pro Kilo weniger Treibhausgase verursacht, ist umstritten. Im Schweizer Langzeitversuch von FiBL und Agroscope sind die Emissionen pro Tonne Ertrag tiefer oder gleich hoch (DOK-Langzeitversuch, Scientific Reports). Das Spiel rechnet vorsichtig mit 7 % weniger beim übrigen Essen. Bio hilft vor allem Boden, Wasser und Artenvielfalt. Fehlvorstellung: «Bio ist das Wichtigste fürs Klima.» Weniger Fleisch bringt viel mehr.",
+  "game": "",
+  "why": ""
+ }
+};
+const M={"START": {"Daniel": 2, "Lia": 1, "Noah": 2, "Ruth": 3, "Elif": 1}, "INC": {"Daniel": [1], "Lia": [1], "Noah": [1], "Ruth": [2], "Elif": [0, 1]}, "BASE": {"auto": 1.3, "flug": 1.4, "oev": 0.2, "heiz": 0.9, "strom": 0.2, "wuebrig": 1.0, "bau": 0.8, "moebel": 0.4, "fleisch": 0.43, "milch": 0.26, "waste": 0.19, "saison": 0.1, "kette": 0.2, "kantine": 0.06, "ernrest": 1.46, "sonst": 0.05, "elek": 0.05, "stream": 0.03, "recyc": 0.02, "lkw": 0.4, "ind": 0.2, "repar": 0.05, "freizeit": 0.5, "kleider": 0.3, "beherb": 0.2, "oeff": 1.3, "oeffbesch": 0.8}, "CAT": {"Mobilität": ["auto", "flug", "oev"], "Wohnen": ["heiz", "strom", "wuebrig", "bau", "moebel"], "Ernährung": ["fleisch", "milch", "waste", "saison", "kette", "kantine", "ernrest"], "Konsum und Freizeit": ["sonst", "elek", "stream", "recyc", "lkw", "ind", "repar", "freizeit", "kleider", "beherb"], "Öffentliche Leistungen": ["oeff", "oeffbesch"]}, "CARDS": {"I1a": {"h": 1, "g": 0, "mult": {"flug": 0.5}}, "I1b": {"h": 3, "g": 0, "mult": {"flug": 0.0}}, "I2": {"h": 2, "g": -2, "mult": {"auto": 0.0}, "add": {"oev": 0.1}, "excl": ["I3", "I4", "I6"]}, "I3": {"h": 0, "g": 4, "mult": {"auto": 0.3333333333333333}, "excl": ["I2"]}, "I4": {"h": 1, "g": 0, "mult": {"auto": 0.5}, "excl": ["I2"]}, "W1": {"h": 1, "g": 0, "mult": {"heiz": 0.88}}, "W2": {"h": 0, "g": 4, "mult": {"heiz": 0.1}, "excl": ["W2b"]}, "W2b": {"h": 3, "g": 0, "mult": {"heiz": 0.1}, "excl": ["W2"]}, "W3": {"h": 1, "g": 4, "mult": {"heiz": 0.7}}, "W4": {"h": 2, "g": -2, "mult": {"heiz": 0.75, "bau": 0.75, "moebel": 0.75}}, "W5": {"h": 0, "g": 1, "mult": {"strom": 0.1}}, "W6": {"h": 1, "g": 0, "mult": {"moebel": 0.7}}, "N1": {"h": 1, "g": 0, "mult": {"fleisch": 0.3}}, "N2": {"h": 2, "g": 0, "mult": {"fleisch": 0.0}}, "N3": {"h": 3, "g": 0, "mult": {"fleisch": 0.0, "milch": 0.0}}, "N4": {"h": 1, "g": 0, "mult": {"waste": 0.0}}, "N5": {"h": 1, "g": 1, "mult": {"saison": 0.0}}, "I5": {"h": 0, "g": 2, "mult": {"flug": 0.7}}, "I6": {"h": 1, "g": 1, "mult": {"auto": 0.85}, "excl": ["I2"]}, "W7": {"h": 0, "g": 1, "mult": {"strom": 0.8}}, "N6": {"h": 0, "g": 2, "mult": {"ernrest": 0.93}}, "C1": {"h": 2, "g": 0, "mult": {"kleider": 0.5}}, "C2": {"h": 2, "g": 0, "mult": {"elek": 0.0}}, "C3": {"h": 1, "g": 0, "mult": {"stream": 0.0}}, "C4": {"h": 3, "g": -2, "mult": {"sonst": 0.7, "elek": 0.7, "stream": 0.7, "recyc": 0.7, "lkw": 0.7, "ind": 0.7, "repar": 0.7, "freizeit": 0.7}}, "C5": {"h": 1, "g": 0, "mult": {"sonst": 0.9, "elek": 0.9, "stream": 0.9, "recyc": 0.9, "lkw": 0.9, "ind": 0.9, "repar": 0.9, "freizeit": 0.9}}, "C6": {"h": 1, "g": 0, "mult": {"recyc": 0.0}}}, "VORL": {"K1": {"c": 0.14, "mult": {"auto": 0.31}}, "K6": {"c": 0.18, "mult": {"flug": 0.5}}, "K9": {"c": 0.18, "mult": {"auto": 0.6}}, "K3": {"c": 0.22, "mult": {"heiz": 0.1}}, "K4": {"c": 0.24, "mult": {"strom": 0.5}}, "K8": {"c": 0.12, "mult": {"heiz": 0.9, "bau": 0.9, "moebel": 0.9}}, "K7": {"c": 0.26, "mult": {"kette": 0.0}}, "K10": {"c": 0.18, "mult": {"kantine": 0.0}}, "K2": {"c": 0.2, "mult": {"lkw": 0.0}}, "K5": {"c": 0.22, "mult": {"ind": 0.0}}, "K15": {"c": 0.24, "mult": {"repar": 0.0}}, "K11": {"c": 0.2, "mult": {"oeffbesch": 0.0}}, "K12": {"c": 0.28, "mult": {}}, "K16": {"c": 0.16, "mult": {"sonst": 0.75, "freizeit": 0.75, "kleider": 0.75, "beherb": 0.75, "wuebrig": 0.75, "bau": 0.75, "moebel": 0.75, "ernrest": 0.75, "milch": 0.75, "fleisch": 0.75}}}, "FIG": {"Daniel": {"geld": 2, "mod": {}, "ban": ["W2b"], "life": "43, so alt wie die Schweiz im Mittel. Wohnt mit Partnerin und zwei Kindern im eigenen Reihenhaus in der Agglomeration, hat ein Auto und arbeitet im Büro. Entscheidet bei allem mit, auch bei Heizung und Haus."}, "Lia": {"geld": 2, "mod": {"I1a": 1, "I2": -1, "I4": -1}, "ban": ["W2", "W3"], "life": "25, wohnt in einer WG in Zürich, ÖV vor der Tür, reist für ihr Leben gern. Mieterin: über die Heizung entscheidet die Vermieterin."}, "Noah": {"geld": 2, "mod": {"I2": 1, "I3": 1, "I4": 1, "I6": 1, "N1": 1, "N2": 1}, "ban": ["W2", "W3", "N3"], "life": "25, Lehrabschluss, wohnt bei den Eltern im Einfamilienhaus auf dem Land, der Bus fährt stündlich, isst gern Fleisch."}, "Ruth": {"geld": 3, "mod": {"W4": 1, "I1b": -1}, "ban": ["W2b"], "life": "70, pensioniert, wohnt allein im eigenen Haus. Hat Ersparnisse, zieht aber ungern um."}, "Elif": {"geld": 1, "mod": {"C1": -1, "C2": -1, "C3": -1, "C4": -1, "C5": -1, "C6": -1}, "ban": ["W2", "W3", "W4", "I2", "I3", "I4", "I6"], "life": "17, Gymnasiastin, wohnt mit Eltern und Bruder in einer Mietwohnung, wenig eigenes Geld. Über Auto und Heizung entscheiden die Eltern."}}, "SYN": {"K9": {"h": ["I2", "I4"]}, "K10": {"h": ["N2"]}, "K15": {"h": ["C2"]}, "K6": {"h": ["I1a", "I1b"]}, "K3": {"g": ["W2"], "h": ["W2b"]}, "K1": {"g": ["I3"]}}};
+const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
+let PER=[],LAST=3;
+function setMode(m){PER=MODES[m].map(([a,b])=>({a,b,l:a+" bis "+b}));LAST=PER.length-1;}
+setMode("kurz");
+const TREND=0.011, START=12.8, ZIEL=0.6, MAXC=95;
+const AREA={I:"Mobilität",W:"Wohnen",N:"Ernährung",C:"Konsum und Freizeit"};
+const CATS=Object.keys(M.CAT);
+const SHADE=["#111","#555","#888","#b5b5b5","#e2e2e2"];
+const KEYCAT={};CATS.forEach(c=>M.CAT[c].forEach(k=>KEYCAT[k]=c));
+const REASON={
+ I6:"Über das Auto entscheiden deine Eltern.",I2:"Über das Auto entscheiden deine Eltern.",I3:"Über das Auto entscheiden deine Eltern.",I4:"Über das Auto entscheiden deine Eltern.",
+ W2:"Du besitzt das Haus nicht. Probier es mit «Eltern oder Vermieterin überzeugen».",W3:"Du besitzt das Haus nicht.",
+ W4:"Du wohnst bei deinen Eltern und kannst nicht einfach umziehen.",N3:"Vegan kommt für Noah nicht in Frage.",
+ W2b:"Das Haus gehört dir, du entscheidest direkt (W2)."};
+const fmt=(x,d=1)=>(Math.abs(x)<0.05&&d==1?0:x).toFixed(d);
+const sgn=(x,d=1)=>{const v=+x.toFixed(d);return (v>0?"+":v<0?"−":"±")+Math.abs(v).toFixed(d)};
+const strat=id=>{const h=T[id].head;return ["Suffizienz","Effizienz","Konsistenz"].find(s=>h.includes(s))||""};
+const NAMES=s=>String(s).replace(/\b(I1a|I1b|W2b|[IWNCKE]\d+)\b/g,(m,id)=>T[id]?"«"+T[id].title+"»":m);
+const esc0=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const esc=s=>esc0(NAMES(s));
+
+let S, G=null;
+function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
+ flags:{},events:[],happened:[],ballot:[],alloc:{},results:null,event:null,log:[],snap:[]};}
+fresh();
+
+/* ---------- Modell ---------- */
+function vorlFrom(r){return r<LAST?PER[r+1].a:Math.ceil((PER[LAST].a+PER[LAST].b)/2)}
+function ownActive(id,y){return S.chosen[id]!==undefined&&S.chosen[id]<=y}
+function adds(y,own){
+ const a={};
+ if(!own)return a;
+ if(ownActive("I2",y))a.oev=(a.oev||0)+0.1;
+ for(const e of S.events){
+  if(e.from>y)continue;
+  if(e.id=="E1")a.auto=(a.auto||0)+0.1;
+  if(e.id=="E4"&&!(ownActive("C4",y)))a.sonst=(a.sonst||0)+0.1;
+ }
+ return a;
+}
+function subs(y,opt){
+ // opt: {own:true/false, vorl:true/false, without:id, extra:{own:id}|{vorl:id,from}}
+ const v={};
+ for(const k in M.BASE)v[k]=M.BASE[k];
+ if(opt.own){
+  for(const id in S.chosen){if(id===opt.without)continue;if(!ownActive(id,y))continue;
+   const m=M.CARDS[id].mult;for(const k in m)v[k]*=m[k];}
+  if(opt.extraOwn){const m=M.CARDS[opt.extraOwn].mult;for(const k in m)v[k]*=m[k];}
+ }
+ if(opt.vorl){
+  for(const id in S.adopted){if(id===opt.without)continue;if(S.adopted[id]>y)continue;
+   const m=M.VORL[id].mult;for(const k in m)v[k]*=m[k];}
+  if(opt.extraVorl){const m=M.VORL[opt.extraVorl].mult;for(const k in m)v[k]*=m[k];}
+  if(S.adopted.K12!==undefined&&S.adopted.K12<=y&&opt.without!=="K12")v.oeff-=0.002;
+ }
+ const a=adds(y,opt.own);
+ if(opt.own&&opt.extraOwn==="I2")a.oev=(a.oev||0)+0.1;
+ for(const k in a)v[k]+=a[k];
+ const f=Math.pow(1-TREND,y-2026);
+ for(const k in v)v[k]*=f;
+ return v;
+}
+const tot=v=>Object.values(v).reduce((s,x)=>s+x,0);
+const val=(y,opt)=>tot(subs(y,opt));
+const ACT={own:true,vorl:true}, VO={own:false,vorl:true}, NO={own:false,vorl:false};
+function sum(a,b,opt){let s=0;for(let y=a;y<=b;y++)s+=val(y,opt);return s}
+function bycat(v){const c={};CATS.forEach(x=>c[x]=0);for(const k in v)c[KEYCAT[k]]+=v[k];return c}
+
+/* ---------- Karten ---------- */
+function fig(){return M.FIG[S.fig]}
+function costH(id){
+ let h=M.CARDS[id].h;const mod=fig().mod[id]||0;
+ if(mod){h=h>0?Math.max(1,h+mod):h+mod;}
+ for(const k in S.adopted){const s=M.SYN[k];if(s&&s.h&&s.h.includes(id))h=Math.max(0,h-1);}
+ if(id=="N2"&&S.flags.e3==S.r)h=Math.max(0,h-1);
+ return h;
+}
+function costG(id){
+ let g=M.CARDS[id].g;if(g<=0)return g;
+ for(const k in S.adopted){const s=M.SYN[k];if(s&&s.g&&s.g.includes(id))g-=1;}
+ if(id=="W2"&&S.flags.e2==S.r)g-=1;
+ return Math.max(0,g);
+}
+function blocked(id){
+ const f=fig(),c=M.CARDS[id];
+ if(f.ban.includes(id))return REASON[id]||"Passt nicht zu deiner Lebenslage.";
+ if(S.chosen[id]!==undefined)return null;
+ if(id=="W2"&&S.flags.w2locked)return "Gesperrt: Es wurde wieder eine Ölheizung eingebaut (Lock-in bis 2050).";
+ if(id=="W2b"&&S.flags.w2locked)return "Gesperrt: Es wurde wieder eine Ölheizung eingebaut (Lock-in bis 2050).";
+ for(const x of (c.excl||[]))if(S.chosen[x]!==undefined)return "Geht nicht zusammen mit «"+T[x].title+"».";
+ if((id=="I1a"||id=="I5")&&S.chosen.I1b!==undefined)return "Schon abgedeckt: Du fliegst gar nicht mehr.";
+ if(id=="N1"&&(S.chosen.N2!==undefined||S.chosen.N3!==undefined))return "Schon abgedeckt durch vegetarisch oder vegan.";
+ if(id=="N2"&&S.chosen.N3!==undefined)return "Schon abgedeckt: Du isst vegan.";
+ if(costH(id)>freeH())return "Zu wenig Herzen in dieser Runde.";
+ if(costG(id)>S.money)return "Zu wenig Geld.";
+ return null;
+}
+function effOwn(id){const y=PER[S.r].a;
+ if(S.chosen[id]!==undefined)return val(y,{...ACT,without:id})-val(y,ACT);
+ return val(y,ACT)-val(y,{...ACT,extraOwn:id});}
+function choose(id){
+ if(S.results||S.waiting)return;
+ if(S.chosen[id]!==undefined){ // zurücknehmen, nur diese Runde
+  if(!S.thisRound.includes(id))return;
+  S.hearts+=costH(id);const g=costG(id);S.money+= g>0?g:0; if(g<0)S.money-=2;
+  delete S.chosen[id];S.thisRound=S.thisRound.filter(x=>x!==id);
+ } else {
+  if(blocked(id))return;
+  S.hearts-=costH(id);const g=costG(id);if(g>0)S.money-=g;else if(g<0)S.money+=2;
+  S.chosen[id]=PER[S.r].a;S.thisRound.push(id);
+ }
+ render();
+}
+
+/* ---------- Ablauf ---------- */
+const HAND=6;
+function income(f,r){const c=M.INC[f];return c[r%c.length];}
+function incText(f){const c=M.INC[f];return c.length==1?c[0]+" pro Runde":"1 jede zweite Runde";}
+const usedH=()=>Object.values(S.alloc).reduce((a,b)=>a+b,0);
+const freeH=()=>S.hearts-usedH();
+function avail(id){ // kommt grundsätzlich noch in Frage (ohne Kosten)
+ const f=fig(),c=M.CARDS[id];
+ if(f.ban.includes(id)||S.chosen[id]!==undefined)return false;
+ if((id=="W2"||id=="W2b")&&S.flags.w2locked)return false;
+ for(const x of (c.excl||[]))if(S.chosen[x]!==undefined)return false;
+ if((id=="I1a"||id=="I5")&&S.chosen.I1b!==undefined)return false;
+ if(id=="N1"&&(S.chosen.N2!==undefined||S.chosen.N3!==undefined))return false;
+ if(id=="N2"&&S.chosen.N3!==undefined)return false;
+ return true;
+}
+function drawHand(){
+ const pool=Object.keys(M.CARDS).filter(avail),hand=[];
+ const take=id=>{if(pool.includes(id)&&!hand.includes(id))hand.push(id)};
+ if(S.flags.e2==S.r)take("W2"); if(S.flags.e3==S.r)take("N2");
+ const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+ for(const a of "IWNC"){if(hand.length>=HAND)break;const c=shuf(pool.filter(k=>k[0]==a&&!hand.includes(k)));if(c.length)hand.push(c[0]);}
+ for(const k of shuf(pool.filter(k=>!hand.includes(k)))){if(hand.length>=HAND)break;hand.push(k);}
+ const ord="IWNC";hand.sort((x,y)=>ord.indexOf(x[0])-ord.indexOf(y[0]));
+ S.hand=hand;
+}
+function startFig(f){S.fig=f;S.r=0;S.money=M.START[f];beginRound();}
+function beginRound(){
+ S.hearts=3;S.money+=income(S.fig,S.r);S.thisRound=[];drawHand();if(G)G.ballotFor(S.r);else drawBallot();S.results=null;S.event=null;S.waiting=false;
+ let note=[];
+ if(S.adopted.K6!==undefined&&S.adopted.K6<=PER[S.r].a){
+  if(S.chosen.I1b!==undefined){S.money+=1;note.push("Flugticketabgabe: Du fliegst nicht mehr und bekommst 1 Geld zurück.");}
+  else{const d=Math.min(1,S.money);S.money-=d;note.push("Flugticketabgabe: Du fliegst noch und zahlst 1 Geld.");}
+ }
+ S.roundNote=note;
+ S.snap[S.r]={y:PER[S.r].a,act:val(PER[S.r].a,ACT)};
+ S.screen="round";render();window.scrollTo(0,0);
+}
+function drawBallot(){
+ const prev=S.ballot||[];let pool=Object.keys(M.VORL).filter(k=>S.adopted[k]===undefined&&!prev.includes(k));
+ if(pool.length<2)pool=Object.keys(M.VORL).filter(k=>S.adopted[k]===undefined);
+ S.ballot=[];while(S.ballot.length<2&&pool.length){S.ballot.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);}
+ S.alloc={};S.don={};S.ballot.forEach(k=>{S.alloc[k]=0;S.don[k]=0});
+}
+const SPENDE=2,SPENDEP=15;
+function chance(k){
+ if(G){const g=G.totals(k);return Math.min(MAXC,Math.round(M.VORL[k].c*100+g.h*30/G.n()+g.d*SPENDEP/G.n()));}
+ return Math.min(MAXC,Math.round(M.VORL[k].c*100)+S.alloc[k]*30+(S.don[k]?SPENDEP:0))}
+function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;}else{if(S.money<SPENDE)return;S.don[k]=1;S.money-=SPENDE;}if(G)G.push();render();}
+function alloc(k,d){if(S.results||S.waiting)return;
+ if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(G)G.push();render();}
+function vote(){
+ if(G){G.ready();return;}
+ S.results=S.ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);const ok=roll<c;
+  if(ok)S.adopted[k]=vorlFrom(S.r);return {k,c,ok,roll}});
+ S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
+ render();
+}
+function toEvent(){
+ const f=fig(),cand=[];
+ if(S.chosen.I3!==undefined&&!S.happened.includes("E1"))cand.push("E1");
+ if(!f.ban.includes("W2")&&S.chosen.W2===undefined&&!S.flags.w2locked&&!S.happened.includes("E2")&&S.r<LAST)cand.push("E2");
+ if(!f.ban.includes("N2")&&S.chosen.N2===undefined&&S.chosen.N3===undefined&&!S.happened.includes("E3")&&S.r<LAST)cand.push("E3");
+ if(S.chosen.C4===undefined&&!S.happened.includes("E4"))cand.push("E4");
+ cand.push("ruhig");
+ const e=cand[Math.floor(Math.random()*cand.length)];
+ S.event=e;
+ const nextY=vorlFrom(S.r);
+ if(e!=="ruhig"){S.happened.push(e);}
+ if(e=="E1")S.events.push({id:"E1",from:nextY});
+ if(e=="E2")S.flags.e2=S.r+1;
+ if(e=="E3")S.flags.e3=S.r+1;
+ if(e=="E4"){S.money=Math.max(0,S.money-2);S.events.push({id:"E4",from:nextY});}
+ S.log[S.log.length-1].event=e;
+ S.screen="event";render();window.scrollTo(0,0);
+}
+function nextRound(){
+ if(S.flags.e2===S.r&&S.chosen.W2===undefined)S.flags.w2locked=true;
+ if(S.r<LAST){S.r++;beginRound();}else{S.screen="end";render();window.scrollTo(0,0);}
+}
+
+/* ---------- Ansicht ---------- */
+function barHTML(v,big){
+ const c=bycat(v),t=tot(v),W=13.5;
+ let segs=CATS.map((x,i)=>`<div class="seg" title="${x}: ${fmt(c[x])} t" style="width:${c[x]/W*100}%;background:${SHADE[i]}"></div>`).join("");
+ return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>
+ <div class="legend">${CATS.map((x,i)=>`<span><span class="sw" style="background:${SHADE[i]}"></span>${x} <span class="num">${fmt(c[x])}</span></span>`).join("")}<span style="color:#c00">| Ziel 0.6 t</span></div>`;
+}
+function header(){
+ const p=PER[S.r],y=p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),so=S.r?sum(2026,y-1,ACT):0;
+ const hl=freeH();
+ return `<div class="top">
+ <div class="row"><b style="font-family:Montserrat">${S.fig}${G?" ("+G.myColor()+")":""}</b>${G?`<span class="tag">Raum ${G.code}</span>`:""}<span class="muted">Runde ${S.r+1} von ${PER.length} · ${p.l}</span>
+ <span class="steps">${["Eigene Entscheide und Abstimmungssonntag","Ereignis"].map((s,i)=>(i==({round:0,event:1}[S.screen]))?`<b>${s}</b>`:s).join(" → ")}</span></div>
+ <div class="row" style="margin-top:6px"><span class="big">${fmt(a)} t</span><span class="muted">pro Jahr ab ${y}</span>
+ <span style="margin-left:auto" class="res">♥ ${hl} &nbsp; Geld ${S.money}</span></div>
+ ${barHTML(v)}
+ <div class="row hint" style="margin-top:4px"><span>Ohne dein Zutun (nur Trend): <span class="num">${fmt(n)} t</span></span>
+ <span>Summe seit 2026 bisher: <span class="num">${fmt(so,0)} t</span></span></div></div>`;
+}
+function cardHTML(id){
+ const t=T[id],b=blocked(id),on=S.chosen[id]!==undefined,mine=S.thisRound.includes(id);
+ const e=effOwn(id),h=costH(id),g=costG(id);
+ const gtxt=g<0?"Geld +2 zurück":"Geld "+g;
+ let btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="tag">seit ${S.chosen[id]}</span>`)
+  :`<button class="small" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
+ const banned=fig().ban.includes(id);
+ return `<div class="box card ${on?"on":""} ${b&&!on?"off":""}">
+ <div><h3 style="margin:0">${esc(t.title)} <span class="tag">${strat(id)}</span></h3>
+ <div>${esc(t.front)}</div></div>
+ <div style="text-align:right"><div class="eff">${banned?"":sgn(-e)+" t/Jahr"}</div>
+ <div class="cost">${banned?"":"♥ "+h+" · "+gtxt}</div><div style="margin-top:4px">${btn}</div></div>
+ ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
+ <details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;
+}
+function vEff(k){const y=vorlFrom(S.r);
+ return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
+function viewStart(){
+ return `<h1>13 Tonnen</h1><p class="muted">Prototyp für eine Person, kurze Version mit 4 Runden oder lange mit 8. Nur Text und Rahmen, damit die Zahlen und Abläufe geprüft werden können.</p>
+ <div class="box soft"><p><b>Worum es geht.</b> Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr. Damit das Klima stabil bleibt, dürften es 0.6 Tonnen sein. Du übernimmst eine Figur und versuchst, ihren Fussabdruck bis 2050 so weit wie möglich zu senken.</p>
+ <p><b>Herzen und Geld.</b> In jeder Runde bekommst du 3 Herzen. Geld hast du zu Beginn etwas und bekommst pro Runde wenig dazu; jede Figur anders. Herzen stehen für Aufwand und Verzicht und verfallen am Ende der Runde. Geld steht für Anschaffungen und Kampagnen; was du nicht ausgibst, nimmst du mit. Wer das Auto abgibt, kleiner wohnt oder weniger kauft, bekommt einmalig 2 Geld zurück.</p>
+ <p><b>Eine Runde hat drei Schritte.</b> 1. Eigene Entscheide: Du bekommst eine Auswahl von 6 Karten aus allen Bereichen. Jede Karte, die du wählst, gilt ab jetzt jedes Jahr bis 2050. 2. Abstimmungssonntag: Auf der gleichen Seite stehen zwei Vorlagen, jede mit kleiner Grundchance. Du entscheidest selbst, wie du deine Herzen zwischen Karten und Engagement aufteilst. Jedes Herz fürs Engagement erhöht die Chance um 30 Prozentpunkte. Mit 2 Geld kannst du zusätzlich eine Kampagne unterstützen (+15 Prozentpunkte). Angenommene Vorlagen wirken ab der nächsten Runde für alle. Abgelehnte Vorlagen können später wieder kommen. 3. Ereignis: Etwas passiert, das du nicht planen konntest.</p>
+ <p><b>Die Welt ändert sich auch ohne dich.</b> Alte Autos und Heizungen werden ersetzt, der Strom wird sauberer: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</p></div>
+ <h2>Kurz oder lang?</h2><div class="row"><label><input type="radio" name="mode" ${S.mode=="kurz"?"checked":""} onchange="S.mode='kurz';setMode('kurz');render()"> Kurz: 4 Runden</label><label><input type="radio" name="mode" ${S.mode=="lang"?"checked":""} onchange="S.mode='lang';setMode('lang');render()"> Lang: 8 Runden zu je 3 Jahren</label></div>
+ <h2>In der Gruppe spielen</h2><div class="box"><p>Jede Person spielt auf ihrem eigenen Gerät eine eigene Figur. Beim Abstimmungssonntag zählen die Herzen der ganzen Gruppe. Niemand gibt einen Namen ein.</p>
+ <div class="row"><button class="primary" onclick="Group.create()">Raum eröffnen</button><span class="muted">oder</span>
+ <input id="code" maxlength="5" placeholder="Code" style="font:700 18px Inconsolata,monospace;width:7em;text-transform:uppercase;padding:6px;border:1px solid var(--ink);border-radius:6px">
+ <button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div>
+ ${S.netErr?`<p style="color:#c00">${esc0(S.netErr)}</p>`:""}</div>
+ <h2>Allein spielen: wähle deine Figur</h2><div class="grid figs">${Object.keys(M.FIG).map(f=>`<div class="box fig" onclick="startFig('${f}')"><h3>${f}</h3><div>${esc(M.FIG[f].life)}</div><div class="hint" style="margin-top:6px">Start 12.8 t · Startgeld ${M.START[f]} · Geld ${incText(f)}</div></div>`).join("")}</div>`;
+}
+function viewRound(){
+ let h=header();
+ if(S.roundNote&&S.roundNote.length)h+=`<div class="box soft">${S.roundNote.join("<br>")}</div>`;
+ if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
+  const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
+  h+=`<div class="box"><b>Seit der letzten Runde:</b> <span class="num">${sgn(d)} t</span> pro Jahr. Davon Trend <span class="num">${sgn(dt)}</span>, Vorlagen <span class="num">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="num">${sgn(d-dt-dv)}</span>.</div>`;}
+ h+=`<h2>Deine Auswahl in dieser Runde</h2><p class="hint">${S.hand.length} Karten aus allen Bereichen. Was du nicht nimmst, kann in einer späteren Runde wieder auftauchen.</p>`;
+ h+=S.hand.map(cardHTML).join("");
+ const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
+ if(old.length)h+=`<h2>Deine Vorsätze bisher</h2><div class="box">${old.map(k=>`<div class="row"><span>${esc(T[k].title)}</span><span class="hint">seit ${S.chosen[k]}</span><span class="num" style="margin-left:auto">${sgn(-effOwn(k))} t/Jahr</span></div>`).join("")}</div>`;
+ h+=ballotHTML();
+ h+=S.results?`<div class="box soft row" style="position:sticky;bottom:0"><span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide für diese Runde stehen fest.</span><button class="primary" style="margin-left:auto" onclick="toEvent()">Weiter zum Ereignis</button></div>`
+ :S.waiting?`<div class="box soft row" style="position:sticky;bottom:0"><span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button style="margin-left:auto" onclick="G.unready()">Doch noch ändern</button></div>`
+ :`<div class="box soft row" style="position:sticky;bottom:0"><span>Übrig: ♥ ${freeH()} · Geld ${S.money}. Herzen verfallen am Ende der Runde.</span><button class="primary" style="margin-left:auto" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button></div>`;
+ return h;
+}
+function ballotHTML(){
+ let h=`<h2>Abstimmungssonntag</h2><p class="hint">Verteile deine Herzen zwischen eigenen Karten und Engagement: Unterschriften sammeln, Leserbriefe, Gespräche. ${G?`Ihr seid ${G.n()} in der Gruppe: Jedes Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne mit 2 Geld +${fmt(SPENDEP/G.n(),0)}. Es zählen die Herzen und Kampagnen aller.`:`Jedes Herz bringt +30 Prozentpunkte. Mit 2 Geld kannst du zusätzlich eine Kampagne unterstützen: +15 Prozentpunkte.`} Angenommen wirkt die Vorlage ab ${vorlFrom(S.r)}.</p>`;
+ for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k);
+  h+=`<div class="box card"><div><h3 style="margin:0">${esc(t.title)} <span class="tag">${strat(k)}</span></h3><div>${esc(t.front)}</div></div>
+  <div style="text-align:right"><div class="eff">${sgn(-vEff(k),2)} t/Jahr</div><div class="hint">für dich ab ${vorlFrom(S.r)}</div>
+  <div class="res" style="margin-top:6px">Chance ${chance(k)} %</div>${G?`<div class="hint">Gruppe: ♥ ${G.totals(k).h} · Kampagnen ${G.totals(k).d}</div>`:""}
+  ${S.results?`<div style="margin-top:6px"><b>${r.ok?"Angenommen":"Abgelehnt"}</b> <span class="hint">(Wurf ${r.roll})</span></div>`:
+  `<div style="margin-top:6px"><button class="small" onclick="alloc('${k}',-1)">−</button> <span class="num">♥ ${S.alloc[k]}</span> <button class="small" onclick="alloc('${k}',1)">+</button></div>
+  <div style="margin-top:6px"><label class="hint"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&S.money<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne mit ${SPENDE} Geld unterstützen (+${G?fmt(SPENDEP/G.n(),0):SPENDEP} %)</label></div>`}</div>
+  <details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;}
+ return h;
+}
+function viewEvent(){
+ let h=header()+`<h2>Ereignis</h2>`;
+ if(S.event=="ruhig")h+=`<div class="box"><h3>Ein ruhiges Jahr</h3><p>Nichts Besonderes passiert. Deine Vorsätze halten.</p></div>`;
+ else{const t=T[S.event];h+=`<div class="box"><h3>${esc(t.title)}</h3><p>${esc(t.front||"")}</p><p class="hint">${esc(t.head.replace(/^ · /,""))}</p>${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}<p class="hint">${esc(t.back)}</p></div>`;
+  if(S.event=="E1")h+=`<p class="hint">Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</p>`;}
+ h+=`<div class="box soft row"><span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" style="margin-left:auto" onclick="nextRound()">${S.r<LAST?"Weiter":"Zur Auswertung"}</button></div>`;
+ return h;
+}
+function viewEnd(){
+ if(G)G.finish();
+ const Y=2050,a=val(Y,ACT),vo=val(Y,VO),no=val(Y,NO);
+ const sA=sum(2026,Y,ACT),sV=sum(2026,Y,VO),sN=sum(2026,Y,NO),s0=START*25;
+ const own=Object.keys(S.chosen).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
+ const pol=Object.keys(S.adopted).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
+ const ch=(no-vo)*9, chS=(sN-sV)*9;
+ let h=`<h1>Auswertung: ${S.fig}</h1>
+ <div class="box"><div class="row"><span class="big">${fmt(a)} t</span><span class="muted">pro Jahr im Jahr 2050</span><span style="margin-left:auto" class="res">Summe 2026 bis 2050: ${fmt(sA,0)} t · übriges Geld ${S.money}</span></div>${barHTML(subs(Y,ACT))}</div>
+ <table><tr><th></th><th class="n">2050 pro Jahr</th><th class="n">Summe 2026 bis 2050</th></tr>
+ <tr><td>Start: alles bleibt wie 2026</td><td class="n">${fmt(START)}</td><td class="n">${fmt(s0,0)}</td></tr>
+ <tr><td>Trend (die Welt ändert sich auch ohne dich)</td><td class="n">${sgn(no-START)}</td><td class="n">${sgn(sN-s0,0)}</td></tr>
+ <tr><td>Angenommene Vorlagen</td><td class="n">${sgn(vo-no)}</td><td class="n">${sgn(sV-sN,0)}</td></tr>
+ <tr><td>Deine eigenen Entscheide und Ereignisse</td><td class="n">${sgn(a-vo)}</td><td class="n">${sgn(sA-sV,0)}</td></tr>
+ <tr><th>Du</th><th class="n">${fmt(a)}</th><th class="n">${fmt(sA,0)}</th></tr></table>
+ <div class="box soft"><b>Eine Person, die selbst nichts geändert hat,</b> stünde 2050 bei <span class="num">${fmt(vo)} t</span> (Summe <span class="num">${fmt(sV,0)} t</span>). Sie ist nur vom Trend und von den angenommenen Vorlagen betroffen.</div>
+ <div class="box"><b>Für die ganze Schweiz</b> (9 Mio. Menschen) bringen die angenommenen Vorlagen 2050 <span class="num">${fmt(ch)} Mio. t</span> weniger pro Jahr, über alle Jahre zusammen <span class="num">${fmt(chS,0)} Mio. t</span>.</div>
+ <h2>Deine grössten Hebel</h2><p class="hint">Notiere beide mit der Zahl in Tonnen. Du brauchst sie für Auftrag 4.3.</p>
+ <div class="box"><b>Eigener Hebel:</b> ${own.length?`${esc(T[own[0].id].title)}, <span class="num">${sgn(-own[0].d)} t</span> pro Jahr im Jahr 2050`:"keine eigene Karte gewählt"}<br>
+ <b>Politischer Hebel:</b> ${pol.length?`${esc(T[pol[0].id].title)}, <span class="num">${sgn(-pol[0].d)} t</span> pro Jahr im Jahr 2050`:"keine Vorlage angenommen"}</div>
+ <h2>Verlauf</h2><table><tr><th>Runde</th><th>Karten</th><th>Engagement</th><th>Abstimmungen</th><th>Ereignis</th></tr>
+ ${S.log.map(l=>`<tr><td>${PER[l.r].l}</td><td>${l.cards.map(c=>esc(T[c].title)).join(", ")||"–"}</td><td class="n">♥ ${l.hearts}${l.don?" · Geld "+l.don:""}</td><td>${l.votes.map(v=>esc(T[v.k].title)+(v.ok?" ✓":" ✗")).join("<br>")}</td><td>${l.event=="ruhig"?"ruhig":esc(T[l.event].title)}</td></tr>`).join("")}</table>
+ ${G?G.endTable():""}<p style="margin-top:20px"><button class="primary" onclick="if(G)G.leave();fresh();render()">Neues Spiel</button></p>`;
+ return h;
+}
+function render(){
+ const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
+ const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,end:viewEnd}[S.screen];
+ document.getElementById("app").innerHTML=v();
+ if(document.querySelectorAll){const ds=document.querySelectorAll("details");openD.forEach(i=>{if(ds[i])ds[i].open=true});}
+}
+/* ---------- Netz: Firebase oder Testspeicher ---------- */
+const FBCONF={apiKey:"AIzaSyA68EhbTQ5nb-SDhb25pEJ93qPdJ6KV5ss",authDomain:"dreizehn-tonnen.firebaseapp.com",
+ databaseURL:"https://dreizehn-tonnen-default-rtdb.europe-west1.firebasedatabase.app",projectId:"dreizehn-tonnen",
+ storageBucket:"dreizehn-tonnen.firebasestorage.app",messagingSenderId:"405923842148",appId:"1:405923842148:web:8167ec410b49fde9da3771"};
+const FBV="10.14.1";
+let NET=null;
+async function netInit(){
+ if(NET)return NET;
+ if(typeof window!=="undefined"&&window.__FAKENET){NET=window.__FAKENET();await NET.init();return NET;}
+ const A=await import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app.js`);
+ const U=await import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`);
+ const D=await import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-database.js`);
+ const app=A.initializeApp(FBCONF),auth=U.getAuth(app),db=D.getDatabase(app);
+ const cred=await U.signInAnonymously(auth);
+ const r=p=>D.ref(db,p);
+ NET={uid:cred.user.uid,
+  set:(p,v)=>D.set(r(p),v), update:(p,v)=>D.update(r(p),v), remove:p=>D.remove(r(p)),
+  get:async p=>(await D.get(r(p))).val(),
+  watch:(p,cb)=>D.onValue(r(p),s=>cb(s.val())),
+  txn:async(p,fn)=>(await D.runTransaction(r(p),fn)).committed,
+  onDisc:(p,v)=>D.onDisconnect(r(p)).update(v),
+  now:{".sv":"timestamp"},
+  cleanup:async()=>{const q=D.query(r("rooms"),D.orderByChild("createdAt"),D.endAt(Date.now()-86400000),D.limitToFirst(20));
+   const s=await D.get(q);const v=s.val()||{};for(const k in v)await D.remove(r("rooms/"+k));}};
+ return NET;
+}
+
+const COLORS=["blau","rot","grün","gelb","violett","orange","grau","braun","türkis","rosa","schwarz","weiss"];
+const ABC="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+let ROOM=null, UNWATCH=null;
+
+const Group={
+ async create(){
+  try{S.netErr=null;await netInit();await NET.cleanup().catch(()=>{});
+   let code;for(let i=0;i<5;i++){code=Array.from({length:5},()=>ABC[Math.floor(Math.random()*ABC.length)]).join("");
+    if(!(await NET.get("rooms/"+code)))break;}
+   await NET.set("rooms/"+code,{createdAt:NET.now,host:NET.uid,mode:S.mode||"kurz",status:"lobby"});
+   await Group.enter(code);
+  }catch(e){S.netErr="Verbindung nicht möglich ("+(e.code||e.message)+"). Spielt sonst allein.";render();}
+ },
+ async join(code){
+  code=String(code||"").trim().toUpperCase();
+  if(!/^[A-Z0-9]{5}$/.test(code)){S.netErr="Der Code hat fünf Zeichen.";render();return;}
+  try{S.netErr=null;await netInit();const room=await NET.get("rooms/"+code);
+   if(!room){S.netErr="Diesen Raum gibt es nicht.";render();return;}
+   if(room.status!=="lobby"&&!(room.players&&room.players[NET.uid])){S.netErr="Dieses Spiel hat schon begonnen.";render();return;}
+   await Group.enter(code);
+  }catch(e){S.netErr="Verbindung nicht möglich ("+(e.code||e.message)+").";render();}
+ },
+ async enter(code){
+  const base="rooms/"+code+"/players/"+NET.uid;
+  const room=await NET.get("rooms/"+code);
+  const me=room.players&&room.players[NET.uid];
+  if(!me){let order=0;
+   await NET.txn("rooms/"+code+"/seq",cur=>{order=(cur||0);return order+1;});
+   await NET.set(base,{color:COLORS[order]||("Nr. "+(order+1)),order,online:true,fig:""});}
+  else await NET.update(base,{online:true});
+  NET.onDisc(base,{online:false});
+  G=makeG(code);
+  S.screen="lobby";
+  if(UNWATCH)UNWATCH();
+  UNWATCH=NET.watch("rooms/"+code,v=>{ROOM=v;onRoom();});
+ },
+ pickFig(f){NET.update("rooms/"+G.code+"/players/"+NET.uid,{fig:f});},
+ setMode(m){NET.update("rooms/"+G.code,{mode:m});},
+ async start(){
+  const ps=Object.keys(ROOM.players).filter(u=>ROOM.players[u].online!==false);
+  setMode(ROOM.mode);
+  await NET.update("rooms/"+G.code,{status:"play",n:ps.length,ballot0:pickBallot({},[])});
+ },
+ viewLobby(){
+  if(!ROOM)return `<p>Verbinde …</p>`;
+  const ps=G.players(),me=ROOM.players[NET.uid]||{},host=ROOM.host===NET.uid;
+  const ready=ps.length>=1&&ps.every(p=>p.fig);
+  return `<h1>13 Tonnen · Gruppenspiel</h1>
+  <div class="box"><div class="hint">Raumcode für die anderen</div><div class="big" style="letter-spacing:.15em">${G.code}</div></div>
+  <h2>Version</h2><p>${host?`<label><input type="radio" name="gm" ${ROOM.mode=="kurz"?"checked":""} onchange="Group.setMode('kurz')"> Kurz: 4 Runden</label> &nbsp; <label><input type="radio" name="gm" ${ROOM.mode=="lang"?"checked":""} onchange="Group.setMode('lang')"> Lang: 8 Runden</label>`:(ROOM.mode=="lang"?"Lang: 8 Runden":"Kurz: 4 Runden")+` <span class="hint">(wählt, wer den Raum eröffnet hat)</span>`}</p>
+  <h2>Mitspielende</h2><table><tr><th>Farbe</th><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.color}${p.uid===NET.uid?" (du)":""}</td><td>${p.fig||"<span class='hint'>wählt noch</span>"}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
+  <h2>Deine Figur</h2><div class="grid figs">${Object.keys(M.FIG).map(f=>`<div class="box fig" style="${me.fig==f?"border:2px solid var(--ink)":""}" onclick="Group.pickFig('${f}')"><h3>${f}</h3><div>${esc(M.FIG[f].life)}</div><div class="hint" style="margin-top:6px">Startgeld ${M.START[f]} · Geld ${incText(f)}</div></div>`).join("")}</div>
+  <p style="margin-top:16px">${host?`<button class="primary" ${ready?"":"disabled"} onclick="Group.start()">Spiel starten (${ps.length} ${ps.length==1?"Person":"Personen"})</button> <span class="hint">Starten geht, sobald alle eine Figur gewählt haben.</span>`:`<span class="hint">Warten, bis das Spiel gestartet wird …</span>`}
+  <button style="margin-left:8px" onclick="G.leave();fresh();render()">Raum verlassen</button></p>`;
+ }
+};
+
+function pickBallot(adopted,prev){
+ let pool=Object.keys(M.VORL).filter(k=>adopted[k]===undefined&&!prev.includes(k));
+ if(pool.length<2)pool=Object.keys(M.VORL).filter(k=>adopted[k]===undefined);
+ const b=[];while(b.length<2&&pool.length)b.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+ return b;
+}
+function adoptedFrom(room){
+ const a={};const st=room.stage||{};
+ for(const r in st)for(const x of (st[r].res||[]))if(x.ok)a[x.k]=vorlFrom(+r);
+ return a;
+}
+
+function makeG(code){
+ return {code,
+  n(){return (ROOM&&ROOM.n)||1},
+  players(){const p=(ROOM&&ROOM.players)||{};return Object.keys(p).map(u=>({uid:u,...p[u]})).sort((a,b)=>a.order-b.order)},
+  myColor(){return ROOM&&ROOM.players[NET.uid]?ROOM.players[NET.uid].color:""},
+  path(){return "rooms/"+code+"/players/"+NET.uid},
+  totals(k){let h=0,d=0;const r=S.r;
+   for(const p of this.players()){
+    if(p.uid===NET.uid){h+=S.alloc[k]||0;d+=S.don[k]?1:0;continue;}
+    const a=p.alloc&&p.alloc[r];const dn=p.don&&p.don[r];
+    h+=(a&&a[k])||0;d+=(dn&&dn[k])||0;}
+   return {h,d};},
+  push(){NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don});},
+  ballotFor(r){const b=r==0?ROOM.ballot0:(ROOM.stage&&ROOM.stage[r-1]&&ROOM.stage[r-1].next);
+   S.ballot=b||[];S.alloc={};S.don={};S.ballot.forEach(k=>{S.alloc[k]=0;S.don[k]=0});this.push();},
+  ready(){S.waiting=true;NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don,["ready/"+S.r]:true});render();tryResolve();},
+  unready(){if(ROOM.stage&&ROOM.stage[S.r])return;S.waiting=false;NET.update(this.path(),{["ready/"+S.r]:false});render();},
+  active(){return this.players().filter(p=>p.online!==false&&p.fig)},
+  missing(){return this.active().filter(p=>p.uid!==NET.uid&&!(p.ready&&p.ready[S.r])).map(p=>p.fig+" ("+p.color+")")},
+  finish(){if(S.finished)return;S.finished=true;
+   const Y=2050;NET.update(this.path(),{end:{v:+val(Y,ACT).toFixed(2),sum:Math.round(sum(2026,Y,ACT)),
+    own:+(val(Y,ACT)-val(Y,VO)).toFixed(2),cards:Object.keys(S.chosen).length}});},
+  endTable(){const ps=this.players();const vo=val(2050,VO);
+   return `<h2>Eure Gruppe</h2><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
+   <table><tr><th>Figur</th><th class="n">2050 pro Jahr</th><th class="n">davon eigene Entscheide</th><th class="n">Summe bis 2050</th><th class="n">Karten</th></tr>
+   ${ps.map(p=>`<tr><td>${p.fig} (${p.color})${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
+  leave(){if(UNWATCH)UNWATCH();UNWATCH=null;NET.update(this.path(),{online:false});G=null;ROOM=null;}
+ };
+}
+
+async function tryResolve(){
+ if(!G||!ROOM)return;const r=S.r;
+ if(ROOM.stage&&ROOM.stage[r])return;
+ const act=G.active();
+ if(!act.every(p=>p.uid===NET.uid?S.waiting:(p.ready&&p.ready[r])))return;
+ const ballot=r==0?ROOM.ballot0:ROOM.stage[r-1].next;
+ const adoptedBefore=adoptedFrom(ROOM);
+ await NET.txn("rooms/"+G.code+"/stage/"+r,cur=>{
+  if(cur)return;  // schon entschieden
+  const res=ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);return {k,c,ok:roll<c,roll}});
+  const ad={...adoptedBefore};res.forEach(x=>{if(x.ok)ad[x.k]=1});
+  return {res,next:r<LAST?pickBallot(ad,ballot):[]};
+ });
+}
+
+function onRoom(){
+ if(!ROOM||!G){return;}
+ if(S.screen==="lobby"){
+  if(ROOM.status==="play"){
+   const me=ROOM.players[NET.uid];
+   S.mode=ROOM.mode;setMode(ROOM.mode);
+   S.fig=me.fig;S.r=0;S.money=M.START[S.fig];beginRound();return;
+  }
+  render();return;
+ }
+ S.adopted=adoptedFrom(ROOM);
+ const st=ROOM.stage&&ROOM.stage[S.r];
+ if(S.screen==="round"){
+  if(st&&!S.results){
+   S.results=st.res;S.waiting=false;
+   S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
+   render();return;
+  }
+  if(S.waiting)tryResolve();
+  const y=window.scrollY;render();window.scrollTo(0,y);
+ }
+ if(S.screen==="end")render();
+}
+
+render();
+</script>
+</body>
+</html>
