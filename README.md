@@ -7,4 +7,6 @@ Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibh
 - Alle Zahlen und Quellen stehen im Spiel auf der Rückseite jeder Karte («Woher die Zahl?»).
 - Gruppenspiel: Firebase Realtime Database (Standort Belgien), anonyme Anmeldung, keine Namen. Räume lassen sich nach 24 Stunden nicht mehr verändern und werden beim Eröffnen neuer Räume gelöscht.
 
-Stand: Prototyp ohne Grafik, November 2026.
+Figuren und einige Symbole: «Cute Fantasy RPG» von Kenmi (https://kenmi-art.itch.io/cute-fantasy-rpg), verändert und nur als eingebettete Einzelbilder im Spiel. Die Grafiken dürfen nicht separat weiterverwendet werden.
+
+Stand: Prototyp, November 2026.
