@@ -103,6 +103,26 @@ table.pts td:first-child{width:60%}table.board tr.me td{background:var(--soft);f
 .crisis{margin:0 0 18px;padding:14px 16px;background:var(--paper,#fff);box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);position:relative}
 .crisis::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:repeating-linear-gradient(135deg,var(--ink) 0 3px,transparent 3px 7px)}
 .crisis .lbl{margin-top:6px}
+.hero{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;margin-bottom:8px}
+h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
+.herobox{display:flex;align-items:center;gap:14px}.herobox .ibox{min-width:170px}.herobox .arrow{font-family:var(--titel);font-size:40px;color:var(--g3)}
+.step{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--ink);color:#fff;font-size:20px;margin-right:12px;vertical-align:3px}
+.setrow{display:flex;gap:28px;flex-wrap:wrap;align-items:center}.setrow .tabs{margin:0}
+.figs.five{grid-template-columns:repeat(5,1fr)}
+.fig{flex-direction:column;align-items:stretch;gap:0;padding:14px 16px 12px}
+.fig .im{align-self:stretch;display:flex;justify-content:center;padding:14px 0 10px;margin:0 0 12px!important}
+.fig h3{font-size:30px;margin:0 0 6px;line-height:1}
+.fig .life{font-size:14px;margin:0 0 10px;flex:1}
+.fig .fmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin-bottom:6px}.fig .fmeta span{display:inline-flex;align-items:center;gap:4px}
+.fig .fwish{font-size:13px;display:flex;gap:6px;align-items:flex-start;margin-bottom:10px;min-height:36px}.fig .fwish img{margin-top:2px}
+.fig .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:8px;color:var(--muted)}
+.fig:hover .fgo,.fig:focus .fgo{color:var(--ink)}
+.groupbox{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:18px 20px;background:var(--soft);margin:var(--p);box-shadow:0 -3px 0 0 var(--g4),0 3px 0 0 var(--g4),-3px 0 0 0 var(--g4),3px 0 0 0 var(--g4)}
+.groupbox .hint{margin:6px 0 0}
+.credits{margin-top:36px}
+@media(max-width:1200px){.figs.five{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.figs.five{grid-template-columns:1fr 1fr}.groupbox{grid-template-columns:1fr}h1.big{font-size:60px}}
+
 .fa{display:inline-block;background-repeat:no-repeat;background-size:600% 100%;image-rendering:pixelated;animation:faIdle 1s steps(6) infinite;vertical-align:bottom}
 .fa.walk{animation-duration:.6s}
 @keyframes faIdle{to{background-position-x:120%}}
@@ -1234,22 +1254,28 @@ function rulesHTML(){
  <div class="callout"><span class="ic">2</span><span><b>Ereignis.</b> Etwas passiert, das du nicht planen konntest.</span></div>
  <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
 }
-function figCard(f,onclick,on){return `<div class="fig ${on?"on":""}" onclick="${onclick}"><div class="im">${figAnim(f,3)}</div><div><h3>${f}</h3><div style="font-size:14px">${esc(M.FIG[f].life)}</div><div class="lbl" style="margin-top:6px">Startgeld ${M.START[f]} · Geld ${incText(f)}</div>${WISH[f]?`<div style="font-size:13px;margin-top:4px"><b>Wunsch:</b> ${esc0(WISH[f].t)}</div>`:""}</div></div>`}
+function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
+ return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im">${figAnim(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
+ <div class="fmeta"><span>Start ${M.START[f]} ${IC("geld",14)}</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
 function viewStart(){
- return `<div class="wrap"><div class="lbl">KKN4.02 Klimawandel · Spiel</div><h1 style="margin:4px 0 8px">13 Tonnen</h1>
- <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr, verträglich wären 0.6. Übernimm eine Figur und senke ihren Fussabdruck bis 2050: mit eigenen Entscheiden und mit Engagement für Vorlagen. Die erste Runde erklärt sich beim Spielen.</p>
- <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details>
- <div class="sec"><h2>Allein spielen</h2><p class="sub">Wähle deine Figur. Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht.</p></div>
- <div class="figs">${Object.keys(M.FIG).map(f=>figCard(f,`startFig('${f}')`,false)).join("")}</div>
- <div class="sec"><h2>Version und Herausforderung</h2></div><div class="tabs">
+ return `<div class="wrap">
+ <div class="hero"><div><div class="lbl">KKN4.02 Klimawandel · Spiel</div><h1 class="big">13 Tonnen</h1>
+  <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr, verträglich wären 0.6. Übernimm eine Figur und senke ihren Fussabdruck bis 2050: mit eigenen Entscheiden und mit Engagement für Vorlagen. Die erste Runde erklärt sich beim Spielen.</p>
+  <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details></div>
+  <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>
+ <div class="sec"><h2><span class="step">1</span>Version und Herausforderung</h2></div>
+ <div class="setrow"><div class="tabs">
   <label class="tab ${S.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='kurz';setMode('kurz');render()"><span class="n">4</span>Kurz: 4 Runden</label>
   <label class="tab ${S.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='lang';setMode('lang');render()"><span class="n">8</span>Lang: 8 Runden</label></div>
- <div class="tabs">${Object.entries(CHAL).map(([k,c])=>`<label class="tab ${(S.chal||"keine")==k?"on":""}" style="cursor:pointer" title="${c.d}"><input type="radio" style="display:none" onchange="S.chal='${k}';render()">${c.t}</label>`).join("")}</div>
- <p class="hint">${CHAL[S.chal||"keine"].d}</p>
- <div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Jede Person spielt auf ihrem Gerät eine eigene Figur. Beim Abstimmungssonntag zählen die Herzen der ganzen Gruppe, und ihr habt ein gemeinsames Ziel. Niemand gibt einen Namen ein.</p></div>
- <div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button><span class="lbl">oder</span><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div>
+ <div class="tabs">${Object.entries(CHAL).map(([k,c])=>`<label class="tab ${(S.chal||"keine")==k?"on":""}" style="cursor:pointer" title="${c.d}"><input type="radio" style="display:none" onchange="S.chal='${k}';render()">${c.t}</label>`).join("")}</div></div>
+ <p class="hint">${S.mode=="lang"?"8 Runden zu 3 Jahren, etwa 40 Minuten.":"4 Runden zu 6 Jahren, etwa 20 Minuten."} Herausforderung: ${CHAL[S.chal||"keine"].d}</p>
+ <div class="sec"><h2><span class="step">2</span>Allein spielen: Figur wählen</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
+ <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`startFig('${f}')`,false)).join("")}</div>
+ <div class="sec"><h2><span class="step">2</span>Oder in der Gruppe spielen</h2><p class="sub">Jede Person spielt auf ihrem Gerät eine eigene Figur. Beim Abstimmungssonntag und bei den Projekten zählen die Herzen der ganzen Gruppe, und ihr habt ein gemeinsames Ziel. Niemand gibt einen Namen ein.</p></div>
+ <div class="groupbox"><div><div class="lbl">Raum eröffnen</div><div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button></div><p class="hint">Klasse ist freiwillig, zum Beispiel 4a.</p></div>
+  <div><div class="lbl">Raum beitreten</div><div class="row"><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div><p class="hint">Den Code zeigt die Person, die den Raum eröffnet hat.</p></div></div>
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
- <p class="hint" style="margin-top:28px">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
+ <p class="hint credits">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
 }
 function viewEnd(){
  if(G)G.finish();
