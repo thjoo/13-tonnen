@@ -347,6 +347,15 @@ details.rules>summary{font-size:13px}
 @keyframes floatup{0%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-18px)}}
 .seg{transition:width .45s steps(5)}
 .cbar{position:relative}
+.vov{position:fixed;inset:0;z-index:95;background:rgba(255,255,255,.62);display:grid;place-items:center;padding:16px}
+.vbox{background:#fff;width:min(540px,100%);padding:18px 22px;box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
+.vrow{margin:12px 0 4px}.vti{font-weight:700;margin-bottom:6px}
+.vbar{position:relative;height:24px;background:#fff;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink)}
+.vbar .ja{position:absolute;left:0;top:0;bottom:0;background:repeating-linear-gradient(45deg,var(--g4) 0 2px,var(--g5) 2px 4px)}
+.vbar .ja span{position:absolute;left:6px;top:4px;font:400 11px var(--mono);text-transform:uppercase;white-space:nowrap;color:var(--ink)}
+.vbar .vm{position:absolute;top:-8px;bottom:-8px;width:6px;margin-left:-3px;background:var(--ink)}
+.vres{font-family:var(--titel);font-size:24px;min-height:30px;margin-top:6px}.vres .hint{font-family:var(--fliess);font-size:13px}
+.vres.ok,.vres.no{animation:stamp .35s steps(3) both}@keyframes stamp{0%{transform:scale(1.6);opacity:0}100%{transform:none;opacity:1}}
 .roll{position:absolute;top:-6px;bottom:-6px;width:4px;background:var(--ink);margin-left:-2px}
 .roll.anim{animation:rollin 1.1s steps(11) both}
 @keyframes rollin{0%{left:0}}
@@ -1299,6 +1308,21 @@ function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(d>0)fx("heart");if(G)G.push();render();}
 function freeRide(){}
 function mStep(n){if(typeof innerWidth!=='undefined'&&innerWidth>=700)return;S.mstep=S.mstep===n?0:n;render();const h=document.querySelectorAll('.colhd.mstp')[n-1];if(h&&h.scrollIntoView)h.scrollIntoView({block:'start'});}
+/* Abstimmungssonntag: Auszaehlung als kurze Animation */
+function voteShow(done){if(typeof document==="undefined"||!document.body||!document.createElement||!S.results){done&&done();return;}
+ const old=document.querySelector(".vov");if(old)old.remove();
+ const o=document.createElement("div");o.className="vov";
+ o.innerHTML=`<div class="vbox" role="dialog" aria-modal="true"><div class="lbl">Abstimmungssonntag ${PER[S.r].l}</div><h2 style="margin:2px 0 12px">Das Volk hat entschieden</h2>
+ ${S.results.map((x,i)=>`<div class="vrow" data-i="${i}"><div class="vti">${esc(T[x.k].title)}</div><div class="vbar"><i class="ja" style="width:${x.c}%"><span>Ja-Chance ${x.c} %</span></i><b class="vm"></b></div><div class="vres"></div></div>`).join("")}
+ <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="primary" id="vgo">Weiter</button></div></div>`;
+ document.body.appendChild(o);let fin=false;const go=()=>{if(fin)return;fin=true;o.remove();done&&done();};o.querySelector("#vgo").onclick=go;
+ const rows=[...o.querySelectorAll(".vrow")],rm=RM(),GAP=rm?0:1700;
+ const land=(i)=>{const x=S.results[i],r=rows[i],m=r.querySelector(".vm"),res=r.querySelector(".vres");m.style.left=x.roll+"%";
+  res.className="vres "+(x.ok?"ok":"no");res.innerHTML=`${x.ok?"Angenommen":"Abgelehnt"} <span class="hint">Los ${x.roll}, ${x.ok?"im":"ausserhalb vom"} Ja-Bereich</span>`;};
+ rows.forEach((r,i)=>{if(rm){land(i);return;}const m=r.querySelector(".vm");m.style.left="0%";
+  setTimeout(()=>{let k=0;const seq=[];for(let j=0;j<9;j++)seq.push(Math.floor(Math.random()*100));
+   const iv=setInterval(()=>{if(k<seq.length){m.style.left=seq[k++]+"%";}else{clearInterval(iv);land(i);}},110);},300+i*GAP);});
+ if(!rm)setTimeout(()=>{const b=o.querySelector("#vgo");if(b)b.textContent=S.screen==="round"&&!G?"Weiter ins Dorf":"Weiter";},300+rows.length*GAP);}
 function voteScroll(){if(typeof innerWidth==='undefined'||innerWidth>=1000||!document.getElementById)return;setTimeout(()=>{const p=document.getElementById('panel');if(p&&p.scrollIntoView)p.scrollIntoView({block:'start',behavior:'smooth'});},120);}
 function vote(){
  S.carry=Math.min(1,freeH());
@@ -1308,8 +1332,7 @@ function vote(){
   if(ok)S.adopted[k]=vorlFrom(S.r);else{S.rejects=S.rejects||{};S.rejects[k]=(S.rejects[k]||0)+1;}return {k,c,ok,roll}});
  freeRide();
  S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
- fx(S.results.some(x=>x.ok)?"yay":"sad");
- toEvent();
+ voteShow(()=>toEvent());
 }
 function toEvent(){
  let e=S.nextEvent||"ruhig";
@@ -2020,7 +2043,7 @@ function onRoom(){
  const st=ROOM.stage&&ROOM.stage[S.r];
  if(S.screen==="round"){
   if(st&&!S.results){
-   S.results=st.res;S.waiting=false;freeRide();fx(S.results.some(x=>x.ok)?"yay":"sad");voteScroll();
+   S.results=st.res;S.waiting=false;freeRide();setTimeout(()=>voteShow(()=>{fx(S.results.some(x=>x.ok)?"yay":"sad");voteScroll();}),50);
    S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
    render();return;
   }
