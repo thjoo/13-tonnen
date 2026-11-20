@@ -123,7 +123,7 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .stage{position:relative;overflow:hidden;height:130px}
 .fig .im.stage{height:120px;padding:0!important}
 .pick .pfigs.stage{height:130px;padding:0}
-.wander{position:absolute;bottom:14px;left:0;display:block;line-height:0}
+.wander{position:absolute;bottom:14px;left:0;display:block;line-height:0;visibility:hidden}.wander[data-init]{visibility:visible}
 .wander.left{transform:scaleX(-1)}
 .wander .fa.duck{animation:faIdle 1s steps(6) infinite,duck .9s steps(6)}
 @keyframes duck{0%,100%{transform:none}25%,75%{transform:translateY(10px) scaleY(.82)}}
@@ -799,10 +799,13 @@ function wanderTick(){if(RM()||!document.querySelectorAll)return;const now=Date.
   ws.forEach((w,i)=>{const sc=+w.dataset.sc,fw=17*sc,f=w.dataset.f,inn=w.firstElementChild;
    if(!w.dataset.init){w.dataset.init=1;const x=ws.length>1?(W/(ws.length+1))*(i+1)-fw/2:(W-fw)/2;w.style.left=x+"px";w.dataset.x=x;w.dataset.next=now+500+Math.random()*1500;return;}
    if(now<+w.dataset.next)return;const r=Math.random(),x=+w.dataset.x;
-   if(r<0.45){let nx=Math.max(4,Math.min(W-fw-4,x+(Math.random()<0.5?-1:1)*(30+Math.random()*(W/2))));const d=Math.abs(nx-x);if(d<12){w.dataset.next=now+400;return;}
+   if(r<0.45){const pv=ws[i-1],nx_=ws[i+1],gap=10;
+    const lo=pv?Math.max(+pv.dataset.x,+(pv.dataset.from||pv.dataset.x))+17*(+pv.dataset.sc)+gap:4,hi=nx_?Math.min(+nx_.dataset.x,+(nx_.dataset.from||nx_.dataset.x))-fw-gap:W-fw-4;
+    let nx=Math.max(lo,Math.min(hi,x+(Math.random()<0.5?-1:1)*(30+Math.random()*(W/2))));const d=Math.abs(nx-x);if(d<12||hi<lo){w.dataset.next=now+400;return;}
+    w.dataset.from=x;
     const ms=d/45*1000;w.classList.toggle("left",nx<x);inn.className="fa walk";inn.style.backgroundImage=`url(${SPR.anim[f].walk})`;inn.style.height=24*sc+"px";
     w.style.transition=`left ${ms}ms linear`;w.style.left=nx+"px";w.dataset.x=nx;w.dataset.next=now+ms+300+Math.random()*900;
-    setTimeout(()=>{if(!inn.isConnected)return;inn.className="fa idle";inn.style.backgroundImage=`url(${SPR.anim[f].idle})`;inn.style.height=22*sc+"px";},ms);}
+    setTimeout(()=>{w.dataset.from=w.dataset.x;if(!inn.isConnected)return;inn.className="fa idle";inn.style.backgroundImage=`url(${SPR.anim[f].idle})`;inn.style.height=22*sc+"px";},ms);}
    else if(r<0.6){inn.classList.add("jump");setTimeout(()=>inn.classList.remove("jump"),900);w.dataset.next=now+1200+Math.random()*1200;}
    else if(r<0.75){inn.classList.add("duck");setTimeout(()=>inn.classList.remove("duck"),900);w.dataset.next=now+1200+Math.random()*1200;}
    else if(r<0.85){w.classList.toggle("left");w.dataset.next=now+700+Math.random()*1200;}
