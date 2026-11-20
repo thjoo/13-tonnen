@@ -410,6 +410,15 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 @media(min-width:1100px){.szene .dorfkopf{--ds:1.25}}
 .szene .dtitel{transform:none;top:10px;bottom:auto;left:16px;right:auto;justify-content:start;font-size:calc(320px*var(--ds)*.2);animation:none}
 .szl{list-style:none;margin:6px 0 0;padding:0}
+.dbub{position:absolute;z-index:2100;width:240px;background:#fff;padding:9px 12px 10px;font:400 13px/1.4 var(--fliess);color:var(--text);text-align:left;
+ box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),6px 6px 0 0 rgba(55,53,47,.3);animation:bubin .3s steps(3) both;pointer-events:none}
+.dbub::after{content:"";position:absolute;left:var(--ax,50%);bottom:-11px;width:10px;height:8px;margin-left:-5px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
+.dbub.unten::after{bottom:auto;top:-11px;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.dbub.pin{width:auto;max-width:200px;padding:5px 9px 6px;display:flex;flex-direction:column;gap:1px}.dbub.pin b{font-size:13px}.dbub.pin .ef{font:700 12px var(--fliess);color:var(--text)}
+.dbub.hov{z-index:2200}
+.dbub .lbl{font-size:9px;margin-bottom:2px}.dbub b{font-family:var(--titel);font-weight:400;font-size:15px}.dbub p{margin:3px 0 0}.dbub .ef{color:var(--muted);font-size:12px}.dbub .ef b{font:700 12px var(--fliess);color:var(--text)}
+@keyframes bubin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(max-width:999px){.dbub,.lapo{display:none}}
 .szl li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:2px dotted var(--g4);animation:szin .35s steps(4) both}
 .szl li .ic{font-family:var(--titel);width:16px}
 .szl li.no{color:var(--muted)}
@@ -1539,7 +1548,7 @@ function dorfVals(){const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const f0=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT),f1=val(nx,ACT);
  return {a0,nx,f0,f1,b0:a0>2026?sum(2026,a0-1,ACT):0,b1:sum(2026,nx-1,ACT),p0:farbeP(dorfFoot(f0)),p1:farbeP(dorfFoot(f1))};}
 const DORFK=["K1","K2","K3","K4","K7","K9","K12","K15","P2","P3","P4","P5"];
-function dorfGap(){return typeof innerWidth!=='undefined'&&innerWidth<1000?1600:700}
+function dorfGap(){return 1600}
 function dorfOn(){const on={},now=typeof performance!=="undefined"?performance.now():0,rm=RM();let i=0;
  for(const x of (S.results||[])){if(x.ok&&DORFK.includes(x.k))on[x.k]=rm?0:now+600+i*dorfGap()+300;i++;}
  const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r&&DORFK.includes(ps.pid))on[ps.pid]=rm?0:now+600+i*dorfGap()+300;
@@ -1547,7 +1556,47 @@ function dorfOn(){const on={},now=typeof performance!=="undefined"?performance.n
  for(const k in S.adopted)if(DORFK.includes(k)&&on[k]===undefined)on[k]=0;
  for(const k in (S.pdone||{}))if(DORFK.includes(k)&&on[k]===undefined&&S.pdone[k]<=(S.r<LAST?PER[S.r+1].a:2050))on[k]=0;
  return on;}
-function startDorf(){const d=dorfVals();LASTFOOT=d.f1;S.dorfAnim=null;window.DORF_P=d.p0;window.DORF_ON=dorfOn();S.screen="dorf";render();window.scrollTo(0,0);}
+function startDorf(){const d=dorfVals();LASTFOOT=d.f1;S.dorfAnim=null;window.DORF_P=d.p0;window.DORF_ON=dorfOn();S.screen="dorf";render();window.scrollTo(0,0);dorfPops();}
+const DORFTXT={K1:["Ladestation","Neue Autos fahren elektrisch und laden Strom statt Benzin zu tanken."],
+ K2:["E-Lieferwagen","Liefer- und Lastwagen fahren elektrisch. Das senkt den Ausstoss beim Transport der Waren, die du kaufst."],
+ K3:["Wärmepumpe","Sie heizt mit Wärme aus der Luft und etwas Strom. Neue Öl- und Gasheizungen gibt es nicht mehr."],
+ K4:["Solarzellen","Viele Dächer liefern Strom aus Sonne. Der Strom im Netz wird sauberer."],
+ K7:["Foodsave-Kühlschrank","Übrige Lebensmittel werden geteilt statt weggeworfen."],
+ K9:["Bushaltestelle","Mehr Bus, Bahn und Velo, halb so viele Autokilometer."],
+ K12:["Moor","Ein nasses Moor speichert Kohlenstoff im Boden. Trockengelegt gibt es ihn als CO₂ ab."],
+ K15:["Werkstatt","Geräte müssen reparierbar sein. Sie werden geflickt statt ersetzt."],
+ P2:["Velostation und Carsharing","Autos werden geteilt, Velos stehen gedeckt beim Bahnhof."],
+ P3:["Solardach auf dem Schulhaus","Eine Genossenschaft deckt das Schulhausdach mit Panels."],
+ P4:["Repair-Café","Freiwillige reparieren Kleider, Velos und Geräte."],
+ P5:["Hofladen","Lebensmittel aus der Region, Übriges kommt in den öffentlichen Kühlschrank."]};
+function dorfEff(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0,from=null;
+ if(k[0]==="P"){if(!S.pdone||S.pdone[k]===undefined)return "";from=S.pdone[k];const b=S.pdone[k];delete S.pdone[k];const v0=val(Math.max(y,b),ACT);S.pdone[k]=b;ve=v0-val(Math.max(y,b),ACT);}
+ else{if(S.adopted[k]===undefined)return "";from=S.adopted[k];const yy=Math.max(y,from);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
+ const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;
+ return Math.abs(ve)<0.005?`Wirkt ab ${from} für die Schweiz: ${fmt(ch,2)} Mio. t pro Jahr weniger. Für deinen Fussabdruck zählt es nicht.`
+  :`Wirkt ab ${from}: <b>${fmt(ve,2)} t</b> pro Jahr weniger für dich, für die Schweiz rund ${fmt(ch,1)} Mio. t.`;}
+function dorfEffShort(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0;
+ if(k[0]==="P"){const b=S.pdone[k];delete S.pdone[k];const v0=val(Math.max(y,b),ACT);S.pdone[k]=b;ve=v0-val(Math.max(y,b),ACT);}
+ else{const yy=Math.max(y,S.adopted[k]);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
+ const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;return Math.abs(ve)<0.005?`−${fmt(ch,2)} Mio. t Schweiz`:`−${fmt(ve,2)} t für dich`;}
+function dorfBubble(k,box,cls){const T0=DORFTXT[k];if(!T0||!box)return null;const host=document.querySelector(".szene .dorfkopf");if(!host)return null;
+ const b=document.createElement("div");b.className="dbub "+(cls||"");b.innerHTML=cls==="pin"?`<b>${T0[0]}</b><span class="ef">${dorfEffShort(k)}</span>`:`<div class="lbl">${k[0]==="P"?"Projekt":"Vorlage"}: ${esc(k[0]==="P"?PROJ[k].t:T[k].title)}</div>${(k[0]==="P"?PROJ[k].t:T[k].title)===T0[0]?"":`<b>${T0[0]}</b>`}<p>${T0[1]}</p><p class="ef">${dorfEff(k)}</p>`;
+ host.appendChild(b);const W=host.clientWidth,H=host.clientHeight,bw=b.offsetWidth,bh=b.offsetHeight,cx=box.x+box.w/2;
+ const others=cls==="hov"?[]:[...host.querySelectorAll(".dbub.pin")].filter(o=>o!==b).map(o=>[o.offsetLeft,o.offsetTop,o.offsetWidth,o.offsetHeight]);
+ const free=(x,y)=>y>=8&&y+bh<=H-4&&!others.some(([ox,oy,ow,oh])=>x<ox+ow+8&&x+bw+8>ox&&y<oy+oh+8&&y+bh+8>oy);
+ let best=null;for(const dx of (cls==="hov"?[0]:[0,50,-50,90,-90]))for(const up of [true,false]){let x=Math.max(8,Math.min(W-bw-8,cx-bw/2+dx));const y=up?box.y-bh-10:box.y+box.h+10;if(free(x,y)){best=[x,y,up];break;}}if(!best){const up=box.y-bh-10>=8;best=[Math.max(8,Math.min(W-bw-8,cx-bw/2)),up?box.y-bh-10:box.y+box.h+10,up];}
+ const [x,y,up]=best;if(!up)b.classList.add("unten");b.style.left=Math.round(x)+"px";b.style.top=Math.round(y)+"px";
+ b.style.setProperty("--ax",Math.round(Math.max(14,Math.min(bw-14,cx-x)))+"px");return b;}
+function dorfPops(){if(typeof innerWidth==="undefined"||innerWidth<1000||!document.querySelector)return;
+ const host=document.querySelector(".szene .dorfkopf");if(!host||!window.dorfBox)return;
+ const now=performance.now(),F=(window.DORF_FOCUS||[]);
+ F.forEach(f=>{const wait=Math.max(0,f.t+500-now);setTimeout(()=>{if(S.screen!=="dorf")return;const b=dorfBubble(f.k,window.dorfBox(f.k),"pin");if(b)b.dataset.k=f.k;},wait);});
+ const d=document.getElementById("dorf");if(!d||d.dataset.hov)return;d.dataset.hov=1;
+ d.addEventListener("mousemove",e=>{const r=d.getBoundingClientRect(),h=window.dorfHit&&window.dorfHit(e.clientX-r.left,e.clientY-r.top);
+  const old=host.querySelector(".dbub.hov");
+  if(old&&(!h||old.dataset.k!==h.k))old.remove();if(h&&!host.querySelector(".dbub.hov")){const b=dorfBubble(h.k,h,"hov");if(b)b.dataset.k=h.k;}
+  d.style.cursor=h?"help":"";});
+ d.addEventListener("mouseleave",()=>{const o=host.querySelector(".dbub.hov");if(o)o.remove();});}
 function dorfItems(){const L=[];
  for(const x of (S.results||[]))if(x.ok&&cheaperBy(x.k).length)L.push(`<li class="no"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></li>`);
  const LB=L.splice(0);
@@ -1559,7 +1608,7 @@ function dorfItems(){const L=[];
 function viewDorf(){const d=dorfVals();
  const B=`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
  return header()+`<div class="szene"><div class="dorfkopf"><div class="dorf" id="dorf"></div><h1 class="dtitel" aria-live="polite"><span class="o" id="szj1">${d.a0}</span><span class="f" id="szj2">${d.a0}</span></h1></div>
- <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul></div>
+ <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul><p class="hint lapo">Fahre im Dorf über eine Massnahme, dann siehst du, was sie ist, was sie tut und wie sie wirkt.</p></div>
  <div><div class="lbl">Farbe im Dorf</div><div class="bmeter"><i id="szf" style="width:${(d.p0*100).toFixed(1)}%"></i></div>
  <div class="szscale"><span>${fmt(START)} t: grau</span><span>${FARBE_VOLL} t: ganz farbig</span></div>
  <p class="hint">Je weniger ${G?"ihr im Schnitt":S.fig} pro Jahr ausstösst, desto farbiger wird das Dorf.</p></div></div></div></div>
@@ -2086,6 +2135,11 @@ function layout(){const d=document.getElementById('dorf');if(!d)return false;
 const CX={};for(const e of (D.ext||[])){const c=e[5]+e[3]/2;if(CX[e[0]]===undefined||Math.abs(c-D.W/2)<Math.abs(CX[e[0]]-D.W/2))CX[e[0]]=c;}
 function camTarget(){const F=window.DORF_FOCUS;if(!F||!F.length||VW>=1000)return D.W/2;const now=performance.now();let k=null;for(const f of F)if(f.t<=now)k=f.k;
  if(k===null||CX[k]===undefined)return D.W/2;return Math.max(VW/2,Math.min(D.W-VW/2,CX[k]));}
+window.dorfBox=k=>{if(!cv||CX[k]===undefined)return null;let best=null;for(const e of D.ext){if(e[0]!==k)continue;if(!best||Math.abs(e[5]+e[3]/2-CX[k])<Math.abs(best[5]+best[3]/2-CX[k]))best=e;}
+ let x=((Math.round(best[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;return {x:x*S,y:best[6]*S,w:best[3]*S,h:best[4]*S};};
+window.dorfHit=(px,py)=>{if(!cv)return null;const ON=window.DORF_ON||{},now=performance.now();let hit=null;
+ for(const e of D.ext){const t=ON[e[0]];if(t===undefined||t>now)continue;let x=((Math.round(e[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;
+  const X=px/S,Y=py/S;if(X>=x-2&&X<=x+e[3]+2&&Y>=e[6]-2&&Y<=e[6]+e[4]+2)hit={k:e[0],x:x*S,y:e[6]*S,w:e[3]*S,h:e[4]*S};}return hit;};
 function camStep(dt){const t=camTarget();camX+=(t-camX)*Math.min(1,dt*3.5);if(Math.abs(t-camX)<0.5)camX=t;vx0=Math.round(camX-VW/2);}
 function loop(ts){const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;
  if(document.getElementById('dorf')&&cv&&document.getElementById('dorf').contains(cv)){camStep(dt);update(dt);render();}
