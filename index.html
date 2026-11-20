@@ -1331,11 +1331,11 @@ function voteShow(done){if(typeof document==="undefined"||!document.body||!docum
  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="primary" id="vgo">Weiter</button></div></div>`;
  document.body.appendChild(o);let fin=false;const go=()=>{if(fin)return;fin=true;o.remove();done&&done();};o.querySelector("#vgo").onclick=go;
  const rows=[...o.querySelectorAll(".vrow")],rm=RM(),GAP=rm?0:1700;
- const land=(i)=>{const x=S.results[i],r=rows[i],m=r.querySelector(".vm"),res=r.querySelector(".vres");m.style.left=x.roll+"%";
+ const land=(i)=>{if(fin||!S.results)return;const x=S.results[i],r=rows[i],m=r.querySelector(".vm"),res=r.querySelector(".vres");m.style.left=x.roll+"%";
   res.className="vres "+(x.ok?"ok":"no");res.innerHTML=`${x.ok?"Angenommen":"Abgelehnt"} <span class="hint">Los ${x.roll}, ${x.ok?"im":"ausserhalb vom"} Ja-Bereich</span>`;};
  rows.forEach((r,i)=>{if(rm){land(i);return;}const m=r.querySelector(".vm");m.style.left="0%";
   setTimeout(()=>{let k=0;const seq=[];for(let j=0;j<9;j++)seq.push(Math.floor(Math.random()*100));
-   const iv=setInterval(()=>{if(k<seq.length){m.style.left=seq[k++]+"%";}else{clearInterval(iv);land(i);}},110);},300+i*GAP);});
+   const iv=setInterval(()=>{if(fin){clearInterval(iv);return;}if(k<seq.length){m.style.left=seq[k++]+"%";}else{clearInterval(iv);land(i);}},110);},300+i*GAP);});
  if(!rm)setTimeout(()=>{const b=o.querySelector("#vgo");if(b)b.textContent=S.screen==="round"&&!G?"Weiter ins Dorf":"Weiter";},300+rows.length*GAP);}
 function voteScroll(){if(typeof innerWidth==='undefined'||innerWidth>=1000||!document.getElementById)return;setTimeout(()=>{const p=document.getElementById('panel');if(p&&p.scrollIntoView)p.scrollIntoView({block:'start',behavior:'smooth'});},120);}
 function vote(){
