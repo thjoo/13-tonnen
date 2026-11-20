@@ -1126,8 +1126,8 @@ function scoreHTML(){const o=scoreNow();
  const sc=scoreOf(o),n=o.n;if(BOARD.key!==boardKey(n)&&!BOARD.loading){BOARD.loading=true;setTimeout(()=>{BOARD.loading=false;loadBoard(n)},0);}
  const per=n>1?" im Schnitt pro Person":"";
  return `<div class="sec"><h2>Punkte</h2><p class="sub">${n>1?`Eure Gruppe zu ${n}: Gezählt wird der Schnitt pro Person und die gemeinsame Leistung.`:"Gezählt wird, was du gespart hast, wo du 2050 stehst und was politisch durchkam."}</p></div>
- <table class="pts"><tr><td>CO₂ gespart 2026 bis 2050${per}, gegenüber dem Trend</td><td class="n">${fmt(o.b,0)} t × ${PTS.B}</td><td class="n">${sc.B}</td></tr>
- <tr><td>2050 unter dem Trend${per}</td><td class="n">${fmt(o.e)} t × ${PTS.E}</td><td class="n">${sc.E}</td></tr>
+ <table class="pts"><tr><td>CO₂ gespart 2026 bis 2050${per}, gegenüber «weiter wie bisher»</td><td class="n">${fmt(o.b,0)} t × ${PTS.B}</td><td class="n">${sc.B}</td></tr>
+ <tr><td>2050 unter «weiter wie bisher»${per}</td><td class="n">${fmt(o.e)} t × ${PTS.E}</td><td class="n">${sc.E}</td></tr>
  <tr><td>Angenommene Vorlagen</td><td class="n">${o.v} × ${PTS.V}</td><td class="n">${sc.V}</td></tr>
  <tr><td>Projekte im Quartier</td><td class="n">${o.p} × ${PTS.P}</td><td class="n">${sc.P}</td></tr>
  ${n>1?`<tr><td>Gruppenziel erreicht</td><td class="n">${o.ziel?"ja":"nein"}</td><td class="n">${sc.Z}</td></tr>`:""}
@@ -1145,7 +1145,7 @@ function viewBoard(){const n=S.boardN||1,m=S.boardMode||"kurz";
  <div class="tabs">${[1,2,3,4,5].map(k=>`<button class="tab ${k==n?"on":""}" onclick="S.boardN=${k};render()"><span class="n">${k}</span>${k==1?"allein":k+" Personen"}</button>`).join("")}</div>
  <div class="tabs">${["kurz","lang"].map(k=>`<button class="tab ${k==m?"on":""}" onclick="S.boardMode='${k}';render()">${k=="kurz"?"Kurz":"Lang"}</button>`).join("")}</div>
  ${tb}
- <details style="margin-top:14px"><summary>So werden Punkte gerechnet</summary><p>${PTS.B} Punkte pro Tonne CO₂, die von 2026 bis 2050 weniger ausgestossen wird als im Trend. ${PTS.E} Punkte pro Tonne, die der Fussabdruck 2050 unter dem Trend liegt. ${PTS.V} Punkte pro angenommene Vorlage, ${PTS.P} pro Projekt im Quartier, in der Gruppe ${PTS.ZIEL} fürs Gruppenziel. ${PTS.M} Punkte pro übriges Geld. In der Gruppe zählen CO₂, 2050 und Geld im Schnitt pro Person.</p></details>
+ <details style="margin-top:14px"><summary>So werden Punkte gerechnet</summary><p>${PTS.B} Punkte pro Tonne CO₂, die von 2026 bis 2050 weniger ausgestossen wird als bei «weiter wie bisher». ${PTS.E} Punkte pro Tonne, die der Fussabdruck 2050 darunter liegt. ${PTS.V} Punkte pro angenommene Vorlage, ${PTS.P} pro Projekt im Quartier, in der Gruppe ${PTS.ZIEL} fürs Gruppenziel. ${PTS.M} Punkte pro übriges Geld. In der Gruppe zählen CO₂, 2050 und Geld im Schnitt pro Person.</p></details>
  <div class="row" style="margin-top:22px"><button onclick="S.screen='start';render()">Zurück</button></div></div>`;}
 
 /* ---------- Ablauf ---------- */
@@ -1255,7 +1255,7 @@ function barHTML(v){
 }
 function header(){
  const p=PER[S.r],y=p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),so=S.r?sum(2026,y-1,ACT):0;
- const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Entscheide und ohne Vorlagen wären es ${fmt(n)} t, so viel bringt der Trend allein. Ziel bis 2050: 0.6 t.`;
+ const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. So weit bringt dich der allgemeine Wandel: sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Ziel bis 2050: 0.6 t.`;
  const tb=S.r?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
  const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.`;
@@ -1318,7 +1318,7 @@ function viewRound(){
  if(S.roundNote&&S.roundNote.length)L+=S.roundNote.map(x=>`<div class="callout"><span class="ic">!</span><span>${x}</span></div>`).join("");
  if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
-  L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
+  L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Wandel <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
  const TOP=L;L="";
  L+=`<div class="colhd grp"><span class="t">Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span></div><div class="sec" style="margin-top:0"><p class="sub">Je eine Karte aus Mobilität, Wohnen, Ernährung und Konsum. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
@@ -1351,7 +1351,7 @@ function rulesHTML(){
  <div class="ibox"><div class="lbl">Geld</div><div class="v">wenig</div><div class="hint">für Anschaffungen und Kampagnen, bleibt dir</div></div></div>
  <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 4 Karten, je eine aus Mobilität, Wohnen, Ernährung und Konsum. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
  <div class="callout"><span class="ic">2</span><span><b>Ereignis und Bilanz.</b> Etwas passiert, das du nicht ganz planen konntest. Danach siehst du, was die Runde gebracht hat.</span></div>
- <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
+ <div class="callout"><span class="ic">!</span><span><b>Der allgemeine Wandel.</b> Auch ohne dich sinkt der Fussabdruck langsam: Der Strom wird sauberer, alte Heizungen und Autos werden ersetzt, Produkte brauchen weniger Energie. Von 2000 bis 2023 waren das rund 1.1 % pro Jahr, das Spiel rechnet so weiter. Die Linie «weiter wie bisher» zeigt, wo du ohne eigene Karten und ohne neue Vorlagen landen würdest: 2050 bei rund 9.8 t, weit über dem Ziel.</span></div>`;
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
@@ -1390,7 +1390,7 @@ function viewEnd(){
  <div class="boxes" style="margin-top:18px">
   <div class="ibox hi"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div><div class="hint">pro Jahr, Ziel 0.6 t</div></div>
   <div class="ibox hi"><div class="lbl">Budget 2026 bis 2050</div><div class="v">${fmt(sA,0)} t</div><div class="hint">Zielpfad ${PFAD} t, ohne Änderung ${fmt(s0,0)} t</div></div>
-  <div class="ibox"><div class="lbl">Ohne eigene Karten</div><div class="v">${fmt(vo)} t</div><div class="hint">nur Trend und angenommene Vorlagen</div></div>
+  <div class="ibox"><div class="lbl">Ohne eigene Karten</div><div class="v">${fmt(vo)} t</div><div class="hint">nur Wandel und angenommene Vorlagen</div></div>
   <div class="ibox"><div class="lbl">Schweiz, 9 Mio.</div><div class="v">${fmt(ch)} Mio. t</div><div class="hint">weniger pro Jahr dank Vorlagen</div></div></div>
  ${wish()?`<div class="callout"><span class="ic">${wishBroken()?"✗":"✓"}</span><span>Dein Wunsch «${esc0(wish().t)}»: ${wishBroken()?"aufgegeben.":"bis 2050 gelebt."} ${wishBroken()?"Was hat es dir gebracht, was hat es gekostet?":"Was hat er deinen Fussabdruck gekostet, und was hast du mit den Extraherzen bewirkt?"}</span></div>`:""}
  <div class="sec"><h2>Deine Stufen</h2></div>${stagesHTML(a,no,sA,sN)}
@@ -1399,7 +1399,7 @@ function viewEnd(){
  <div class="sec"><h2>Woher die Veränderung kommt</h2></div>
  <table><tr><th></th><th class="n">2050 pro Jahr</th><th class="n">Budget bis 2050</th></tr>
  <tr><td>Start: alles bleibt wie 2026</td><td class="n">${fmt(START)}</td><td class="n">${fmt(s0,0)}</td></tr>
- <tr><td>Trend: die Welt ändert sich auch ohne dich</td><td class="n">${sgn(no-START)}</td><td class="n">${sgn(sN-s0,0)}</td></tr>
+ <tr><td>Allgemeiner Wandel, auch ohne dich</td><td class="n">${sgn(no-START)}</td><td class="n">${sgn(sN-s0,0)}</td></tr>
  <tr><td>Angenommene Vorlagen</td><td class="n">${sgn(vo-no)}</td><td class="n">${sgn(sV-sN,0)}</td></tr>
  <tr><td>Deine eigenen Entscheide und Ereignisse</td><td class="n">${sgn(a-vo)}</td><td class="n">${sgn(sA-sV,0)}</td></tr>
  <tr class="sum"><td>Du</td><td class="n">${fmt(a)}</td><td class="n">${fmt(sA,0)}</td></tr></table>
@@ -1458,19 +1458,19 @@ function bonus(k){let n=0;
 /* Verlaufskurve als Pixelgrafik */
 function chartSVG(toYear,opts){
  const W=640,H=200,L=34,R=22,T=10,B=24,y0=2026,y1=2050,vmax=13.5;
- const X=y=>L+(y-y0)/(y1-y0)*(W-L-R), Y=v=>T+(1-v/vmax)*(H-T-B);
- const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x.toFixed(1)+" "+Y(v).toFixed(1)+"L"+x2.toFixed(1)+" "+Y(v).toFixed(1);}return d};
+ const q=v=>Math.round(v/2)*2, X=y=>q(L+(y-y0)/(y1-y0)*(W-L-R)), Y=v=>q(T+(1-v/vmax)*(H-T-B)), zp=y=>START+(ZIEL-START)*(y-y0)/(y1-y0);
+ const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x+" "+Y(v)+"L"+x2+" "+Y(v);}return d};
  let g="";
  for(const v of [0,4,8,12]){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--g5)" stroke-width="1"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" class="ct">${v}</text>`;}
  for(const y of [2026,2030,2035,2040,2045,2050])g+=`<text x="${X(y)}" y="${H-6}" text-anchor="middle" class="ct">${y}</text>`;
  g+=`<line x1="${L}" x2="${W-R}" y1="${Y(ZIEL)}" y2="${Y(ZIEL)}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/><text x="${W-R}" y="${Y(ZIEL)-5}" text-anchor="end" class="ct">Ziel 0.6</text>`;
- {const dp=path(y=>val(y,ACT),toYear);g=`<path d="${dp}L${X(Math.min(toYear+1,y1)).toFixed(1)} ${Y(0)}L${X(y0)} ${Y(0)}Z" fill="var(--g5)" opacity=".7"/>`+g;}
- g+=`<line x1="${X(y0)}" y1="${Y(START)}" x2="${X(y1)}" y2="${Y(ZIEL)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 4"/>`;
- g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g3)" stroke-width="3" stroke-dasharray="3 3"/>`;
- if(opts&&opts.vo)g+=`<path d="${path(y=>val(y,VO),y1)}" fill="none" stroke="var(--g2)" stroke-width="3"/>`;
+ {const dp=path(y=>val(y,ACT),toYear);g=`<path d="${dp}L${X(Math.min(toYear+1,y1))} ${Y(0)}L${X(y0)} ${Y(0)}Z" fill="var(--g5)" opacity=".7"/>`+g;}
+ g+=`<path d="${path(zp,y1)}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="2 4"/>`;
+ g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g3)" stroke-width="4" stroke-dasharray="4 4"/>`;
+ if(opts&&opts.vo)g+=`<path d="${path(y=>val(y,VO),y1)}" fill="none" stroke="var(--g2)" stroke-width="4"/>`;
  g+=`<path d="${path(y=>val(y,ACT),toYear)}" fill="none" stroke="var(--ink)" stroke-width="4"/>`;
  return `<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Verlauf des Fussabdrucks">${g}</svg>
- <div class="legend"><span class="k"><i style="background:var(--ink)"></i>du</span>${opts&&opts.vo?`<span class="k"><i style="background:var(--g2)"></i>ohne eigene Karten</span>`:""}<span class="k"><i style="background:var(--g3)"></i>nur Trend</span><span class="k">- - Ziel 0.6 t</span><span class="k">· · Zielpfad</span><span class="k"><i style="background:var(--g5)"></i>dein Budget</span></div>`;}
+ <div class="legend"><span class="k"><i style="background:var(--ink)"></i>du</span>${opts&&opts.vo?`<span class="k"><i style="background:var(--g2)"></i>ohne eigene Karten</span>`:""}<span class="k"><i style="background:var(--g3)"></i>weiter wie bisher</span><span class="k">- - Ziel 0.6 t</span><span class="k">· · Zielpfad</span><span class="k"><i style="background:var(--g5)"></i>dein Budget</span></div>`;}
 
 /* Bilanz nach jeder Runde */
 function toSummary(){S.screen="summary";render();window.scrollTo(0,0);}
@@ -1478,9 +1478,9 @@ function viewSummary(){
  const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const before=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT);
  const now=val(nx,ACT),dt=val(nx,NO)-val(a0,NO),dv=(val(nx,VO)-val(nx,NO))-(val(a0,VO)-val(a0,NO)),d=now-before,dme=d-dt-dv;
- const parts=[["der Trend","Trend",dt],["die Vorlagen","Vorlagen",dv],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
+ const parts=[["der allgemeine Wandel","Wandel",dt],["die Vorlagen","Vorlagen",dv],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
  const big=parts.slice().sort((a,b)=>d<=0?a[2]-b[2]:b[2]-a[2])[0];
- const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht hat":"Am meisten dazu beigetragen hat"} ${big[0]}.`;
+ const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht hat":"Am meisten dazu beigetragen hat"} ${big[0]}.${big[1]==="Wandel"&&Math.abs(dme)>=0.05?` Dein Alltag: ${sgn(dme)} t.`:""}`;
  const used=sum(2026,nx-1,ACT),pf=pfadBis(nx-1),over=used>pf+0.5;
  const B=`<span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" onclick="nextRound()">${S.r<LAST?"Weiter zur nächsten Runde":"Zur Auswertung"}</button>`;
  return header()+`<div class="wrap">${tabs(1)}
@@ -1497,38 +1497,38 @@ function viewSummary(){
 /* Kurve ohne Legende, direkt beschriftet */
 function chartClean(toYear){
  const W=640,H=230,L=34,R=104,T=12,B=26,y0=2026,y1=2050,vmax=13.5;
- const X=y=>L+(y-y0)/(y1-y0)*(W-L-R), Y=v=>T+(1-v/vmax)*(H-T-B);
- const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x.toFixed(1)+" "+Y(v).toFixed(1)+"L"+x2.toFixed(1)+" "+Y(v).toFixed(1);}return d};
+ const q=v=>Math.round(v/2)*2, X=y=>q(L+(y-y0)/(y1-y0)*(W-L-R)), Y=v=>q(T+(1-v/vmax)*(H-T-B)), zp=y=>START+(ZIEL-START)*(y-y0)/(y1-y0);
+ const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x+" "+Y(v)+"L"+x2+" "+Y(v);}return d};
  let g="";
  for(const v of [0,4,8,12]){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--g5)" stroke-width="1"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" class="cn">${v}</text>`;}
  for(const y of [2026,2030,2035,2040,2045,2050])g+=`<text x="${X(y)}" y="${H-7}" text-anchor="middle" class="cn">${y}</text>`;
  const tEnd=val(y1,NO),aEnd=val(toYear,ACT);
- g+=`<line x1="${X(y0)}" y1="${Y(START)}" x2="${X(y1)}" y2="${Y(ZIEL)}" stroke="var(--g2)" stroke-width="1.5"/>`;
- g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g4)" stroke-width="3"/>`;
+ g+=`<path d="${path(zp,y1)}" fill="none" stroke="var(--g2)" stroke-width="2"/>`;
+ g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g3)" stroke-width="4"/>`;
  g+=`<path d="${path(y=>val(y,ACT),toYear)}" fill="none" stroke="var(--ink)" stroke-width="4"/>`;
  const xe=X(Math.min(toYear+1,y1));
- g+=`<circle cx="${xe}" cy="${Y(aEnd)}" r="4" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)+4}" class="cl2 b">${S.fig} ${fmt(aEnd)} t</text>`;
- g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">nur Trend ${fmt(tEnd)} t</text>`;
+ g+=`<rect x="${xe-4}" y="${Y(aEnd)-4}" width="8" height="8" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)+4}" class="cl2 b">${S.fig} ${fmt(aEnd)} t</text>`;
+ g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">weiter wie bisher ${fmt(tEnd)} t</text>`;
  g+=`<text x="${X(y1)+6}" y="${Y(ZIEL)+4}" class="cl2">Zielpfad bis</text><text x="${X(y1)+6}" y="${Y(ZIEL)+18}" class="cl2">Ziel 0.6 t</text>`;
- return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, nur Trend bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`;}
+ return `<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, weiter wie bisher bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`;}
 /* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
 function waterfallSVG(parts,d){
  const W=520,H=180,T=34,Bm=22,n=parts.length+1,bw=64,gap=(W-n*bw)/(n+1);
  let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
- const span=Math.max(0.5,hi-lo),Y=v=>T+(hi-v)/span*(H-T-Bm);
+ const span=Math.max(0.5,hi-lo),Y=v=>Math.round((T+(hi-v)/span*(H-T-Bm))/2)*2;
  let g=`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--g3)" stroke-width="1"/>`;
- parts.forEach(([lab,v],i)=>{const x=gap+i*(bw+gap),a=run,b=run+v;run=b;
+ parts.forEach(([lab,v],i)=>{const x=Math.round(gap+i*(bw+gap)),a=run,b=run+v;run=b;
   const y1=Math.min(Y(a),Y(b)),h=Math.max(Math.abs(Y(a)-Y(b)),Math.abs(v)<0.05?0:2);
-  if(Math.abs(v)>=0.05)g+=`<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="${v<0?"var(--g2)":"url(#wfh)"}" stroke="${v<0?"none":"var(--ink)"}"/>`;
+  if(Math.abs(v)>=0.05)g+=`<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="${v<0?"var(--g2)":"url(#wfh)"}" stroke="${v<0?"none":"var(--ink)"}" stroke-width="2"/>`;
   else g+=`<line x1="${x}" x2="${x+bw}" y1="${Y(a)}" y2="${Y(a)}" stroke="var(--g2)" stroke-width="2"/>`;
-  if(i<parts.length)g+=`<line x1="${x+bw}" x2="${x+bw+gap}" y1="${Y(b)}" y2="${Y(b)}" stroke="var(--g3)" stroke-width="1"/>`;
+  if(i<parts.length)g+=`<line x1="${x+bw}" x2="${Math.round(x+bw+gap)}" y1="${Y(b)}" y2="${Y(b)}" stroke="var(--g3)" stroke-width="1"/>`;
   g+=`<text x="${x+bw/2}" y="${(v<0?Math.max(Y(a),Y(b))+16:Math.min(Y(a),Y(b))-6)}" text-anchor="middle" class="cl2">${sgn(v)} t</text>`;
   g+=`<text x="${x+bw/2}" y="14" text-anchor="middle" class="cn">${lab}</text>`;});
- const x=gap+parts.length*(bw+gap);
+ const x=Math.round(gap+parts.length*(bw+gap));
  g+=`<rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)"/>`;
  g+=`<text x="${x+bw/2}" y="${(d<0?Y(d)+16:Y(d)-6)}" text-anchor="middle" class="cl2 b">${sgn(d)} t</text><text x="${x+bw/2}" y="14" text-anchor="middle" class="cn b">Zusammen</text>`;
- return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--ink)" stroke-width="2"/></pattern></defs>${g}</svg>
- <p class="hint" style="margin:6px 0 0">Dunkle Balken senken den Fussabdruck, schraffierte erhöhen ihn.</p>`;}
+ return `<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>
+ <p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn.</p>`;}
 /* Budget als eigene Groesse: Summe der Jahre */
 function budgetHTML(used,pf,yEnd){
  const mx=Math.max(PFAD,used)*1.08,pc=v=>Math.min(100,v/mx*100);
@@ -1549,8 +1549,8 @@ function mates(){const ps=G.players().filter(p=>p.fig);if(!ps.length)return"";
 function pfadBis(y){let s=0;for(let q=2026;q<=y;q++)s+=START+(ZIEL-START)*(q-2026)/24;return s;}
 function stagesHTML(a,no,sA,sN){
  const row=(lbl,st)=>`<div class="lbl" style="margin:10px 0 4px">${lbl}</div><div class="stufen">${st.map(([t,ok],i)=>`<div class="stufe ${ok?"ok":""}"><span class="n">${i+1}</span><span>${t}</span></div>`).join("")}</div>`;
- return row("Fussabdruck 2050 pro Jahr",[["Besser als der Trend",a<no],["Unter 6 t",a<6],["Unter 4 t",a<4],["0.6 t",a<=0.6]])
-  +row("Budget 2026 bis 2050",[["Besser als der Trend",sA<sN],["Unter 200 t",sA<200],["Unter 180 t",sA<180],["Zielpfad "+PFAD+" t",sA<=PFAD]])
+ return row("Fussabdruck 2050 pro Jahr",[["Besser als weiter wie bisher",a<no],["Unter 6 t",a<6],["Unter 4 t",a<4],["0.6 t",a<=0.6]])
+  +row("Budget 2026 bis 2050",[["Besser als weiter wie bisher",sA<sN],["Unter 200 t",sA<200],["Unter 180 t",sA<180],["Zielpfad "+PFAD+" t",sA<=PFAD]])
   +`<p class="hint">Beides zählt. Fürs Klima zählt, was sich bis 2050 in der Atmosphäre ansammelt. Wer spät handelt, kann 2050 gut dastehen und trotzdem viel verbraucht haben. Der Zielpfad ist eine gerade Linie von 12.8 t heute auf 0.6 t im Jahr 2050.</p>`;}
 
 /* Nachbereitung */
@@ -1558,7 +1558,7 @@ const FRAGEN=["Welche Entscheidung hat bei dir am meisten gebracht, und warum ge
 function lsGet(k){try{return localStorage.getItem(k)||""}catch(e){return""}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="lbl">Frage ${i+1}</div><p style="margin:4px 0 8px">${q}</p><textarea class="ta" rows="3" oninput="lsSet('13t_q${i}',this.value)">${esc0(lsGet('13t_q'+i))}</textarea></div>`).join("")+`<p class="hint">Deine Antworten bleiben nur in diesem Browser. Für Auftrag 4.3 schreibst du sie ab.</p>`;}
-const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Trend von 1.1 % weniger pro Jahr ist eine Annahme.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Rückkopplungen im Klimasystem und die Folgen der Erwärmung fehlen im Spiel.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
+const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der allgemeine Wandel von 1.1 % pro Jahr schreibt die Jahre 2000 bis 2023 einfach fort. Er wirkt im Spiel auch auf das, was du selbst schon gesenkt hast. Bei aktiven Figuren ist er darum etwas zu gross.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Rückkopplungen im Klimasystem und die Folgen der Erwärmung fehlen im Spiel.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
 /* Geführte erste Runde */
 const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Budget, Herzen, Geld und dein Wunsch. Fahre mit der Maus darüber, dann erscheint eine Erklärung. Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
