@@ -1504,7 +1504,7 @@ function dorfItems(){const L=[];
  if(!L.some(x=>x.includes('class="ok"')))L.push(`<li class="no"><span class="ic">·</span><span>Im Dorf ändert sich nur, was ohnehin passiert: der allgemeine Wandel.</span></li>`);
  return L.map((x,i)=>x.replace("<li ",`<li style="animation-delay:${600+i*700}ms" `)).join("");}
 function viewDorf(){const d=dorfVals();
- const B=`<span>Die Zeit vergeht: ${d.a0} bis ${d.nx}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
+ const B=`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
  return header()+`<div class="szene"><div class="dorfkopf"><div class="dorf" id="dorf"></div><h1 class="dtitel" aria-live="polite"><span class="o" id="szj1">${d.a0}</span><span class="f" id="szj2">${d.a0}</span></h1></div>
  <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul></div>
  <div><div class="lbl">Farbe im Dorf</div><div class="bmeter"><i id="szf" style="width:${(d.p0*100).toFixed(1)}%"></i></div>
