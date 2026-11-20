@@ -110,12 +110,12 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .setrow{display:flex;gap:28px;flex-wrap:wrap;align-items:center}.setrow .tabs{margin:0}
 .figs.five{grid-template-columns:repeat(5,1fr)}
 .fig{flex-direction:column;align-items:stretch;gap:0;padding:14px 16px 12px}
-.fig .im{align-self:stretch;display:flex;justify-content:center;padding:14px 0 10px;margin:0 0 12px!important}
-.fig h3{font-size:30px;margin:0 0 6px;line-height:1}
-.fig .life{font-size:14px;margin:0 0 10px;flex:1}
-.fig .fmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin-bottom:6px}.fig .fmeta span{display:inline-flex;align-items:center;gap:4px}
-.fig .fwish{font-size:13px;display:flex;gap:6px;align-items:flex-start;margin-bottom:10px;min-height:36px}.fig .fwish img{margin-top:2px}
-.fig .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:8px;color:var(--muted)}
+.fig .im{align-self:stretch;display:flex;justify-content:center;padding:14px 0 10px;margin:0 0 10px!important}
+.fig h3{font-size:28px;margin:0 0 4px;line-height:1}
+.fig .life{font-size:13.5px;line-height:1.45;margin:0 0 8px}
+.fig .fmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin-bottom:6px}.fig .fmeta span{display:block}.fig .fmeta img.icn{vertical-align:-2px}
+.fig .fwish{font-size:13px;display:flex;gap:6px;align-items:flex-start;margin-bottom:10px}.fig .fwish img{margin-top:2px}
+.fig .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:8px;color:var(--muted);margin-top:auto}
 .fig:hover .fgo,.fig:focus .fgo{color:var(--ink)}
 .groupbox{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:18px 20px;background:var(--soft);margin:var(--p);box-shadow:0 -3px 0 0 var(--g4),0 3px 0 0 var(--g4),-3px 0 0 0 var(--g4),3px 0 0 0 var(--g4)}
 .groupbox .hint{margin:6px 0 0}
@@ -138,7 +138,7 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .pick h3{font-size:40px;line-height:1;margin:0 0 8px}.pick p{margin:0 0 14px;flex:1;max-width:46ch}
 .pick:hover .fgo,.pick:focus .fgo{color:var(--ink)}
 .pick .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:10px;color:var(--muted)}
-.back{display:inline-block;margin:6px 0 0;font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--muted);text-decoration:none}.back:hover{color:var(--ink)}
+.back{display:inline-block;margin:0;font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--muted);text-decoration:none}.back:hover{color:var(--ink)}
 @media(max-width:800px){.choose2{grid-template-columns:1fr}}
 
 @media(max-width:1200px){.figs.five{grid-template-columns:repeat(3,1fr)}}
@@ -1276,7 +1276,7 @@ function viewRound(){
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
  :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
  const gh=`<div class="colhd grp"><span class="t">${G?"Gruppe":"Gemeinsam"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span></div>`;
- return header()+`<div class="wrap">${tabs(0)}<div class="layout toprow"><div class="topstack">${TOP}</div><div>${crisisHTML()}</div></div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div>`;
+ return header()+`<div class="wrap">${tabs(0)}<div class="layout toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div>`;
 }
 function viewEvent(){
  let h="";
@@ -1299,7 +1299,7 @@ function rulesHTML(){
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
- <div class="fmeta"><span>Start ${M.START[f]} ${IC("geld",14)}</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
+ <div class="fmeta"><span>Geld: ${M.START[f]} ${IC("geld",14)} zu Beginn</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
 function viewStart(){
  const sm=S.startMode;
  const back=`<a href="#" class="back" onclick="S.startMode=null;render();return false">‹ zurück zur Auswahl</a>`;
@@ -1309,16 +1309,16 @@ function viewStart(){
    <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${wanderFig("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein, vier Runden bis 2050. Etwa 20 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
    <div class="pick" tabindex="0" onclick="S.startMode='group';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${["Noah","Ruth","Elif"].map(f=>wanderFig(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
   </div>`;
- else if(sm==="solo")body=`${back}<div class="sec"><h2>Wähle deine Figur</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
+ else if(sm==="solo")body=`${back}<div class="sec" style="margin-top:6px"><h2>Wähle deine Figur</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
   <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`S.chal='keine';startFig('${f}')`,false)).join("")}</div>`;
  else body=`${back}<div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Eine Person eröffnet den Raum und wählt dort die Version. Alle anderen treten mit dem Code bei. Niemand gibt einen Namen ein.</p></div>
   <div class="groupbox"><div><div class="lbl">Raum eröffnen</div><div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button></div><p class="hint">Klasse ist freiwillig, zum Beispiel 4a.</p></div>
    <div><div class="lbl">Raum beitreten</div><div class="row"><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div><p class="hint">Den Code zeigt die Person, die den Raum eröffnet hat.</p></div></div>`;
- return `<header class="dorfkopf"><div class="dorf" id="dorf"><div class="dbase"></div><div class="anim"></div></div><h1 class="dtitel"><span class="o">13 Tonnen</span><span class="f">13 Tonnen</span></h1></header><div class="wrap">
- <div class="hero"><div>
+ return `<header class="dorfkopf"><div class="dorf" id="dorf"><div class="dbase"></div><div class="anim"></div></div><h1 class="dtitel"><span class="o">13 Tonnen</span><span class="f">13 Tonnen</span></h1></header><div class="wrap"${sm?' style="padding-top:12px"':""}>
+ ${sm?"":`<div class="hero"><div>
   <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr, verträglich wären 0.6. Übernimm eine Figur und senke ihren Fussabdruck bis 2050: mit eigenen Entscheiden und mit Engagement für Vorlagen. Die erste Runde erklärt sich beim Spielen.</p>
   <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details></div>
-  <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>
+  <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>`}
  ${body}
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
  <p class="hint credits">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). Autos: «TopDown Vehicles» von MinZiin (CC BY 4.0). · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
@@ -1390,7 +1390,7 @@ function eventCands(){const f=fig(),c=[];
  if(!f.ban.includes("N2")&&!chalBan("N2")&&S.chosen.N2===undefined&&S.chosen.N3===undefined&&!S.happened.includes("E3")&&S.r<LAST)c.push("E3");
  if(S.chosen.C4===undefined&&!S.happened.includes("E4"))c.push("E4");
  return c;}
-function announceEvent(){const c=eventCands();c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
+function announceEvent(){if(S.r===0){S.nextEvent="ruhig";return;}const c=eventCands();c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
 const AVERT={E1:"Du fährst kein E-Auto. Der Rebound trifft dich nicht.",E2:"Deine Heizung ist schon ersetzt. Der Ausfall kostet dich nichts.",E3:"Du isst schon vegetarisch.",E4:"Du kaufst bewusst weniger. Die Aktionen lassen dich kalt."};
 
 /* Pech-Ausgleich */
