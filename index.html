@@ -112,9 +112,9 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .fig{flex-direction:column;align-items:stretch;gap:0;padding:14px 16px 12px}
 .fig .im{align-self:stretch;display:flex;justify-content:center;padding:14px 0 10px;margin:0 0 10px!important}
 .fig h3{font-size:28px;margin:0 0 4px;line-height:1}
-.fig .life{font-size:13.5px;line-height:1.45;margin:0 0 8px}
-.fig .fmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin-bottom:6px}.fig .fmeta span{display:block}.fig .fmeta img.icn{vertical-align:-2px}
-.fig .fwish{font-size:13px;display:flex;gap:6px;align-items:flex-start;margin-bottom:10px}.fig .fwish img{margin-top:2px}
+.fig .life{font-size:13.5px;line-height:1.45;margin:0 0 8px;flex:1}
+.fig .fmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin-bottom:6px}.fig .fmeta span{display:block}.fig .fmeta{display:grid!important;grid-template-columns:auto 1fr;gap:3px 6px!important}.fig .fmeta img.icn{vertical-align:-2px}
+.fig .fwish{font-size:13px;display:flex;gap:6px;align-items:flex-start;margin-bottom:10px;min-height:38px}.fig .fwish img{margin-top:2px}
 .fig .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:8px;color:var(--muted);margin-top:auto}
 .fig:hover .fgo,.fig:focus .fgo{color:var(--ink)}
 .groupbox{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:18px 20px;background:var(--soft);margin:var(--p);box-shadow:0 -3px 0 0 var(--g4),0 3px 0 0 var(--g4),-3px 0 0 0 var(--g4),3px 0 0 0 var(--g4)}
@@ -1299,7 +1299,7 @@ function rulesHTML(){
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
- <div class="fmeta"><span>Geld: ${M.START[f]} ${IC("geld",14)} zu Beginn</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
+ <div class="fmeta"><span>Geld:</span><span>${M.START[f]} ${IC("geld",14)} zu Beginn</span><span></span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
 function viewStart(){
  const sm=S.startMode;
  const back=`<a href="#" class="back" onclick="S.startMode=null;render();return false">‹ zurück zur Auswahl</a>`;
