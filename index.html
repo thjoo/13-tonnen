@@ -1219,7 +1219,7 @@ function toEvent(){
   if(e=="E3")S.flags.e3=S.r+1;
   if(e=="E4"){S.money=Math.max(0,S.money-2);S.events.push({id:"E4",from:nextY});}}
  S.log[S.log.length-1].event=S.event=="abgewendet"?"abgewendet":S.event;
- S.screen="event";render();window.scrollTo(0,0);
+ S.screen="summary";render();window.scrollTo(0,0);
 }
 function nextRound(){
  if(S.flags.e2===S.r&&S.chosen.W2===undefined)S.flags.w2locked=true;
@@ -1262,7 +1262,7 @@ function wishChip(){const w=wish();if(!w)return"";const b=wishBroken();
  const nx=b?"Aufgegeben, kein Extraherz mehr.":S.r<LAST?"Solange du ihn lebst, bekommst du jede 2. Runde 1 Herz extra.":"Bis 2050 gelebt.";
  const tip=`Dein Wunsch: ${w.t}. ${nx}${b?"":" Aufgeben würdest du ihn mit "+w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")+"."}`;
  return `<div class="chip wish tip ${b?"gone":""}" tabindex="0" data-tip="${esc0(tip).replace(/"/g,"&quot;")}">${IC("herz",16,b)}<span class="cw">${esc0(w.t)}</span></div>`;}
-function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis","Bilanz"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<span class="period">${PER[S.r].l}</span></div>`}
+function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis und Bilanz"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<span class="period">${PER[S.r].l}</span></div>`}
 const IC=(k,s=14,dim)=>`<img class="px icn${dim?" dim":""}" src="${(dim?SPR.ico:SPR.icoc)[k]}" width="${s}" height="${s}" alt="${k=="herz"?"Herz":"Geld"}">`;
 const HZ=n=>`<span class="amt">${n}${IC("herz")}</span>`;
 const GD=n=>`<span class="amt">${n}${IC("geld")}</span>`;
@@ -1317,21 +1317,21 @@ function viewRound(){
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
  let B="";
  if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
-  B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter zum Ereignis</button>`;}
+  B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter zur Bilanz</button>`;}
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
  else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
  const gh=`<div class="colhd grp"><span class="t">${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span></div>`;
  return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
 }
-function viewEvent(){
+function eventBox(){
  let h="";
  if(S.event=="abgewendet"){const t=T[S.averted];h=`<div class="lbl">Ereignis abgewendet</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${AVERT[S.averted]||"Du hast vorgesorgt."}</p><div class="callout"><span class="ic">✓</span><span>Vorsorgen hat sich gelohnt.</span></div>`;}
  else if(S.event=="ruhig")h=`<div class="lbl">Ereignis</div><h2>Ein ruhiges Jahr</h2><p class="sub">Nichts Besonderes passiert. Deine Vorsätze halten.</p>`;
  else{const t=T[S.event];h=`<div class="lbl">Ereignis · ${esc(t.head.replace(/^ · /,""))}</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${esc(t.front||"")}</p>${t.game?`<div class="callout"><span class="ic">!</span><span>${esc(t.game)}</span></div>`:""}<p class="hint">${esc(t.back)}</p>`;
   if(S.event=="E1")h+=`<div class="callout"><span class="ic">!</span><span>Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</span></div>`;}
- return header()+`<div class="wrap">${tabs(1)}<div class="ibox" style="max-width:760px;padding:20px 22px">${h}</div>
- <div class="row" style="margin-top:16px"><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button></div></div>`;
+ return h;
 }
+function viewEvent(){return viewSummary();}
 function rulesHTML(){
  return `<div class="boxes">
  <div class="ibox"><div class="lbl">Start</div><div class="v">12.8 t</div><div class="hint">pro Person und Jahr, Schweizer Durchschnitt</div></div>
@@ -1339,7 +1339,7 @@ function rulesHTML(){
  <div class="ibox"><div class="lbl">Pro Runde</div><div class="v">3 Herzen</div><div class="hint">für Aufwand und Verzicht, verfallen am Rundenende</div></div>
  <div class="ibox"><div class="lbl">Geld</div><div class="v">wenig</div><div class="hint">für Anschaffungen und Kampagnen, bleibt dir</div></div></div>
  <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 4 Karten, je eine aus Mobilität, Wohnen, Ernährung und Konsum. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
- <div class="callout"><span class="ic">2</span><span><b>Ereignis.</b> Etwas passiert, das du nicht planen konntest.</span></div>
+ <div class="callout"><span class="ic">2</span><span><b>Ereignis und Bilanz.</b> Etwas passiert, das du nicht ganz planen konntest. Danach siehst du, was die Runde gebracht hat.</span></div>
  <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
@@ -1469,7 +1469,8 @@ function viewSummary(){
  const now=val(nx,ACT),dt=val(nx,NO)-val(a0,NO),dv=(val(nx,VO)-val(nx,NO))-(val(a0,VO)-val(a0,NO)),d=now-before,dme=d-dt-dv;
  const bars=[["Trend",dt],["Vorlagen",dv],["Du und Ereignisse",dme]];
  const mx=Math.max(0.5,...bars.map(b=>Math.abs(b[1])));
- return header()+`<div class="wrap">${tabs(2)}<div class="layout"><div>
+ return header()+`<div class="wrap">${tabs(1)}<div class="layout"><div>
+ <div class="ibox evbox" style="padding:16px 20px;margin-bottom:22px">${eventBox()}</div>
  <div class="lbl">Bilanz ${p.l}</div><h2>${sgn(d)} t pro Jahr</h2><p class="sub">Von ${fmt(before)} t auf ${fmt(now)} t ${S.r<LAST?"zu Beginn der nächsten Runde":"im Jahr 2050"}.</p>
  <div class="ibox">${chartSVG(Math.min(nx,2050))}</div>
  <div class="sec"><h2>Woher die Veränderung kommt</h2></div>
@@ -1504,7 +1505,7 @@ const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Mens
 const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Budget, Herzen, Geld und dein Wunsch. Fahre mit der Maus darüber, dann erscheint eine Erklärung. Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
  ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
  ["panel","Rechts stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
- ["finish","Unten siehst du, was dir übrig bleibt. Wenn du fertig bist, stimmst du ab. Danach kommt ein Ereignis und die Bilanz der Runde."]];
+ ["finish","Unten siehst du, was dir übrig bleibt. Wenn du fertig bist, stimmst du ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
 function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt]=COACH[S.coach];
  return `<div class="coach"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div>`;}
 function placeCoach(){const c=document.querySelector&&document.querySelector(".coach");if(!c||S.coach==null||typeof innerWidth==="undefined"||innerWidth<700)return;
