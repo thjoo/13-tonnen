@@ -1103,7 +1103,7 @@ function viewBoard(){const n=S.boardN||1,m=S.boardMode||"kurz";
  <div class="row" style="margin-top:22px"><button onclick="S.screen='start';render()">Zurück</button></div></div>`;}
 
 /* ---------- Ablauf ---------- */
-const HAND=6;
+const HAND=4;
 function income(f,r){if(S.chal=="knapp")return 0;const c=M.INC[f];return c[r%c.length];}
 function incText(f){const c=M.INC[f];return c.length==1?c[0]+" pro Runde":"1 jede zweite Runde";}
 const usedH=()=>Object.values(S.alloc).reduce((a,b)=>a+b,0)+(S.palloc||0);
@@ -1266,7 +1266,7 @@ function viewRound(){
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
   L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
  const TOP=L;L="";
- L+=`<div class="colhd"><span class="t">Selber</span><span class="s">Deine Karten</span></div><div class="sec" style="margin-top:0"><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
+ L+=`<div class="colhd"><span class="t">Selber</span><span class="s">Deine Karten</span></div><div class="sec" style="margin-top:0"><p class="sub">${S.hand.length} Karten, je eine aus Mobilität, Wohnen, Ernährung und Konsum. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
@@ -1293,7 +1293,7 @@ function rulesHTML(){
  <div class="ibox"><div class="lbl">Ziel</div><div class="v">0.6 t</div><div class="hint">im Jahr 2050, und unterwegs möglichst wenig verbrauchen: Zielpfad ${PFAD} t bis 2050</div></div>
  <div class="ibox"><div class="lbl">Pro Runde</div><div class="v">3 Herzen</div><div class="hint">für Aufwand und Verzicht, verfallen am Rundenende</div></div>
  <div class="ibox"><div class="lbl">Geld</div><div class="v">wenig</div><div class="hint">für Anschaffungen und Kampagnen, bleibt dir</div></div></div>
- <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 6 Karten. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
+ <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 4 Karten, je eine aus Mobilität, Wohnen, Ernährung und Konsum. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
  <div class="callout"><span class="ic">2</span><span><b>Ereignis.</b> Etwas passiert, das du nicht planen konntest.</span></div>
  <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
 }
