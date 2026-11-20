@@ -65,7 +65,7 @@ img.icn.dim{opacity:.3}
 .seg{position:relative;height:100%;border-right:1px solid #fff;cursor:help;outline:none}
 .seg .sl{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:400 11px var(--mono);text-transform:uppercase;padding:4px 7px 3px;white-space:nowrap;opacity:0;pointer-events:none;z-index:70;transition:opacity .1s}
 .seg:first-child .sl{left:0;transform:none}.seg:nth-child(5) .sl{left:auto;right:0;transform:none}
-.seg .sic{position:absolute;left:0;top:0;width:20px;height:100%;display:grid;place-items:center;background:#fff;pointer-events:none;line-height:0}.seg .sic img{display:block}
+.seg .sic{position:absolute;left:3px;top:0;width:16px;height:100%;display:grid;place-items:center;z-index:2;pointer-events:none;line-height:0}.seg .sic img{display:block}.seg .sic.w img{filter:invert(1)}
 .seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
 h3.bud{font-size:22px;margin:2px 0 12px}
 .endtop{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px;margin-top:18px}
@@ -426,7 +426,7 @@ details.rules>summary{font-size:13px}
  .chips{display:flex;flex-wrap:nowrap!important;gap:6px!important;width:100%}
  .chip{padding:3px 7px!important;flex:0 0 auto}.chip .cv{font-size:16px!important}.chip .cl{font-size:9px}
  .chip.wish{flex:1 1 auto;min-width:0}.chip.wish .cw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
- .barbox{padding:0 12px 8px!important}.bar{height:18px}.seg .sic{width:16px}.seg .sic img{width:12px;height:12px}
+ .barbox{padding:0 12px 8px!important}.bar{height:18px}.seg .sic{width:12px;left:2px}.seg .sic img{width:12px;height:12px}
  .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
  .tabs{gap:6px;flex-wrap:wrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
  .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
@@ -1510,7 +1510,7 @@ const CATSHORT={"Mobilität":"Mobilität","Wohnen":"Wohnen","Ernährung":"Ernäh
 function pips(n,max=3){let s="";for(let i=0;i<Math.max(max,n);i++)s+=IC("herz",16,i>=n);return `<div class="pips">${s}</div>`}
 function barHTML(v){
  const c=bycat(v),W=13.5;
- const segs=CATS.map((x,i)=>`<div class="seg" tabindex="0" style="width:${c[x]/W*100}%;background:${GSH[i]}">${c[x]/W>0.035?`<span class="sic">${CATIC(x,16)}</span>`:""}<span class="sl">${CATIC(x)} ${CATSHORT[x]} ${fmt(c[x])} t</span></div>`).join("");
+ const segs=CATS.map((x,i)=>`<div class="seg" tabindex="0" style="width:${c[x]/W*100}%;background:${GSH[i]}">${c[x]/W>0.035?`<span class="sic${i<2?" w":""}">${CATIC(x,16)}</span>`:""}<span class="sl">${CATIC(x)} ${CATSHORT[x]} ${fmt(c[x])} t</span></div>`).join("");
  return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>`;
 }
 function header(){
