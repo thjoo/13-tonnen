@@ -1589,12 +1589,13 @@ function dorfEff(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0,from=null;
  if(k[0]==="P"){if(!S.pdone||S.pdone[k]===undefined)return "";from=S.pdone[k];const b=S.pdone[k];delete S.pdone[k];const v0=val(Math.max(y,b),ACT);S.pdone[k]=b;ve=v0-val(Math.max(y,b),ACT);}
  else{if(S.adopted[k]===undefined)return "";from=S.adopted[k];const yy=Math.max(y,from);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
  const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;
- return Math.abs(ve)<0.005?`Wirkt ab ${from} für die Schweiz: ${fmt(ch,2)} Mio. t pro Jahr weniger. Für deinen Fussabdruck zählt es nicht.`
+ const hasCh=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null;
+ return Math.abs(ve)<0.005?(hasCh?`Wirkt ab ${from} für die Schweiz: ${fmt(ch,2)} Mio. t pro Jahr weniger. Für deinen Fussabdruck zählt es nicht.`:`Wirkt ab ${from}. Für ${S.fig} kaum spürbar, weil ${S.fig} davon wenig betroffen ist.`)
   :`Wirkt ab ${from}: <b>${fmt(ve,2)} t</b> pro Jahr weniger für dich, für die Schweiz rund ${fmt(ch,1)} Mio. t.`;}
 function dorfEffShort(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0;
  if(k[0]==="P"){const b=S.pdone[k];delete S.pdone[k];const v0=val(Math.max(y,b),ACT);S.pdone[k]=b;ve=v0-val(Math.max(y,b),ACT);}
  else{const yy=Math.max(y,S.adopted[k]);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
- const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;return Math.abs(ve)<0.005?`−${fmt(ch,2)} Mio. t Schweiz`:`−${fmt(ve,2)} t für dich`;}
+ const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;return Math.abs(ve)<0.005?(k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?`−${fmt(ch,2)} Mio. t Schweiz`:"für dich kaum spürbar"):`−${fmt(ve,2)} t für dich`;}
 function dorfBubble(k,box,cls){const T0=DORFTXT[k];if(!T0||!box)return null;const host=document.querySelector(".szene .dorfkopf");if(!host)return null;
  const b=document.createElement("div");b.className="dbub "+(cls||"");b.innerHTML=cls==="pin"?`<b>${T0[0]}</b><span class="ef">${dorfEffShort(k)}</span>`:`<div class="lbl">${k[0]==="P"?"Projekt":"Vorlage"}: ${esc(k[0]==="P"?PROJ[k].t:T[k].title)}</div>${(k[0]==="P"?PROJ[k].t:T[k].title)===T0[0]?"":`<b>${T0[0]}</b>`}<p>${T0[1]}</p><p class="ef">${dorfEff(k)}</p>`;
  host.appendChild(b);const W=host.clientWidth,H=host.clientHeight,bw=b.offsetWidth,bh=b.offsetHeight,cx=box.x+box.w/2;
