@@ -120,6 +120,16 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .groupbox{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:18px 20px;background:var(--soft);margin:var(--p);box-shadow:0 -3px 0 0 var(--g4),0 3px 0 0 var(--g4),-3px 0 0 0 var(--g4),3px 0 0 0 var(--g4)}
 .groupbox .hint{margin:6px 0 0}
 .credits{margin-top:36px}
+.choose2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:6px}
+.pick{background:#fff;padding:22px 24px 16px;cursor:pointer;display:flex;flex-direction:column;margin:var(--p);box-shadow:0 -3px 0 0 var(--edge),0 3px 0 0 var(--edge),-3px 0 0 0 var(--edge),3px 0 0 0 var(--edge),6px 6px 0 0 var(--g5)}
+.pick:hover,.pick:focus{box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),6px 6px 0 0 var(--g4);outline:none}
+.pick .pfigs{display:flex;justify-content:center;gap:18px;background:var(--soft);padding:22px 0 16px;margin-bottom:16px}
+.pick h3{font-size:40px;line-height:1;margin:0 0 8px}.pick p{margin:0 0 14px;flex:1;max-width:46ch}
+.pick:hover .fgo,.pick:focus .fgo{color:var(--ink)}
+.pick .fgo{font-family:var(--mono);font-size:12px;text-transform:uppercase;border-top:1px dotted var(--edge);padding-top:10px;color:var(--muted)}
+.back{display:inline-block;margin:6px 0 0;font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--muted);text-decoration:none}.back:hover{color:var(--ink)}
+@media(max-width:800px){.choose2{grid-template-columns:1fr}}
+
 @media(max-width:1200px){.figs.five{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.hero{grid-template-columns:1fr}.figs.five{grid-template-columns:1fr 1fr}.groupbox{grid-template-columns:1fr}h1.big{font-size:60px}}
 
@@ -1258,22 +1268,25 @@ function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im">${figAnim(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
  <div class="fmeta"><span>Start ${M.START[f]} ${IC("geld",14)}</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
 function viewStart(){
+ const sm=S.startMode;
+ const back=`<a href="#" class="back" onclick="S.startMode=null;render();return false">‹ zurück zur Auswahl</a>`;
+ let body;
+ if(!sm)body=`<div class="sec"><h2>Wie spielt ihr?</h2></div>
+  <div class="choose2">
+   <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs">${figAnim("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein, vier Runden bis 2050. Etwa 20 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
+   <div class="pick" tabindex="0" onclick="S.startMode='group';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs">${["Noah","Ruth","Elif"].map(f=>figAnim(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
+  </div>`;
+ else if(sm==="solo")body=`${back}<div class="sec"><h2>Wähle deine Figur</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
+  <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`S.chal='keine';startFig('${f}')`,false)).join("")}</div>`;
+ else body=`${back}<div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Eine Person eröffnet den Raum und wählt dort die Version. Alle anderen treten mit dem Code bei. Niemand gibt einen Namen ein.</p></div>
+  <div class="groupbox"><div><div class="lbl">Raum eröffnen</div><div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button></div><p class="hint">Klasse ist freiwillig, zum Beispiel 4a.</p></div>
+   <div><div class="lbl">Raum beitreten</div><div class="row"><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div><p class="hint">Den Code zeigt die Person, die den Raum eröffnet hat.</p></div></div>`;
  return `<div class="wrap">
  <div class="hero"><div><div class="lbl">KKN4.02 Klimawandel · Spiel</div><h1 class="big">13 Tonnen</h1>
   <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr, verträglich wären 0.6. Übernimm eine Figur und senke ihren Fussabdruck bis 2050: mit eigenen Entscheiden und mit Engagement für Vorlagen. Die erste Runde erklärt sich beim Spielen.</p>
   <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details></div>
   <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>
- <div class="sec"><h2><span class="step">1</span>Version und Herausforderung</h2></div>
- <div class="setrow"><div class="tabs">
-  <label class="tab ${S.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='kurz';setMode('kurz');render()"><span class="n">4</span>Kurz: 4 Runden</label>
-  <label class="tab ${S.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" name="mode" style="display:none" onchange="S.mode='lang';setMode('lang');render()"><span class="n">8</span>Lang: 8 Runden</label></div>
- <div class="tabs">${Object.entries(CHAL).map(([k,c])=>`<label class="tab ${(S.chal||"keine")==k?"on":""}" style="cursor:pointer" title="${c.d}"><input type="radio" style="display:none" onchange="S.chal='${k}';render()">${c.t}</label>`).join("")}</div></div>
- <p class="hint">${S.mode=="lang"?"8 Runden zu 3 Jahren, etwa 40 Minuten.":"4 Runden zu 6 Jahren, etwa 20 Minuten."} Herausforderung: ${CHAL[S.chal||"keine"].d}</p>
- <div class="sec"><h2><span class="step">2</span>Allein spielen: Figur wählen</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
- <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`startFig('${f}')`,false)).join("")}</div>
- <div class="sec"><h2><span class="step">2</span>Oder in der Gruppe spielen</h2><p class="sub">Jede Person spielt auf ihrem Gerät eine eigene Figur. Beim Abstimmungssonntag und bei den Projekten zählen die Herzen der ganzen Gruppe, und ihr habt ein gemeinsames Ziel. Niemand gibt einen Namen ein.</p></div>
- <div class="groupbox"><div><div class="lbl">Raum eröffnen</div><div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button></div><p class="hint">Klasse ist freiwillig, zum Beispiel 4a.</p></div>
-  <div><div class="lbl">Raum beitreten</div><div class="row"><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div><p class="hint">Den Code zeigt die Person, die den Raum eröffnet hat.</p></div></div>
+ ${body}
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
  <p class="hint credits">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
 }
