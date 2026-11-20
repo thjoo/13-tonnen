@@ -363,6 +363,13 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .chart .cn{font-family:var(--fliess);font-size:11px;fill:var(--muted)}
 .chart .cl2{font-family:var(--fliess);font-size:12px;fill:var(--text)}
 .chart .b{font-weight:700}
+.chwrap{position:relative;touch-action:pan-y}
+.chwrap .xh{position:absolute;top:0;width:2px;background:var(--ink);opacity:0;pointer-events:none}
+.chwrap .chtip{position:absolute;top:0;left:0;max-width:260px;background:var(--ink);color:#fff;font:400 13px/1.45 var(--fliess);padding:8px 10px;opacity:0;pointer-events:none;z-index:60;white-space:normal}
+.chwrap .chtip b{font-weight:700}
+.chwrap.on .chtip,.chwrap.on .xh{opacity:1}
+.chwrap [data-ht]{cursor:help}
+.chwrap svg text,.chwrap svg line{pointer-events:none}
 .bmeter{position:relative;height:16px;background:#fff;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin:4px 2px}
 .bmeter>i{position:absolute;left:0;top:0;bottom:0;background:var(--g2)}
 .bmeter .mk{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
@@ -1494,6 +1501,19 @@ function viewSummary(){
   <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}</div>
   ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
  </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
+/* Hover fuer Diagramme: Jahr mit Fadenkreuz oder Erklaerung an Balken */
+function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
+function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".xh"),r=w.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
+ const t=e.target.closest("[data-ht]");let html="";xh.style.display="none";
+ if(t)html=t.getAttribute("data-ht");
+ else if(w.dataset.v){const sv=w.querySelector("svg"),vb=sv.viewBox.baseVal,sc=sv.getBoundingClientRect().width/vb.width,L=+w.dataset.l,R=+w.dataset.r,y0=2026,y1=2050;
+  const fx=(px/sc-L)/(vb.width-L-R);if(fx<-0.03||fx>1.03){w.classList.remove("on");return}
+  const y=Math.max(y0,Math.min(y1,Math.floor(y0+fx*(y1-y0)))),d=JSON.parse(w.dataset.v)[y-y0];
+  const xc=(L+(y-y0+0.5)/(y1-y0)*(vb.width-L-R))*sc;xh.style.display="block";xh.style.left=Math.round(xc-1)+"px";xh.style.height=(vb.height*sc-26*sc)+"px";
+  html=`<b>${y}</b><br>`+(d[1]!=null?`${S.fig}: <b>${fmt(d[1])} t</b><br>`:"")+`weiter wie bisher: ${fmt(d[2])} t<br>Zielpfad: ${fmt(d[3])} t`+(d[1]!=null?`<br><span style="opacity:.75">${d[1]<=d[3]?"auf dem Zielpfad":fmt(d[1]-d[3])+" t über dem Zielpfad"}</span>`:"");}
+ if(!html){w.classList.remove("on");return}
+ tip.innerHTML=html;w.classList.add("on");
+ const tw=tip.offsetWidth,th=tip.offsetHeight;let x=px+14,yy=py-th-10;if(x+tw>r.width)x=px-tw-14;if(yy<0)yy=py+16;tip.style.left=Math.max(0,x)+"px";tip.style.top=yy+"px";}
 /* Kurve ohne Legende, direkt beschriftet */
 function chartClean(toYear){
  const W=640,H=230,L=34,R=104,T=12,B=26,y0=2026,y1=2050,vmax=13.5;
@@ -1510,25 +1530,27 @@ function chartClean(toYear){
  g+=`<rect x="${xe-4}" y="${Y(aEnd)-4}" width="8" height="8" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)+4}" class="cl2 b">${S.fig} ${fmt(aEnd)} t</text>`;
  g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">weiter wie bisher ${fmt(tEnd)} t</text>`;
  g+=`<text x="${X(y1)+6}" y="${Y(ZIEL)+4}" class="cl2">Zielpfad bis</text><text x="${X(y1)+6}" y="${Y(ZIEL)+18}" class="cl2">Ziel 0.6 t</text>`;
- return `<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, weiter wie bisher bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`;}
+ const dv=[];for(let y=y0;y<=y1;y++)dv.push([y,y<=toYear?+val(y,ACT).toFixed(2):null,+val(y,NO).toFixed(2),+zp(y).toFixed(2)]);
+ return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, weiter wie bisher bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`,`data-l="${L}" data-r="${R}" data-v='${JSON.stringify(dv)}'`);}
 /* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
 function waterfallSVG(parts,d){
  const W=520,H=180,T=34,Bm=22,n=parts.length+1,bw=64,gap=(W-n*bw)/(n+1);
+ const EXP={Wandel:"<b>Allgemeiner Wandel</b><br>Sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Passiert auch ohne dich, rund 1.1 % pro Jahr.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
  let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
  const span=Math.max(0.5,hi-lo),Y=v=>Math.round((T+(hi-v)/span*(H-T-Bm))/2)*2;
  let g=`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--g3)" stroke-width="1"/>`;
  parts.forEach(([lab,v],i)=>{const x=Math.round(gap+i*(bw+gap)),a=run,b=run+v;run=b;
   const y1=Math.min(Y(a),Y(b)),h=Math.max(Math.abs(Y(a)-Y(b)),Math.abs(v)<0.05?0:2);
-  if(Math.abs(v)>=0.05)g+=`<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="${v<0?"var(--g2)":"url(#wfh)"}" stroke="${v<0?"none":"var(--ink)"}" stroke-width="2"/>`;
+  g+=`<rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent"${ht(lab,v)}/>`;
+  if(Math.abs(v)>=0.05)g+=`<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="${v<0?"var(--g2)":"url(#wfh)"}" stroke="${v<0?"none":"var(--ink)"}" stroke-width="2" pointer-events="none"/>`;
   else g+=`<line x1="${x}" x2="${x+bw}" y1="${Y(a)}" y2="${Y(a)}" stroke="var(--g2)" stroke-width="2"/>`;
   if(i<parts.length)g+=`<line x1="${x+bw}" x2="${Math.round(x+bw+gap)}" y1="${Y(b)}" y2="${Y(b)}" stroke="var(--g3)" stroke-width="1"/>`;
   g+=`<text x="${x+bw/2}" y="${(v<0?Math.max(Y(a),Y(b))+16:Math.min(Y(a),Y(b))-6)}" text-anchor="middle" class="cl2">${sgn(v)} t</text>`;
   g+=`<text x="${x+bw/2}" y="14" text-anchor="middle" class="cn">${lab}</text>`;});
  const x=Math.round(gap+parts.length*(bw+gap));
- g+=`<rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)"/>`;
+ g+=`<rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent" data-ht="<b>Zusammen</b><br>So viel stösst du jetzt pro Jahr mehr oder weniger aus als zu Beginn der Runde: <b>${sgn(d)} t</b>"/><rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)" pointer-events="none"/>`;
  g+=`<text x="${x+bw/2}" y="${(d<0?Y(d)+16:Y(d)-6)}" text-anchor="middle" class="cl2 b">${sgn(d)} t</text><text x="${x+bw/2}" y="14" text-anchor="middle" class="cn b">Zusammen</text>`;
- return `<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>
- <p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn.</p>`;}
+ return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>`)+`<p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn. Fahre über einen Balken für die Erklärung.</p>`;}
 /* Budget als eigene Groesse: Summe der Jahre */
 function budgetHTML(used,pf,yEnd){
  const mx=Math.max(PFAD,used)*1.08,pc=v=>Math.min(100,v/mx*100);
