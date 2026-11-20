@@ -93,6 +93,8 @@ details{font-size:13px;color:var(--text)}
 details p{margin:6px 0 0}
 summary{cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 .vote{border-top:1px solid var(--line);padding:12px 0}
+table.pts td:first-child{width:60%}table.board tr.me td{background:var(--soft);font-weight:700}
+.board td,.board th{white-space:nowrap}.board td:nth-child(3){white-space:normal}
 .crisis{margin:0 0 18px;padding:14px 16px;background:var(--paper,#fff);box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);position:relative}
 .crisis::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:repeating-linear-gradient(135deg,var(--ink) 0 3px,transparent 3px 7px)}
 .crisis .lbl{margin-top:6px}.crisis h3{margin:2px 0 4px;font-family:var(--titel);font-size:20px}.crisis .tx{margin:0 0 6px;font-size:14px}
@@ -853,6 +855,74 @@ function wishBonusRound(r){return r%2==1}
 function wishHTML(){const w=wish();if(!w)return"";const b=wishBroken();
  return `<div class="callout"><span class="ic">${b?"✗":IC("herz")}</span><span><b>Dein Wunsch: ${esc0(w.t)}.</b> ${b?`Aufgegeben. Ab jetzt kein Extraherz mehr.`:`Solange du ihn lebst, bekommst du jede zweite Runde 1 Herz extra${wishBonusRound(S.r)?", auch diese Runde":wishBonusRound(S.r+1)&&S.r<LAST?", das nächste Mal in der nächsten Runde":""}. Aufgeben würdest du ihn mit ${w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")}.`}</span></div>`;}
 
+
+/* ---------- Punkte und Bestenliste ---------- */
+const PTS={B:5,E:100,V:25,P:40,ZIEL:100,M:5};
+function myParts(){const a=val(2050,ACT),no=val(2050,NO);
+ return {b:+(sum(2026,2050,NO)-sum(2026,2050,ACT)).toFixed(1),e:+(no-a).toFixed(2),m:S.money};}
+function scoreOf(o){ // o: {b,e,m (Schnitt pro Person), v,p (Gruppe), ziel}
+ const r={B:Math.round(o.b*PTS.B),E:Math.round(o.e*PTS.E),V:o.v*PTS.V,P:o.p*PTS.P,Z:o.ziel?PTS.ZIEL:0,M:Math.round(o.m*PTS.M)};
+ r.tot=Math.max(0,r.B+r.E+r.V+r.P+r.Z+r.M);return r;}
+function scoreNow(){ // null, wenn in der Gruppe noch nicht alle fertig sind
+ const v=Object.keys(S.adopted).length,p=Object.keys(S.pdone||{}).length;
+ if(!G){const x=myParts();return {n:1,...x,v,p,ziel:false};}
+ const ps=G.players().filter(q=>q.fig);if(ps.some(q=>!q.end||q.end.b==null))return null;
+ const av=k=>ps.reduce((s,q)=>s+q.end[k],0)/ps.length;
+ const ga=groupAvg("end"),gb=groupAvg("endsum");
+ return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,ziel:ga!=null&&gb!=null&&ga<GOAL&&gb<GOALB};}
+let BOARD={key:null,rows:null,err:null};
+function boardKey(n,mode){return "scores/"+(mode||S.mode||"kurz")+"/"+n;}
+async function loadBoard(n,mode){const k=boardKey(n,mode);BOARD={key:k,rows:null,err:null};render();
+ try{await netInit();const v=await NET.top(k,10);BOARD={key:k,rows:v,err:null};}
+ catch(e){BOARD={key:k,rows:[],err:"Bestenliste nicht erreichbar"+(e&&e.code?" ("+e.code+")":"")+"."};}
+ render();}
+async function submitScore(){
+ const o=scoreNow();if(!o||S.scored)return;const sc=scoreOf(o);
+ const kzEl=document.getElementById&&document.getElementById("kz");
+ const kz=((kzEl&&kzEl.value)||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
+ const figs=G?G.players().filter(q=>q.fig).map(q=>q.fig).join(","):S.fig;
+ const kl=G&&ROOM&&ROOM.klasse?ROOM.klasse:"";
+ const row={s:sc.tot,b:sc.B,e:sc.E,g:sc.V+sc.P+sc.Z,m:sc.M,kz,kl,figs,ch:S.chal||"keine",at:NET&&NET.now||Date.now()};
+ S.scored="sending";render();
+ try{await netInit();
+  if(G){const ok=await NET.txn("rooms/"+G.code+"/scored",cur=>cur?undefined:NET.uid);
+   if(!ok){S.scored="done";S.scoreMsg="Eure Gruppe ist schon eingetragen.";await loadBoard(o.n);return;}}
+  S.scoreId=await NET.push(boardKey(o.n),row);S.scored="done";S.scoreMsg=null;await loadBoard(o.n);}
+ catch(e){S.scored=null;S.scoreMsg="Eintragen nicht möglich"+(e&&e.code?" ("+e.code+")":"")+". Die Lehrperson muss die Regeln in Firebase ergänzen.";render();}}
+function boardTable(n){const myId=S.scoreId;
+ if(BOARD.key!==boardKey(n))return `<p class="hint">Lade …</p>`;
+ if(BOARD.err)return `<p class="hint">${esc0(BOARD.err)}</p>`;
+ if(!BOARD.rows)return `<p class="hint">Lade …</p>`;
+ if(!BOARD.rows.length)return `<p class="hint">Noch keine Einträge. Ihr könnt die ersten sein.</p>`;
+ return `<table class="board"><tr><th>#</th><th>Kürzel</th><th>${n>1?"Figuren":"Figur"}</th><th>Klasse</th><th class="n">CO₂</th><th class="n">2050</th><th class="n">Gruppe</th><th class="n">Geld</th><th class="n">Punkte</th></tr>
+ ${BOARD.rows.map((r,i)=>`<tr class="${r.id===myId?"me":""}"><td class="mono">${i+1}</td><td class="mono">${esc0(r.kz||"–")}</td><td>${esc0(r.figs||"")}${r.ch&&r.ch!="keine"?` <span class="hint">· ${esc0((CHAL[r.ch]||{}).t||"")}</span>`:""}</td><td class="mono">${esc0(r.kl||"")}</td><td class="n">${r.b}</td><td class="n">${r.e}</td><td class="n">${r.g}</td><td class="n">${r.m}</td><td class="n"><b>${r.s}</b></td></tr>`).join("")}</table>`;}
+function scoreHTML(){const o=scoreNow();
+ if(!o)return `<div class="sec"><h2>Punkte</h2></div><p class="hint">Sobald alle fertig sind, rechnet das Spiel eure Punkte.</p>`;
+ const sc=scoreOf(o),n=o.n;if(BOARD.key!==boardKey(n)&&!BOARD.loading){BOARD.loading=true;setTimeout(()=>{BOARD.loading=false;loadBoard(n)},0);}
+ const per=n>1?" im Schnitt pro Person":"";
+ return `<div class="sec"><h2>Punkte</h2><p class="sub">${n>1?`Eure Gruppe zu ${n}: Gezählt wird der Schnitt pro Person und die gemeinsame Leistung.`:"Gezählt wird, was du gespart hast, wo du 2050 stehst und was politisch durchkam."}</p></div>
+ <table class="pts"><tr><td>CO₂ gespart 2026 bis 2050${per}, gegenüber dem Trend</td><td class="n">${fmt(o.b,0)} t × ${PTS.B}</td><td class="n">${sc.B}</td></tr>
+ <tr><td>2050 unter dem Trend${per}</td><td class="n">${fmt(o.e)} t × ${PTS.E}</td><td class="n">${sc.E}</td></tr>
+ <tr><td>Angenommene Vorlagen</td><td class="n">${o.v} × ${PTS.V}</td><td class="n">${sc.V}</td></tr>
+ <tr><td>Projekte im Quartier</td><td class="n">${o.p} × ${PTS.P}</td><td class="n">${sc.P}</td></tr>
+ ${n>1?`<tr><td>Gruppenziel erreicht</td><td class="n">${o.ziel?"ja":"nein"}</td><td class="n">${sc.Z}</td></tr>`:""}
+ <tr><td>Übriges Geld${per}</td><td class="n">${fmt(o.m,n>1?1:0)} × ${PTS.M}</td><td class="n">${sc.M}</td></tr>
+ <tr class="sum"><td>Total</td><td></td><td class="n">${sc.tot}</td></tr></table>
+ <div class="sec"><h2>Bestenliste: ${n==1?"allein":n+" Personen"}, ${S.mode=="lang"?"lang":"kurz"}</h2></div>
+ ${S.scored=="done"?(S.scoreMsg?`<p class="hint">${esc0(S.scoreMsg)}</p>`:`<p class="hint">Eingetragen.</p>`):
+  `<div class="row"><input id="kz" class="codein" style="width:5em" maxlength="3" placeholder="ABC" title="3 Buchstaben, kein Name"><button class="primary" ${S.scored?"disabled":""} onclick="submitScore()">${n>1?"Gruppe eintragen":"Eintragen"}</button><span class="hint">Kürzel mit 3 Buchstaben, kein Name.${n>1?" Eine Person trägt für alle ein.":""}</span></div>${S.scoreMsg?`<p class="hint">${esc0(S.scoreMsg)}</p>`:""}`}
+ ${boardTable(n)}`;}
+function viewBoard(){const n=S.boardN||1,m=S.boardMode||"kurz";
+ if(BOARD.key!==boardKey(n,m)&&!BOARD.loading){BOARD.loading=true;setTimeout(()=>{BOARD.loading=false;loadBoard(n,m)},0);}
+ const saved=S.mode;S.mode=m;const tb=boardTable(n);S.mode=saved;
+ return `<div class="wrap"><div class="lbl">13 Tonnen</div><h1 style="margin:4px 0 8px">Bestenliste</h1>
+ <p class="sub">Je eine Liste pro Gruppengrösse. In der Gruppe zählt der Schnitt pro Person plus die gemeinsame Leistung.</p>
+ <div class="tabs">${[1,2,3,4,5].map(k=>`<button class="tab ${k==n?"on":""}" onclick="S.boardN=${k};render()"><span class="n">${k}</span>${k==1?"allein":k+" Personen"}</button>`).join("")}</div>
+ <div class="tabs">${["kurz","lang"].map(k=>`<button class="tab ${k==m?"on":""}" onclick="S.boardMode='${k}';render()">${k=="kurz"?"Kurz":"Lang"}</button>`).join("")}</div>
+ ${tb}
+ <details style="margin-top:14px"><summary>So werden Punkte gerechnet</summary><p>${PTS.B} Punkte pro Tonne CO₂, die von 2026 bis 2050 weniger ausgestossen wird als im Trend. ${PTS.E} Punkte pro Tonne, die der Fussabdruck 2050 unter dem Trend liegt. ${PTS.V} Punkte pro angenommene Vorlage, ${PTS.P} pro Projekt im Quartier, in der Gruppe ${PTS.ZIEL} fürs Gruppenziel. ${PTS.M} Punkte pro übriges Geld. In der Gruppe zählen CO₂, 2050 und Geld im Schnitt pro Person.</p></details>
+ <div class="row" style="margin-top:22px"><button onclick="S.screen='start';render()">Zurück</button></div></div>`;}
+
 /* ---------- Ablauf ---------- */
 const HAND=6;
 function income(f,r){if(S.chal=="knapp")return 0;const c=M.INC[f];return c[r%c.length];}
@@ -1058,7 +1128,7 @@ function viewStart(){
  <div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Jede Person spielt auf ihrem Gerät eine eigene Figur. Beim Abstimmungssonntag zählen die Herzen der ganzen Gruppe, und ihr habt ein gemeinsames Ziel. Niemand gibt einen Namen ein.</p></div>
  <div class="row"><input id="klasse" class="codein" style="width:7em" maxlength="6" placeholder="KLASSE" title="optional, zum Beispiel 4a"><button class="primary" onclick="Group.create()">Raum eröffnen</button><span class="lbl">oder</span><input id="code" class="codein" maxlength="5" placeholder="CODE"><button onclick="Group.join(document.getElementById('code').value)">Beitreten</button></div>
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
- <p class="hint" style="margin-top:28px">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
+ <p class="hint" style="margin-top:28px">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
 }
 function viewEnd(){
  if(G)G.finish();
@@ -1075,6 +1145,7 @@ function viewEnd(){
   <div class="ibox"><div class="lbl">Schweiz, 9 Mio.</div><div class="v">${fmt(ch)} Mio. t</div><div class="hint">weniger pro Jahr dank Vorlagen</div></div></div>
  ${wish()?`<div class="callout"><span class="ic">${wishBroken()?"✗":"✓"}</span><span>Dein Wunsch «${esc0(wish().t)}»: ${wishBroken()?"aufgegeben.":"bis 2050 gelebt."} ${wishBroken()?"Was hat es dir gebracht, was hat es gekostet?":"Was hat er deinen Fussabdruck gekostet, und was hast du mit den Extraherzen bewirkt?"}</span></div>`:""}
  <div class="sec"><h2>Deine Stufen</h2></div>${stagesHTML(a,no,sA,sN)}
+ ${scoreHTML()}
  <div class="sec"><h2>Verlauf bis 2050</h2></div><div class="ibox">${chartSVG(2050,{vo:true})}</div>
  <div class="sec"><h2>Woher die Veränderung kommt</h2></div>
  <table><tr><th></th><th class="n">2050 pro Jahr</th><th class="n">Budget bis 2050</th></tr>
@@ -1258,7 +1329,7 @@ function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.
 
 function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
- const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,end:viewEnd,teacher:viewTeacher}[S.screen];
+ const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
  document.getElementById("app").innerHTML=v()+coachHTML();
  if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"center",behavior:"smooth"});}}}
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
@@ -1287,6 +1358,8 @@ async function netInit(){
   txn:async(p,fn)=>(await D.runTransaction(r(p),fn)).committed,
   onDisc:(p,v)=>D.onDisconnect(r(p)).update(v),
   now:{".sv":"timestamp"},
+  push:async(p,v)=>(await D.push(r(p),v)).key,
+  top:async(p,n)=>{const s=await D.get(D.query(r(p),D.orderByChild("s"),D.limitToLast(n)));const o=[];s.forEach(c=>{o.push({id:c.key,...c.val()})});return o.reverse();},
   cleanup:async()=>{const q=D.query(r("rooms"),D.orderByChild("createdAt"),D.endAt(Date.now()-86400000),D.limitToFirst(20));
    const s=await D.get(q);const v=s.val()||{};for(const k in v)await D.remove(r("rooms/"+k));}};
  return NET;
@@ -1385,7 +1458,7 @@ function makeG(code){
   missing(){return this.active().filter(p=>p.uid!==NET.uid&&!(p.ready&&p.ready[S.r])).map(p=>p.fig+" ("+p.color+")")},
   finish(){if(S.finished)return;S.finished=true;
    const Y=2050;NET.update(this.path(),{end:{v:+val(Y,ACT).toFixed(2),sum:Math.round(sum(2026,Y,ACT)),
-    own:+(val(Y,ACT)-val(Y,VO)).toFixed(2),cards:Object.keys(S.chosen).length}});},
+    own:+(val(Y,ACT)-val(Y,VO)).toFixed(2),cards:Object.keys(S.chosen).length,...myParts()}});},
   endTable(){const ps=this.players();const vo=val(2050,VO);
    const ga=groupAvg("end");const gb=groupAvg("endsum");const okA=ga!=null&&ga<GOAL,okB=gb!=null&&gb<GOALB;
    return `<h2>Eure Gruppe</h2><div class="callout"><span class="ic">${okA&&okB?"✓":"!"}</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t und Budget unter ${GOALB} t. Ihr liegt bei <b>${ga==null?"–":fmt(ga)+" t"}</b> ${okA?"✓":"✗"} und <b>${gb==null?"–":fmt(gb,0)+" t"}</b> ${okB?"✓":"✗"}. ${okA&&okB?"Geschafft.":okA||okB?"Nur halb geschafft: Beides zählt.":"Nicht geschafft oder noch nicht fertig."}</span></div><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
