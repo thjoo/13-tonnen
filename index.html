@@ -255,6 +255,7 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .fig{border:1px solid var(--edge);padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:flex-start;background:#fff}
 .fig:hover{border-color:var(--ink)}
 .fig.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
+.fig.taken{opacity:.4;pointer-events:none;filter:grayscale(1)}
 .fig .im{flex:0 0 auto;background:var(--soft);padding:6px}
 section{margin-bottom:32px}
 .sec{margin:26px 0 10px}
@@ -1544,7 +1545,7 @@ function header(){
  const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?" 2 Geld sind gesperrt: Das Schnäppchen nach dieser Runde kostet dich 2 Geld, ausser du wählst noch «Allgemein weniger kaufen».":""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
  return `<div class="top"><div class="top-in">
- <div class="who">${figAnim(S.fig,4)}<div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
+ <div class="who">${figAnim(S.fig,4)}<div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}</h1></div></div>
  ${G&&S.screen==="round"?`<div class="bankrow${G.players().filter(p=>p.fig).length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
@@ -1615,7 +1616,7 @@ function viewRound(){
  P=(G?groupPanel():"")+projHTML()+ballotHTML();
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
  let B="";
- if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
+ if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig}</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
   B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter ins Dorf</button>`;}
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
  else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(moneyFree())}${moneyLock()?" (2 gesperrt)":""}. ${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
@@ -2002,7 +2003,7 @@ function benchHTML(ps,stateOf){const B=SPR.bench;if(!B||!ps.length)return"";
  return grp.map(g=>benchOne(g,stateOf,B)).join("");}
 function benchOne(ps,stateOf,B){
  return `<div class="bank" style="--bl:url(${B.l});--bm:url(${B.m});--br:url(${B.r})">${ps.map(p=>{const st=stateOf(p),me=p.uid===NET.uid;
-  return `<div class="bsit ${st[0]}" title="${p.fig} (${p.color})${me?", du":""}: ${st[1]}"><span class="bbub${me?" me":""}">${st[0]==="ok"?FXI("check"):st[0]==="wait"?'<i class="bdots"><b></b><b></b><b></b></i>':""}</span>${figAnim(p.fig,2)}</div>`;}).join("")}<i class="bseat"></i></div>`;}
+  return `<div class="bsit ${st[0]}" title="${p.fig}${me?", du":""}: ${st[1]}"><span class="bbub${me?" me":""}">${st[0]==="ok"?FXI("check"):st[0]==="wait"?'<i class="bdots"><b></b><b></b><b></b></i>':""}</span>${figAnim(p.fig,2)}</div>`;}).join("")}<i class="bseat"></i></div>`;}
 function benchRound(){if(!G||!ROOM)return"";const ps=G.players().filter(p=>p.fig);
  return benchHTML(ps,p=>{const me=p.uid===NET.uid,rd=S.results?true:me?S.waiting:(p.ready&&p.ready[S.r]);return rd?["ok","fertig"]:["wait","wählt noch"];});}
 function mates(){const ps=G.players().filter(p=>p.fig);if(!ps.length)return"";
@@ -2183,7 +2184,11 @@ const Group={
   if(UNWATCH)UNWATCH();
   UNWATCH=NET.watch("rooms/"+code,v=>{ROOM=v;onRoom();});
  },
- pickFig(f){NET.update("rooms/"+G.code+"/players/"+NET.uid,{fig:f});},
+ async pickFig(f){if(!ROOM)return;const mine=(ROOM.players[NET.uid]||{}).fig;if(mine===f)return;
+  const ok=await NET.txn("rooms/"+G.code+"/taken/"+f,cur=>{if(cur&&cur!==NET.uid&&ROOM.players[cur]&&ROOM.players[cur].online!==false)return;return NET.uid;});
+  if(!ok){S.netErr=f+" ist schon vergeben.";render();return;}
+  if(mine)await NET.remove("rooms/"+G.code+"/taken/"+mine);
+  S.netErr=null;await NET.update("rooms/"+G.code+"/players/"+NET.uid,{fig:f});},
  setMode(m){NET.update("rooms/"+G.code,{mode:m});},
  async start(){
   const ps=Object.keys(ROOM.players).filter(u=>ROOM.players[u].online!==false);
@@ -2199,8 +2204,8 @@ const Group={
   <div class="ibox"><div class="lbl">Version</div>${host?`<div class="tabs" style="margin:8px 0 0">
    <label class="tab ${ROOM.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('kurz')"><span class="n">4</span>Kurz</label>
    <label class="tab ${ROOM.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('lang')"><span class="n">8</span>Lang</label></div>`:`<div class="v" style="font-family:var(--titel);font-weight:800;font-size:28px">${ROOM.mode=="lang"?"Lang":"Kurz"}</div><div class="hint">wählt, wer den Raum eröffnet hat</div>`}</div></div>
-  <div class="callout"><span class="ic">!</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t pro Jahr und ein Budget 2026 bis 2050 unter ${GOALB} t. Ihr gewinnt oder verliert gemeinsam.</span></div>${ROOM.klasse?`<div class="lbl">Klasse ${esc0(ROOM.klasse)}</div>`:""}<div class="sec"><h2>Mitspielende</h2></div><div class="bankrow lobby">${benchHTML(ps.filter(p=>p.fig),p=>["ok","bereit"])}</div><table><tr><th>Farbe</th><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.color}${p.uid===NET.uid?" (du)":""}</td><td>${p.fig?`<span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}${p.bot?' <span class="hint">Testfigur</span>':""}</span>`:"<span class='hint'>wählt noch</span>"}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
-  <div class="sec"><h2>Deine Figur</h2></div><div class="figs">${Object.keys(M.FIG).map(f=>figCard(f,`Group.pickFig('${f}')`,me.fig==f)).join("")}</div>
+  <div class="callout"><span class="ic">!</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t pro Jahr und ein Budget 2026 bis 2050 unter ${GOALB} t. Ihr gewinnt oder verliert gemeinsam.</span></div>${ROOM.klasse?`<div class="lbl">Klasse ${esc0(ROOM.klasse)}</div>`:""}<div class="sec"><h2>Mitspielende</h2></div><div class="bankrow lobby">${benchHTML(ps.filter(p=>p.fig),p=>["ok","bereit"])}</div><table><tr><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.fig?`<span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}${p.uid===NET.uid?" (du)":""}${p.bot?' <span class="hint">Testfigur</span>':""}</span>`:`<span class='hint'>${p.uid===NET.uid?"du, ":""}wählt noch</span>`}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
+  <div class="sec"><h2>Deine Figur</h2></div><div class="figs">${Object.keys(M.FIG).map(f=>{const by=ps.find(p=>p.fig===f&&p.uid!==NET.uid&&p.online!==false);return by?figCard(f,"",false).replace('class="fig ','class="fig taken ').replace(/<div class="fgo">[^<]*<\/div>/,`<div class="fgo">vergeben${by.bot?" (Testfigur)":""}</div>`):figCard(f,`Group.pickFig('${f}')`,me.fig==f);}).join("")}</div>${ps.filter(p=>p.online!==false).length>Object.keys(M.FIG).length?`<p class="hint">Mehr Personen als Figuren: Wer keine Figur mehr bekommt, schaut zu oder eröffnet einen zweiten Raum.</p>`:""}${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
   <div class="row" style="margin-top:18px">${host?`<button class="primary" ${ready?"":"disabled"} onclick="Group.start()">Spiel starten (${ps.length} ${ps.length==1?"Person":"Personen"})</button><span class="hint">Starten geht, sobald alle eine Figur gewählt haben.</span>`:`<span class="hint">Warten, bis das Spiel gestartet wird …</span>`}
   <button onclick="G.leave();fresh();render()">Raum verlassen</button></div>
   ${host?`<details class="rules" style="margin-top:22px"${ROOM.test?" open":""}><summary>Testmodus</summary><p class="hint">Zum Ausprobieren allein oder zu zweit. Testfiguren setzen sich auf die Bank, entscheiden zufällig und sind jede Runde nach ein paar Sekunden fertig. Sie spielen nur, solange dieses Gerät offen ist. Ein Testspiel kommt nicht in die Bestenliste.</p><div class="row"><button onclick="Bots.add(1)">1 Testfigur dazu</button><button onclick="Bots.add(3)">3 Testfiguren dazu</button></div></details>`:""}</div>`;
@@ -2237,7 +2242,7 @@ function makeG(code){
   ready(){S.waiting=true;NET.update(this.path(),{["alloc/"+S.r]:S.alloc,["don/"+S.r]:S.don,["palloc/"+S.r]:S.palloc||0,["ready/"+S.r]:true});render();tryResolve();},
   unready(){if(ROOM.stage&&ROOM.stage[S.r])return;S.waiting=false;NET.update(this.path(),{["ready/"+S.r]:false});render();},
   active(){return this.players().filter(p=>p.online!==false&&p.fig)},
-  missing(){return this.active().filter(p=>p.uid!==NET.uid&&!(p.ready&&p.ready[S.r])).map(p=>p.fig+" ("+p.color+")")},
+  missing(){return this.active().filter(p=>p.uid!==NET.uid&&!(p.ready&&p.ready[S.r])).map(p=>p.fig)},
   finish(){if(S.finished)return;S.finished=true;
    const Y=2050;NET.update(this.path(),{end:{v:+val(Y,ACT).toFixed(2),sum:Math.round(sum(2026,Y,ACT)),
     own:+(val(Y,ACT)-val(Y,VO)).toFixed(2),cards:Object.keys(S.chosen).length,...myParts()}});},
@@ -2245,7 +2250,7 @@ function makeG(code){
    const ga=groupAvg("end");const gb=groupAvg("endsum");const okA=ga!=null&&ga<GOAL,okB=gb!=null&&gb<GOALB;
    return `<h2>Eure Gruppe</h2><div class="callout"><span class="ic">${okA&&okB?"✓":"!"}</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t und Budget unter ${GOALB} t. Ihr liegt bei <b>${ga==null?"–":fmt(ga)+" t"}</b> ${okA?"✓":"✗"} und <b>${gb==null?"–":fmt(gb,0)+" t"}</b> ${okB?"✓":"✗"}. ${okA&&okB?"Geschafft.":okA||okB?"Nur halb geschafft: Beides zählt.":"Nicht geschafft oder noch nicht fertig."}</span></div><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
    <table><tr><th>Figur</th><th class="n">2050 pro Jahr</th><th class="n">davon eigene Entscheide</th><th class="n">Budget bis 2050</th><th class="n">Karten</th></tr>
-   ${ps.map(p=>`<tr><td><span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig} (${p.color})</span>${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
+   ${ps.map(p=>`<tr><td><span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}</span>${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
   leave(){if(UNWATCH)UNWATCH();UNWATCH=null;NET.update(this.path(),{online:false});G=null;ROOM=null;}
  };
 }
@@ -2255,8 +2260,8 @@ const Bots={pend:{},
  async add(n){if(!G||!ROOM||ROOM.host!==NET.uid)return;const figs=Object.keys(M.FIG);await NET.update("rooms/"+G.code,{test:true});
   const used=G.players().map(p=>p.fig).filter(Boolean);
   for(let i=0;i<n;i++){let order=0;await NET.txn("rooms/"+G.code+"/seq",cur=>{order=cur||0;return order+1;});
-   const free=figs.filter(f=>!used.includes(f)),fig=free.length?free[0]:figs[order%figs.length];used.push(fig);
-   await NET.set("rooms/"+G.code+"/players/test"+Date.now().toString(36)+i,{color:COLORS[order]||("Nr. "+(order+1)),order,online:true,fig,bot:true});}},
+   const free=figs.filter(f=>!used.includes(f));if(!free.length)break;const fig=free[0];used.push(fig);
+   const bid="test"+Date.now().toString(36)+i;await NET.set("rooms/"+G.code+"/players/"+bid,{color:COLORS[order]||("Nr. "+(order+1)),order,online:true,fig,bot:true});await NET.set("rooms/"+G.code+"/taken/"+fig,bid);}},
  tick(){if(!G||!ROOM||ROOM.host!==NET.uid||S.screen==="lobby"||!ROOM.players)return;const r=S.r;
   const ballot=r==0?ROOM.ballot0:(ROOM.stage&&ROOM.stage[r-1]&&ROOM.stage[r-1].next);
   for(const p of G.players()){if(!p.bot)continue;const path="rooms/"+G.code+"/players/"+p.uid;
