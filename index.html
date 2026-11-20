@@ -357,6 +357,17 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .layout.half .card .pts{font-size:17px}
 .layout.half .card .ft{padding-top:4px}
 @media(max-width:1000px){.layout.half{grid-template-columns:1fr}}
+
+/* Bilanz */
+.btitle{font-size:26px;line-height:1.15;margin:2px 0 6px;max-width:620px}
+.chart .cn{font-family:var(--fliess);font-size:11px;fill:var(--muted)}
+.chart .cl2{font-family:var(--fliess);font-size:12px;fill:var(--text)}
+.chart .b{font-weight:700}
+.bmeter{position:relative;height:16px;background:#fff;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin:4px 2px}
+.bmeter>i{position:absolute;left:0;top:0;bottom:0;background:var(--g2)}
+.bmeter .mk{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink)}
+.bmeter .mk span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font:400 11px var(--fliess);white-space:nowrap;color:var(--muted)}
+.bmeter .mk.end span{transform:translateX(-90%)}
 /* Kopf als kleine Chips mit Erklaerung */
 .chips{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);background:#fff;padding:4px 10px;height:38px;box-sizing:border-box;white-space:nowrap}
@@ -1327,7 +1338,7 @@ function eventBox(){
  let h="";
  if(S.event=="abgewendet"){const t=T[S.averted];h=`<div class="lbl">Ereignis abgewendet</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${AVERT[S.averted]||"Du hast vorgesorgt."}</p><div class="callout"><span class="ic">✓</span><span>Vorsorgen hat sich gelohnt.</span></div>`;}
  else if(S.event=="ruhig")h=`<div class="lbl">Ereignis</div><h2>Ein ruhiges Jahr</h2><p class="sub">Nichts Besonderes passiert. Deine Vorsätze halten.</p>`;
- else{const t=T[S.event];h=`<div class="lbl">Ereignis · ${esc(t.head.replace(/^ · /,""))}</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${esc(t.front||"")}</p>${t.game?`<div class="callout"><span class="ic">!</span><span>${esc(t.game)}</span></div>`:""}<p class="hint">${esc(t.back)}</p>`;
+ else{const t=T[S.event];h=`<div class="lbl">Ereignis · ${esc(t.head.replace(/^ · /,""))}</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${esc(t.front||"")}</p>${t.game?`<div class="callout"><span class="ic">!</span><span>${esc(t.game)}</span></div>`:""}<details><summary>Mehr dazu</summary><p>${esc(t.back)}</p></details>`;
   if(S.event=="E1")h+=`<div class="callout"><span class="ic">!</span><span>Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</span></div>`;}
  return h;
 }
@@ -1467,15 +1478,63 @@ function viewSummary(){
  const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const before=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT);
  const now=val(nx,ACT),dt=val(nx,NO)-val(a0,NO),dv=(val(nx,VO)-val(nx,NO))-(val(a0,VO)-val(a0,NO)),d=now-before,dme=d-dt-dv;
- const bars=[["Trend",dt],["Vorlagen",dv],["Du und Ereignisse",dme]];
- const mx=Math.max(0.5,...bars.map(b=>Math.abs(b[1])));
- return header()+`<div class="wrap">${tabs(1)}<div class="layout"><div>
- <div class="ibox evbox" style="padding:16px 20px;margin-bottom:22px">${eventBox()}</div>
- <div class="lbl">Bilanz ${p.l}</div><h2>${sgn(d)} t pro Jahr</h2><p class="sub">Von ${fmt(before)} t auf ${fmt(now)} t ${S.r<LAST?"zu Beginn der nächsten Runde":"im Jahr 2050"}.</p>
- <div class="ibox">${chartSVG(Math.min(nx,2050))}</div>
- <div class="sec"><h2>Woher die Veränderung kommt</h2></div>
- ${bars.map(([t,v])=>`<div class="drow"><span class="lbl" style="width:170px">${t}</span><span class="dbar"><i style="width:${Math.abs(v)/mx*100}%"></i></span><b class="mono">${sgn(v)} t</b></div>`).join("")}
- </div><aside class="panel">${G?groupPanel():""}<p>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</p><button class="primary" style="width:100%" onclick="nextRound()">${S.r<LAST?"Weiter":"Zur Auswertung"}</button></aside></div></div>`;}
+ const parts=[["der Trend","Trend",dt],["die Vorlagen","Vorlagen",dv],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
+ const big=parts.slice().sort((a,b)=>d<=0?a[2]-b[2]:b[2]-a[2])[0];
+ const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht hat":"Am meisten dazu beigetragen hat"} ${big[0]}.`;
+ const used=sum(2026,nx-1,ACT),pf=pfadBis(nx-1),over=used>pf+0.5;
+ const B=`<span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" onclick="nextRound()">${S.r<LAST?"Weiter zur nächsten Runde":"Zur Auswertung"}</button>`;
+ return header()+`<div class="wrap">${tabs(1)}
+ <div class="layout half"><div>
+  <div class="lbl">Bilanz ${p.l}</div><h2 class="btitle">${title}</h2>
+  <p class="sub">Von ${fmt(before)} t auf ${fmt(now)} t pro Jahr ${S.r<LAST?"zu Beginn der nächsten Runde":"im Jahr 2050"}.</p>
+  <div class="ibox">${chartClean(Math.min(nx,2050))}</div>
+  <div class="ibox" style="margin-top:18px"><div class="lbl">Budget</div>${budgetHTML(used,pf,nx-1)}</div>
+ </div><div>
+  <div class="ibox evbox" style="padding:14px 18px">${eventBox()}</div>
+  <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}</div>
+  ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
+ </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
+/* Kurve ohne Legende, direkt beschriftet */
+function chartClean(toYear){
+ const W=640,H=230,L=34,R=104,T=12,B=26,y0=2026,y1=2050,vmax=13.5;
+ const X=y=>L+(y-y0)/(y1-y0)*(W-L-R), Y=v=>T+(1-v/vmax)*(H-T-B);
+ const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x.toFixed(1)+" "+Y(v).toFixed(1)+"L"+x2.toFixed(1)+" "+Y(v).toFixed(1);}return d};
+ let g="";
+ for(const v of [0,4,8,12]){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--g5)" stroke-width="1"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" class="cn">${v}</text>`;}
+ for(const y of [2026,2030,2035,2040,2045,2050])g+=`<text x="${X(y)}" y="${H-7}" text-anchor="middle" class="cn">${y}</text>`;
+ const tEnd=val(y1,NO),aEnd=val(toYear,ACT);
+ g+=`<line x1="${X(y0)}" y1="${Y(START)}" x2="${X(y1)}" y2="${Y(ZIEL)}" stroke="var(--g2)" stroke-width="1.5"/>`;
+ g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g4)" stroke-width="3"/>`;
+ g+=`<path d="${path(y=>val(y,ACT),toYear)}" fill="none" stroke="var(--ink)" stroke-width="4"/>`;
+ const xe=X(Math.min(toYear+1,y1));
+ g+=`<circle cx="${xe}" cy="${Y(aEnd)}" r="4" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)+4}" class="cl2 b">${S.fig} ${fmt(aEnd)} t</text>`;
+ g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">nur Trend ${fmt(tEnd)} t</text>`;
+ g+=`<text x="${X(y1)+6}" y="${Y(ZIEL)+4}" class="cl2">Zielpfad bis</text><text x="${X(y1)+6}" y="${Y(ZIEL)+18}" class="cl2">Ziel 0.6 t</text>`;
+ return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, nur Trend bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`;}
+/* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
+function waterfallSVG(parts,d){
+ const W=520,H=180,T=34,Bm=22,n=parts.length+1,bw=64,gap=(W-n*bw)/(n+1);
+ let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
+ const span=Math.max(0.5,hi-lo),Y=v=>T+(hi-v)/span*(H-T-Bm);
+ let g=`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--g3)" stroke-width="1"/>`;
+ parts.forEach(([lab,v],i)=>{const x=gap+i*(bw+gap),a=run,b=run+v;run=b;
+  const y1=Math.min(Y(a),Y(b)),h=Math.max(Math.abs(Y(a)-Y(b)),Math.abs(v)<0.05?0:2);
+  if(Math.abs(v)>=0.05)g+=`<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="${v<0?"var(--g2)":"url(#wfh)"}" stroke="${v<0?"none":"var(--ink)"}"/>`;
+  else g+=`<line x1="${x}" x2="${x+bw}" y1="${Y(a)}" y2="${Y(a)}" stroke="var(--g2)" stroke-width="2"/>`;
+  if(i<parts.length)g+=`<line x1="${x+bw}" x2="${x+bw+gap}" y1="${Y(b)}" y2="${Y(b)}" stroke="var(--g3)" stroke-width="1"/>`;
+  g+=`<text x="${x+bw/2}" y="${(v<0?Math.max(Y(a),Y(b))+16:Math.min(Y(a),Y(b))-6)}" text-anchor="middle" class="cl2">${sgn(v)} t</text>`;
+  g+=`<text x="${x+bw/2}" y="14" text-anchor="middle" class="cn">${lab}</text>`;});
+ const x=gap+parts.length*(bw+gap);
+ g+=`<rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)"/>`;
+ g+=`<text x="${x+bw/2}" y="${(d<0?Y(d)+16:Y(d)-6)}" text-anchor="middle" class="cl2 b">${sgn(d)} t</text><text x="${x+bw/2}" y="14" text-anchor="middle" class="cn b">Zusammen</text>`;
+ return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--ink)" stroke-width="2"/></pattern></defs>${g}</svg>
+ <p class="hint" style="margin:6px 0 0">Dunkle Balken senken den Fussabdruck, schraffierte erhöhen ihn.</p>`;}
+/* Budget als eigene Groesse: Summe der Jahre */
+function budgetHTML(used,pf,yEnd){
+ const mx=Math.max(PFAD,used)*1.08,pc=v=>Math.min(100,v/mx*100);
+ return `<p style="margin:4px 0 10px"><b>${fmt(used,0)} t</b> verbraucht bis ${yEnd}. Laut Zielpfad wären bis dann ${fmt(pf,0)} t gut, bis 2050 insgesamt ${PFAD} t.</p>
+ <div class="bmeter"><i style="width:${pc(used)}%"></i><b class="mk" style="left:${pc(pf)}%"><span>Zielpfad ${yEnd}</span></b><b class="mk end" style="left:${pc(PFAD)}%"><span>Budget 2050</span></b></div>
+ <p class="hint" style="margin:30px 0 0">Das Budget zählt alle Jahre zusammen. Jede Tonne bleibt in der Luft, darum zählt auch, wie schnell du senkst.</p>`;}
 
 /* Gruppe: Ziel und Durchschnitt */
 function groupAvg(key){const ps=G.players().filter(p=>p.fig);const v=ps.map(p=>key=="end"?(p.end&&p.end.v):key=="endsum"?(p.end&&p.end.sum):key=="sumnow"?p.sumnow:p.now).filter(x=>typeof x=="number");return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
