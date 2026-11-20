@@ -120,6 +120,14 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .groupbox{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:18px 20px;background:var(--soft);margin:var(--p);box-shadow:0 -3px 0 0 var(--g4),0 3px 0 0 var(--g4),-3px 0 0 0 var(--g4),3px 0 0 0 var(--g4)}
 .groupbox .hint{margin:6px 0 0}
 .credits{margin-top:36px}
+.stage{position:relative;overflow:hidden;height:130px}
+.fig .im.stage{height:120px;padding:0!important}
+.pick .pfigs.stage{height:130px;padding:0}
+.wander{position:absolute;bottom:14px;left:0;display:block;line-height:0}
+.wander.left{transform:scaleX(-1)}
+.wander .fa.duck{animation:faIdle 1s steps(6) infinite,duck .9s steps(6)}
+@keyframes duck{0%,100%{transform:none}25%,75%{transform:translateY(10px) scaleY(.82)}}
+
 .choose2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:6px}
 .pick{background:#fff;padding:22px 24px 16px;cursor:pointer;display:flex;flex-direction:column;margin:var(--p);box-shadow:0 -3px 0 0 var(--edge),0 3px 0 0 var(--edge),-3px 0 0 0 var(--edge),3px 0 0 0 var(--edge),6px 6px 0 0 var(--g5)}
 .pick:hover,.pick:focus{box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),6px 6px 0 0 var(--g4);outline:none}
@@ -783,6 +791,22 @@ function walkOverlay(){if(RM()||!document.body||!document.createElement)return;
  requestAnimationFrame(()=>requestAnimationFrame(()=>{w.style.left=(x(to)-26)+"px";}));
  setTimeout(()=>{const fa=w.querySelector(".fa");if(fa&&SPR.anim[S.fig]){fa.className="fa idle";fa.style.backgroundImage=`url(${SPR.anim[S.fig].idle})`;fa.style.height=(22*3)+"px";}},1500);
  setTimeout(()=>{o.classList.add("out");setTimeout(()=>o.remove(),300);},2300);}
+function wanderFig(f,sc=4){if(!SPR.anim||!SPR.anim[f]||FARBE)return figImg(f,sc);
+ return `<span class="wander" data-f="${f}" data-sc="${sc}"><span class="fa idle" style="width:${17*sc}px;height:${22*sc}px;background-image:url(${SPR.anim[f].idle})"></span></span>`;}
+let WT=null;
+function wanderTick(){if(RM()||!document.querySelectorAll)return;const now=Date.now();
+ document.querySelectorAll(".stage").forEach(st=>{const ws=[...st.querySelectorAll(".wander")];const W=st.clientWidth;
+  ws.forEach((w,i)=>{const sc=+w.dataset.sc,fw=17*sc,f=w.dataset.f,inn=w.firstElementChild;
+   if(!w.dataset.init){w.dataset.init=1;const x=ws.length>1?(W/(ws.length+1))*(i+1)-fw/2:(W-fw)/2;w.style.left=x+"px";w.dataset.x=x;w.dataset.next=now+500+Math.random()*1500;return;}
+   if(now<+w.dataset.next)return;const r=Math.random(),x=+w.dataset.x;
+   if(r<0.45){let nx=Math.max(4,Math.min(W-fw-4,x+(Math.random()<0.5?-1:1)*(30+Math.random()*(W/2))));const d=Math.abs(nx-x);if(d<12){w.dataset.next=now+400;return;}
+    const ms=d/45*1000;w.classList.toggle("left",nx<x);inn.className="fa walk";inn.style.backgroundImage=`url(${SPR.anim[f].walk})`;inn.style.height=24*sc+"px";
+    w.style.transition=`left ${ms}ms linear`;w.style.left=nx+"px";w.dataset.x=nx;w.dataset.next=now+ms+300+Math.random()*900;
+    setTimeout(()=>{if(!inn.isConnected)return;inn.className="fa idle";inn.style.backgroundImage=`url(${SPR.anim[f].idle})`;inn.style.height=22*sc+"px";},ms);}
+   else if(r<0.6){inn.classList.add("jump");setTimeout(()=>inn.classList.remove("jump"),900);w.dataset.next=now+1200+Math.random()*1200;}
+   else if(r<0.75){inn.classList.add("duck");setTimeout(()=>inn.classList.remove("duck"),900);w.dataset.next=now+1200+Math.random()*1200;}
+   else if(r<0.85){w.classList.toggle("left");w.dataset.next=now+700+Math.random()*1200;}
+   else w.dataset.next=now+1500+Math.random()*2000;});});}
 function figImg(f,sc=4){return `<img class="px" src="${(FARBE?SPR.figc:SPR.fig)[f]}" width="${17*sc}" height="${22*sc}" alt="${f}">`}
 
 const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
@@ -1265,7 +1289,7 @@ function rulesHTML(){
  <div class="callout"><span class="ic">!</span><span>Die Welt ändert sich auch ohne dich: rund 1.1 % weniger pro Jahr. Du siehst das immer getrennt von deinen Entscheiden.</span></div>`;
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
- return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im">${figAnim(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
+ return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
  <div class="fmeta"><span>Start ${M.START[f]} ${IC("geld",14)}</span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
 function viewStart(){
  const sm=S.startMode;
@@ -1273,8 +1297,8 @@ function viewStart(){
  let body;
  if(!sm)body=`<div class="sec"><h2>Wie spielt ihr?</h2></div>
   <div class="choose2">
-   <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs">${figAnim("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein, vier Runden bis 2050. Etwa 20 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
-   <div class="pick" tabindex="0" onclick="S.startMode='group';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs">${["Noah","Ruth","Elif"].map(f=>figAnim(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
+   <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${wanderFig("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein, vier Runden bis 2050. Etwa 20 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
+   <div class="pick" tabindex="0" onclick="S.startMode='group';render()" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${["Noah","Ruth","Elif"].map(f=>wanderFig(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
   </div>`;
  else if(sm==="solo")body=`${back}<div class="sec"><h2>Wähle deine Figur</h2><p class="sub">Alle starten mit 12.8 t, aber nicht jedem fällt jeder Schritt gleich leicht. Ein Klick auf die Figur startet das Spiel.</p></div>
   <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`S.chal='keine';startFig('${f}')`,false)).join("")}</div>`;
@@ -1498,6 +1522,7 @@ function render(){
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
  juice();
  applyFx();
+ if(!WT&&typeof setInterval!=="undefined"&&typeof document!=="undefined"&&document.querySelectorAll)WT=setInterval(wanderTick,250);
  if(document.querySelectorAll){const ds=document.querySelectorAll("details");openD.forEach(i=>{if(ds[i])ds[i].open=true});}
 }
 /* ---------- Netz: Firebase oder Testspeicher ---------- */
