@@ -61,7 +61,11 @@ img.icn.dim{opacity:.3}
 .pips i.f{background:var(--ink)}
 .barbox{padding:0 32px 12px;max-width:1360px;margin:0 auto}
 .bar{position:relative;height:16px;display:flex;background:#fff;border:1px solid var(--edge)}
-.seg{position:relative;height:100%;border-right:1px solid #fff}
+.seg{position:relative;height:100%;border-right:1px solid #fff;cursor:help;outline:none}
+.seg .sl{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:400 11px var(--mono);text-transform:uppercase;padding:4px 7px 3px;white-space:nowrap;opacity:0;pointer-events:none;z-index:70;transition:opacity .1s}
+.seg:first-child .sl{left:0;transform:none}.seg:nth-child(5) .sl{left:auto;right:0;transform:none}
+.seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
+h3.bud{font-size:22px;margin:2px 0 12px}
 .seg::after{content:"";position:absolute;inset:0;background:var(--hatch)}
 .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
 .legend{display:flex;flex-wrap:wrap;gap:2px 18px;margin-top:6px;font-family:var(--mono);font-size:12px;letter-spacing:0;color:var(--muted);text-transform:uppercase}
@@ -360,7 +364,7 @@ details.rules>summary{font-size:13px}
  .chips{display:flex;flex-wrap:nowrap!important;gap:6px!important;width:100%}
  .chip{padding:3px 7px!important;flex:0 0 auto}.chip .cv{font-size:16px!important}.chip .cl{font-size:9px}
  .chip.wish{flex:1 1 auto;min-width:0}.chip.wish .cw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
- .barbox{padding:0 12px 6px!important}.barbox .legend{display:none}.bar{height:10px}
+ .barbox{padding:0 12px 8px!important}.bar{height:14px}
  .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
  .tabs{gap:6px;flex-wrap:wrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
  .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
@@ -1314,9 +1318,8 @@ const CATSHORT={"Mobilität":"Mobilität","Wohnen":"Wohnen","Ernährung":"Ernäh
 function pips(n,max=3){let s="";for(let i=0;i<Math.max(max,n);i++)s+=IC("herz",16,i>=n);return `<div class="pips">${s}</div>`}
 function barHTML(v){
  const c=bycat(v),W=13.5;
- const segs=CATS.map((x,i)=>`<div class="seg" title="${x}: ${fmt(c[x])} t" style="width:${c[x]/W*100}%;background:${GSH[i]}"></div>`).join("");
- return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>
- <div class="legend">${CATS.map((x,i)=>`<span class="k"><i style="background:${GSH[i]}"></i>${CATIC(x)}${CATSHORT[x]} <b>${fmt(c[x])}</b></span>`).join("")}<span class="k">▏Ziel <b>0.6</b></span></div>`;
+ const segs=CATS.map((x,i)=>`<div class="seg" tabindex="0" style="width:${c[x]/W*100}%;background:${GSH[i]}"><span class="sl">${CATIC(x)} ${CATSHORT[x]} ${fmt(c[x])} t</span></div>`).join("");
+ return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>`;
 }
 function header(){
  const atEnd=S.screen==='summary'||S.screen==='dorf',p=PER[S.r],y=atEnd?(S.r<LAST?PER[S.r+1].a:2050):p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),used=y>2026,so=used?sum(2026,y-1,ACT):0;
@@ -1362,7 +1365,7 @@ function cardHTML(id){
 function vEff(k){const y=vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
 function ballotHTML(){
  let h=`<div class="lbl">Abstimmungssonntag</div><h3 style="margin:2px 0 6px">Zwei Vorlagen</h3>
- <p class="hint">${G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz bringt +30 Prozentpunkte, eine Kampagne (2 Geld) +15.`} Angenommen wirkt ab ${vorlFrom(S.r)}.</p>`;
+ <p class="hint">${G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`} Wirkt ab ${vorlFrom(S.r)}.</p>`;
  for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k),c=chance(k);
   const ve=vEff(k),nopers=Math.abs(ve)<0.0005,chv=M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;
   h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${strat(k)} · ${nopers?"wirkt auf die Schweiz":sgn(-ve,2)+" t für dich"}</span></div>
@@ -1381,13 +1384,13 @@ function ballotHTML(){
 function viewRound(){
  let L="",P="";
  if(S.roundNote&&S.roundNote.length)L+=S.roundNote.map(x=>`<div class="callout"><span class="ic">!</span><span>${x}</span></div>`).join("");
- if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
+ if(false){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
   L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Wandel <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
  const TOP=L;L="";
  if(S.coach===2)S.mstep=2;else if(S.coach===1)S.mstep=1;
  const m1=S.mstep!==2&&S.mstep!==0,m2=S.mstep===2;
- L+=`<div class="colhd grp mstp" onclick="mStep(1)"><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div><div class="sec" style="margin-top:0"><p class="sub">Je eine Karte aus Mobilität, Wohnen, Ernährung und Konsum. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
+ L+=`<div class="colhd grp mstp" onclick="mStep(1)"><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div><div class="sec" style="margin-top:0"><p class="sub">Jede gewählte Karte gilt bis 2050.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
@@ -1397,7 +1400,7 @@ function viewRound(){
  if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
   B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter zur Bilanz</button>`;}
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
- else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
+ else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
  const gh=`<div class="colhd grp mstp" onclick="mStep(2)"><span class="t"><b class="stepn">2</b>${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span><span class="mst">${freeH()} ${IC("herz",12)} übrig <i>${m2?"▾":"▸"}</i></span></div>`;
  if(!S.results&&!S.waiting)L+=`<button class="mnext" onclick="mStep(2)">Weiter zu Schritt 2: Engagement</button>`;
  return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half mstep ${m1?"m1":m2?"m2":"m0"}"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
@@ -1608,10 +1611,9 @@ function dorfItems(){const L=[];
 function viewDorf(){const d=dorfVals();
  const B=`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
  return header()+`<div class="szene"><div class="dorfkopf"><div class="dorf" id="dorf"></div><h1 class="dtitel" aria-live="polite"><span class="o" id="szj1">${d.a0}</span><span class="f" id="szj2">${d.a0}</span></h1></div>
- <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul><p class="hint lapo">Fahre im Dorf über eine Massnahme, dann siehst du, was sie ist, was sie tut und wie sie wirkt.</p></div>
+ <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul><p class="hint lapo">Fahre über eine Massnahme im Dorf.</p></div>
  <div><div class="lbl">Farbe im Dorf</div><div class="bmeter"><i id="szf" style="width:${(d.p0*100).toFixed(1)}%"></i></div>
- <div class="szscale"><span>${fmt(START)} t: grau</span><span>${FARBE_VOLL} t: ganz farbig</span></div>
- <p class="hint">Je weniger ${G?"ihr im Schnitt":S.fig} pro Jahr ausstösst, desto farbiger wird das Dorf.</p></div></div></div></div>
+ <div class="szscale"><span>${fmt(START)} t: grau</span><span>${FARBE_VOLL} t: ganz farbig</span></div></div></div></div></div>
  <div class="actbar"><div class="in">${B}</div></div>`;}
 function dorfTween(){if(S.dorfAnim===S.r)return;S.dorfAnim=S.r;const d=dorfVals(),DUR=3200,t0=typeof performance!=="undefined"?performance.now():0,ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
  const set=t=>{const e=ez(t),yr=Math.round(d.a0+(d.nx-d.a0)*e),q=id=>document.getElementById(id);
@@ -1639,9 +1641,8 @@ function viewSummary(){
  return header()+`<div class="wrap">${tabs(1)}
  <div class="layout half"><div>
   <div class="lbl">Bilanz ${p.l}</div><h2 class="btitle">${title}</h2>
-  <p class="sub">Von ${fmt(before)} t auf ${fmt(now)} t pro Jahr ${S.r<LAST?"zu Beginn der nächsten Runde":"im Jahr 2050"}.</p>
   <div class="ibox">${chartClean(Math.min(nx,2050))}</div>
-  <div class="ibox" style="margin-top:18px"><div class="lbl">Budget</div>${budgetHTML(used,pf,nx-1)}</div>
+  <div class="ibox" style="margin-top:18px"><div class="lbl">Budget 2026 bis 2050</div>${budgetHTML(used,pf,nx-1)}</div>
  </div><div>
   <div class="ibox evbox" style="padding:14px 18px">${eventBox()}</div>
   <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}</div>
@@ -1696,13 +1697,13 @@ function waterfallSVG(parts,d){
  const x=Math.round(gap+parts.length*(bw+gap));
  g+=`<rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent" data-ht="<b>Zusammen</b><br>So viel stösst du jetzt pro Jahr mehr oder weniger aus als zu Beginn der Runde: <b>${sgn(d)} t</b>"/><rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)" pointer-events="none"/>`;
  g+=`<text x="${x+bw/2}" y="${(d<0?Y(d)+16:Y(d)-6)}" text-anchor="middle" class="cl2 b">${sgn(d)} t</text><text x="${x+bw/2}" y="14" text-anchor="middle" class="cn b">Zusammen</text>`;
- return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>`)+`<p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn. ${typeof matchMedia!=='undefined'&&matchMedia('(hover:none)').matches?'Tippe':'Fahre über'} einen Balken für die Erklärung.</p>`;}
+ return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>`)+`<p class="hint" style="margin:6px 0 0">${typeof matchMedia!=='undefined'&&matchMedia('(hover:none)').matches?'Tippe':'Fahre über'} einen Balken für die Erklärung.</p>`;}
 /* Budget als eigene Groesse: Summe der Jahre */
 function budgetHTML(used,pf,yEnd){
- const mx=Math.max(PFAD,used)*1.08,pc=v=>Math.min(100,v/mx*100);
- return `<p style="margin:4px 0 10px"><b>${fmt(used,0)} t</b> verbraucht bis ${yEnd}. Laut Zielpfad wären bis dann ${fmt(pf,0)} t gut, bis 2050 insgesamt ${PFAD} t.</p>
- <div class="bmeter"><i style="width:${pc(used)}%"></i><b class="mk" style="left:${pc(pf)}%"><span>Zielpfad ${yEnd}</span></b><b class="mk end" style="left:${pc(PFAD)}%"><span>Budget 2050</span></b></div>
- <p class="hint" style="margin:30px 0 0">Das Budget zählt alle Jahre zusammen. Jede Tonne bleibt in der Luft, darum zählt auch, wie schnell du senkst.</p>`;}
+ const mx=Math.max(PFAD,used),pc=v=>Math.min(100,v/mx*100),diff=used-pf;
+ return `<h3 class="bud">${fmt(used,0)} von ${PFAD} t verbraucht</h3>
+ <div class="bmeter"><i style="width:${pc(used)}%"></i><b class="mk" style="left:${pc(pf)}%"><span>Zielpfad ${fmt(pf,0)} t</span></b></div>
+ <p class="hint" style="margin:28px 0 0">${Math.abs(diff)<1?"Genau auf dem Zielpfad.":diff>0?`<b>${fmt(diff,0)} t über</b> dem Zielpfad.`:`<b>${fmt(-diff,0)} t unter</b> dem Zielpfad.`} Wer 2050 bei 0.6 t ankommt, stösst bis dann insgesamt ${PFAD} t aus.</p>`;}
 
 /* Gruppe: Ziel und Durchschnitt */
 function groupAvg(key){const ps=G.players().filter(p=>p.fig);const v=ps.map(p=>key=="end"?(p.end&&p.end.v):key=="endsum"?(p.end&&p.end.sum):key=="sumnow"?p.sumnow:p.now).filter(x=>typeof x=="number");return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
