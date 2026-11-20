@@ -308,7 +308,9 @@ details.rules>summary{font-size:13px}
 /* Geführte Runde */
 .coach{position:fixed;left:24px;bottom:24px;z-index:50;background:#fff;max-width:380px;padding:14px 16px;margin:3px;
  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
-.coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite}
+.coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite;scroll-margin-top:190px}
+.coachov{position:fixed;inset:0;z-index:90;background:rgba(255,255,255,.62);display:grid;place-items:center;padding:16px}
+.coachov .coach{position:static!important;max-width:440px;width:100%;margin:0}
 @keyframes blink{50%{outline-color:transparent}}
 /* Spielgefühl */
 .fdelta{position:absolute;right:10px;top:8px;font-family:var(--titel);font-weight:400;font-size:20px;opacity:0;pointer-events:none}
@@ -1663,13 +1665,14 @@ function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="l
 const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der allgemeine Wandel von 1.1 % pro Jahr schreibt die Jahre 2000 bis 2023 einfach fort. Er wirkt im Spiel auch auf das, was du selbst schon gesenkt hast. Bei aktiven Figuren ist er darum etwas zu gross.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Rückkopplungen im Klimasystem und die Folgen der Erwärmung fehlen im Spiel.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
 /* Geführte erste Runde */
-const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Budget, Herzen, Geld und dein Wunsch. Fahre mit der Maus darüber, dann erscheint eine Erklärung. Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
+const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Budget, Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
  ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
- ["panel","Rechts stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
+ ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
  ["finish","Unten siehst du, was dir übrig bleibt. Wenn du fertig bist, stimmst du ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
-function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt]=COACH[S.coach];
- return `<div class="coach"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div>`;}
-function placeCoach(){const c=document.querySelector&&document.querySelector(".coach");if(!c||S.coach==null||typeof innerWidth==="undefined"||innerWidth<700)return;
+function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt0]=COACH[S.coach];const touch=typeof matchMedia!=="undefined"&&matchMedia("(hover:none)").matches,nar=typeof innerWidth!=="undefined"&&innerWidth<1000;
+ const txt=txt0.replace("{HOVER}",touch?"Tippe darauf, dann erscheint eine Erklärung.":"Fahre mit der Maus darüber, dann erscheint eine Erklärung.").replace("{RECHTS}",nar?"Weiter unten":"Rechts");
+ return `<div class="coachov"><div class="coach" role="dialog" aria-modal="true"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
+function placeCoach(){return;const c=document.querySelector&&document.querySelector(".coach");if(!c||S.coach==null||typeof innerWidth==="undefined"||innerWidth<700)return;
  const tg=document.getElementById(COACH[S.coach][0]);if(!tg||!tg.getBoundingClientRect)return;
  const r=tg.getBoundingClientRect(),cw=c.offsetWidth,ch=c.offsetHeight,vw=innerWidth;
  if(tg.closest&&tg.closest(".actbar")){c.style.position="fixed";c.style.left="auto";c.style.top="auto";c.style.right="24px";c.style.bottom=(innerHeight-r.top+14)+"px";return;}
@@ -1745,7 +1748,7 @@ function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
  const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
  document.getElementById("app").innerHTML=v()+crisisBigHTML()+coachHTML();
- if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"center",behavior:"smooth"});}}}
+ if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"start",behavior:"smooth"});}}}
  placeCoach();
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
  juice();
