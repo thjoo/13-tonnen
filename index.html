@@ -1713,10 +1713,11 @@ if(typeof location!=="undefined"&&location.hash==="#lehrperson")openTeacher();
 </script>
 <style>
 :root{--ds:.5}
+@media (min-width:1100px){:root{--ds:.75}}
 .dorfkopf{position:relative;padding:0;text-align:center;overflow:hidden}
 .dorfkopf.links{text-align:left}
 
-.dtitel{position:absolute;left:0;right:0;top:50%;transform:translateY(-60%);z-index:2000;pointer-events:none;margin:0;display:grid;justify-content:center;font-family:var(--titel);font-size:calc(320px*var(--ds)*.5);line-height:.8;letter-spacing:.03em!important;white-space:nowrap;animation:schweben 4s ease-in-out infinite}
+.dtitel{position:absolute;left:0;right:0;top:50%;transform:translateY(-60%);z-index:2000;pointer-events:none;margin:0;display:grid;justify-content:center;font-family:var(--titel);font-size:calc(320px*var(--ds)*.34);line-height:.8;letter-spacing:.03em!important;white-space:nowrap;animation:schweben 4s ease-in-out infinite}
 @keyframes schweben{0%,100%{transform:translateY(calc(-55% - 2px))}50%{transform:translateY(calc(-55% + 2px))}}
 @media (prefers-reduced-motion:reduce){.dtitel{animation:none}}
 .dtitel span{grid-area:1/1;white-space:nowrap}
