@@ -343,6 +343,20 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .legend img.cic{margin-right:4px;opacity:.85}
 .cwhy{font-size:12.5px;color:var(--text);background:var(--soft);padding:4px 8px}
 
+
+/* Chips im Pixelstil */
+.chip{border:0!important;margin:var(--p);--fc:var(--edge);box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc),calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh)}
+.chip.big{--fc:var(--ink)}
+.chips{gap:10px}
+/* Runde: Alltag und Engagement je halb */
+.layout.half{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px}
+.layout.half .card{padding:10px 12px;min-height:0;gap:3px}
+.layout.half .card .ti{font-size:17px;margin:1px 0 2px}
+.layout.half .card .tx{font-size:13px;line-height:1.4}
+.layout.half .card .hd .lbl{font-size:10px}
+.layout.half .card .pts{font-size:17px}
+.layout.half .card .ft{padding-top:4px}
+@media(max-width:1000px){.layout.half{grid-template-columns:1fr}}
 /* Kopf als kleine Chips mit Erklaerung */
 .chips{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);background:#fff;padding:4px 10px;height:38px;box-sizing:border-box;white-space:nowrap}
@@ -1307,7 +1321,7 @@ function viewRound(){
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
  else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
  const gh=`<div class="colhd grp"><span class="t">${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span></div>`;
- return header()+`<div class="wrap">${tabs(0)}<div class="layout toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
+ return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
 }
 function viewEvent(){
  let h="";
