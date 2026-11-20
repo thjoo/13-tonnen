@@ -562,6 +562,7 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .bmeter .mk.end span{transform:translateX(-90%)}
 /* Kopf als kleine Chips mit Erklaerung */
 .chips{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.chip .csub{font:400 10px/1.1 var(--mono);text-transform:uppercase;color:var(--muted);margin-left:6px;max-width:70px;white-space:normal}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);background:#fff;padding:4px 10px;height:38px;box-sizing:border-box;white-space:nowrap}
 .chip .cl{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--muted)}
 .chip .cv{font-family:var(--titel);font-size:24px;line-height:1}
@@ -608,7 +609,7 @@ const T={
  "I2": {
   "id": "I2",
   "title": "Auto abgeben",
-  "head": " · −1.2 t pro Jahr · 2 Herzen (Lia 1, Noah 3) · Geld +2 · Suffizienz · nicht für Elif",
+  "head": " · −1.2 t pro Jahr · 2 Herzen (Lia 1, Noah 3) · Geld +2 ab nächster Runde · Suffizienz · nicht für Elif",
   "front": "Du verkaufst dein Auto. Dafür kaufst du ein Abo für Bahn und Bus und ein gutes Velo.",
   "back": "Im Schnitt fährt jede Person in der Schweiz rund 21 km pro Tag im Auto (Mikrozensus Mobilität 2021). Das gibt rund 1.3 t pro Jahr; der ÖV kommt für die gleichen Wege auf rund 0.1 t. Zum Vergleich: 10 000 km allein im Benzinauto verursachen rund 2.6 t, die Herstellung eingerechnet (Nos Gestes Climat); das ist 40 Mal Zürich–Bern und zurück.",
   "game": "",
@@ -707,7 +708,7 @@ const T={
  "W4": {
   "id": "W4",
   "title": "Kleiner wohnen",
-  "head": " · −0.5 t pro Jahr · 2 Herzen (Ruth 3) · Geld +2 · Suffizienz · nicht für Elif und Noah",
+  "head": " · −0.5 t pro Jahr · 2 Herzen (Ruth 3) · Geld +2 ab nächster Runde · Suffizienz · nicht für Elif und Noah",
   "front": "Du ziehst in eine kleinere Wohnung, in eine WG oder vermietest ein Zimmer unter. Ein Viertel weniger Fläche pro Person.",
   "back": "In der Schweiz hat jede Person im Schnitt 46.6 m² Wohnfläche (BFS 2024). Weniger Fläche heisst weniger heizen, weniger bauen, weniger einrichten.",
   "game": "",
@@ -869,7 +870,7 @@ const T={
  "C4": {
   "id": "C4",
   "title": "Allgemein weniger kaufen",
-  "head": " · −0.4 t pro Jahr · 3 Herzen (Elif 2) · Geld +2 · Suffizienz",
+  "head": " · −0.4 t pro Jahr · 3 Herzen (Elif 2) · Geld +2 ab nächster Runde · Suffizienz",
   "front": "Bevor du etwas kaufst, wartest du eine Woche. Was du dann nicht mehr willst, brauchst du nicht.",
   "back": "Geräte, Haushaltsartikel, Freizeit und der Transport und die Herstellung dieser Waren machen zusammen 1.3 t pro Person aus. Die Karte rechnet mit 30 % weniger; das ist eine Annahme. Die ZHAW rechnet für eine Reduktion auf einen Viertel mit 2.85 t weniger (Rohrer 2021, dort weiter gefasst).",
   "game": "",
@@ -953,7 +954,7 @@ const T={
   "head": " · solange C4 nicht gewählt ist",
   "front": "Black Friday, «3 für 2», Ausverkauf: Bei sehr günstigen Aktionen schlägst du immer wieder zu, auch bei Dingen, die du nicht geplant hattest.",
   "back": "Aktionen sind so gemacht, dass man mehr kauft, als man geplant hat. Alles, was du zusätzlich kaufst, muss zuerst hergestellt und transportiert werden, meist im Ausland.",
-  "game": "Du verlierst einmalig 2 Geld. Solange du C4 nicht gewählt hast, steigt dein Fussabdruck um 0.1 t pro Jahr.",
+  "game": "Nach dieser Runde verlierst du einmalig 2 Geld; sie sind schon jetzt gesperrt. Solange du C4 nicht gewählt hast, steigt dein Fussabdruck um 0.1 t pro Jahr.",
   "why": ""
  },
  "I5": {
@@ -1159,6 +1160,10 @@ function costH(id){
  if(id=="N2"&&S.flags.e3==S.r)h=Math.max(0,h-1);
  return h;
 }
+/* Geld: Rueckzahlungen (Karten mit Geld zurueck) kommen erst naechste Runde (S.moneyNext).
+   Ein angekuendigter Abzug (Schnaeppchen E4: 2 Geld) wird gesperrt, bis abgerechnet ist. */
+function moneyLock(){return S.screen==="round"&&!S.results&&S.nextEvent==="E4"&&eventCands().includes("E4")?Math.min(2,S.money):0;}
+function moneyFree(){return S.money-moneyLock();}
 function costG(id){
  let g=M.CARDS[id].g;if(g<=0)return g;
  for(const k in S.adopted){const s=M.SYN[k];if(s&&s.g&&s.g.includes(id))g-=1;}
@@ -1177,7 +1182,7 @@ function blocked(id){
  if(id=="N1"&&(S.chosen.N2!==undefined||S.chosen.N3!==undefined))return "Schon abgedeckt durch vegetarisch oder vegan.";
  if(id=="N2"&&S.chosen.N3!==undefined)return "Schon abgedeckt: Du isst vegan.";
  if(costH(id)>freeH())return "Zu wenig Herzen in dieser Runde.";
- if(costG(id)>S.money)return "Zu wenig Geld.";
+ if(costG(id)>moneyFree())return moneyLock()&&costG(id)<=S.money?"Zu wenig Geld: 2 Geld sind fürs Schnäppchen gesperrt.":"Zu wenig Geld.";
  return null;
 }
 function effOwn(id){const y=PER[S.r].a;
@@ -1187,11 +1192,11 @@ function choose(id){
  if(S.results||S.waiting)return;
  if(S.chosen[id]!==undefined){ // zurücknehmen, nur diese Runde
   if(!S.thisRound.includes(id))return;
-  S.hearts+=costH(id);const g=costG(id);S.money+= g>0?g:0; if(g<0)S.money-=2;
+  S.hearts+=costH(id);const g=costG(id);S.money+= g>0?g:0; if(g<0)S.moneyNext=Math.max(0,(S.moneyNext||0)-2);
   delete S.chosen[id];S.thisRound=S.thisRound.filter(x=>x!==id);
  } else {
   if(blocked(id))return;
-  S.hearts-=costH(id);const g=costG(id);if(g>0)S.money-=g;else if(g<0)S.money+=2;
+  S.hearts-=costH(id);const g=costG(id);if(g>0)S.money-=g;else if(g<0)S.moneyNext=(S.moneyNext||0)+2;
   const wasWish=wish()&&!wishBroken();
   S.chosen[id]=PER[S.r].a;S.thisRound.push(id);
   fx(wasWish&&wishBroken()?"wishgone":"hop");
@@ -1293,7 +1298,7 @@ function wishHTML(){const w=wish();if(!w)return"";const b=wishBroken();
 /* ---------- Punkte und Bestenliste ---------- */
 const PTS={B:5,E:100,V:25,P:40,ZIEL:100,M:5};
 function myParts(){const a=val(2050,ACT),no=val(2050,NO);
- return {b:+(sum(2026,2050,NO)-sum(2026,2050,ACT)).toFixed(1),e:+(no-a).toFixed(2),m:S.money};}
+ return {b:+(sum(2026,2050,NO)-sum(2026,2050,ACT)).toFixed(1),e:+(no-a).toFixed(2),m:S.money+(S.moneyNext||0)};}
 function scoreOf(o){ // o: {b,e,m (Schnitt pro Person), v,p (Gruppe), ziel}
  const r={B:Math.round(o.b*PTS.B),E:Math.round(o.e*PTS.E),V:o.v*PTS.V,P:o.p*PTS.P,Z:o.ziel?PTS.ZIEL:0,M:Math.round(o.m*PTS.M)};
  r.tot=Math.max(0,r.B+r.E+r.V+r.P+r.Z+r.M);return r;}
@@ -1388,7 +1393,7 @@ function drawHand(){
 function startFig(f){S.fig=f;S.r=0;S.money=M.START[f];S.projList=pickProj();beginRound();}
 function beginRound(){
  S.wishH=(wish()&&!wishBroken()&&wishBonusRound(S.r))?1:0;
- S.hearts=3+(S.carry||0)+S.wishH;S.money+=income(S.fig,S.r);S.thisRound=[];S.palloc=0;updPdone();announceEvent();drawHand();if(G)G.ballotFor(S.r);else drawBallot();S.results=null;S.event=null;S.waiting=false;S.mstep=1;
+ S.hearts=3+(S.carry||0)+S.wishH;S.money+=income(S.fig,S.r)+(S.moneyNext||0);if(S.moneyNext)S.freeNote=(S.freeNote?S.freeNote+" ":"")+`Du bekommst ${S.moneyNext} Geld zurück, weil du weniger ausgibst.`;S.moneyNext=0;S.thisRound=[];S.palloc=0;updPdone();announceEvent();drawHand();if(G)G.ballotFor(S.r);else drawBallot();S.results=null;S.event=null;S.waiting=false;S.mstep=1;
  let note=[];
  if(S.adopted.K6!==undefined&&S.adopted.K6<=PER[S.r].a){
   if(S.chosen.I1b!==undefined){S.money+=1;note.push("Flugticketabgabe: Du fliegst nicht mehr und bekommst 1 Geld zurück.");}
@@ -1414,7 +1419,7 @@ const SPENDE=2,SPENDEP=15;
 function chance(k){
  if(G){const g=G.totals(k);return Math.min(MAXC,Math.round(M.VORL[k].c*100+bonus(k)+g.h*30/G.n()+g.d*SPENDEP/G.n()));}
  return Math.min(MAXC,Math.round(M.VORL[k].c*100)+bonus(k)+S.alloc[k]*30+(S.don[k]?SPENDEP:0))}
-function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;}else{if(S.money<SPENDE)return;S.don[k]=1;S.money-=SPENDE;}if(G)G.push();render();}
+function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;}else{if(moneyFree()<SPENDE)return;S.don[k]=1;S.money-=SPENDE;}if(G)G.push();render();}
 function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(d>0)fx("heart");if(G)G.push();render();}
 function freeRide(){}
@@ -1537,13 +1542,13 @@ function header(){
  const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. So weit bringt dich der allgemeine Wandel: sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Ziel bis 2050: 0.6 t.`;
  const tb=used?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
  const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
- const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.`;
+ const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?" 2 Geld sind gesperrt: Das Schnäppchen nach dieser Runde kostet dich 2 Geld, ausser du wählst noch «Allgemein weniger kaufen».":""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
  return `<div class="top"><div class="top-in">
  <div class="who">${figAnim(S.fig,4)}<div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
  ${G&&S.screen==="round"?`<div class="bankrow${G.players().filter(p=>p.fig).length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
-  <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${S.money}</span>${IC("geld",18)}</div>
+  <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${moneyFree()}</span>${IC("geld",18)}${moneyLock()?`<span class="csub">+${moneyLock()} gesperrt</span>`:""}${S.moneyNext?`<span class="csub">+${S.moneyNext} nächste Runde</span>`:""}</div>
   ${wishChip()}
  </div></div><div class="barbox">${barHTML(v)}</div></div>`;
 }
@@ -1559,7 +1564,7 @@ function details(t){return `<details><summary>Woher die Zahl?</summary><p>${esc(
 function cardHTML(id){
  const t=T[id],b=blocked(id),on=S.chosen[id]!==undefined,mine=S.thisRound.includes(id);
  const e=effOwn(id),h=costH(id),g=costG(id);
- const gtxt=g<0?GD("+2")+" zurück":GD(g);
+ const gtxt=g<0?GD("+2")+" nächste Runde":GD(g);
  const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
   :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
  return `<div class="card ${on?"on":""} ${b&&!on?"off":""}">
@@ -1590,7 +1595,7 @@ function ballotHTML(){
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
   ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
   `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
-   <label class="hint" style="margin-left:auto"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&S.money<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne, 2 Geld</label></div>`}
+   <label class="hint" style="margin-left:auto"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&moneyFree()<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne, 2 Geld</label></div>`}
   <details><summary>Mehr dazu</summary>${nopers?"":`<p>Angenommen bringt die Vorlage bis 2050 <b>${sgn(-totalVorl(k),0)} t</b> für dich und <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b> pro Jahr für die Schweiz.</p>`}${CONTRA[k]?`<p><b>Dagegen spricht:</b> ${CONTRA[k]}</p>`:""}<p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;}
  return h;
 }
@@ -1613,7 +1618,7 @@ function viewRound(){
  if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
   B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter ins Dorf</button>`;}
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
- else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
+ else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(moneyFree())}${moneyLock()?" (2 gesperrt)":""}. ${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
  const gh=`<div class="colhd grp mstp" onclick="mStep(2)"><span class="t"><b class="stepn">2</b>${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span><span class="mst">${freeH()} ${IC("herz",12)} übrig <i>${m2?"▾":"▸"}</i></span></div>`;
  
  return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half mstep ${m1?"m1":m2?"m2":"m0"}"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
