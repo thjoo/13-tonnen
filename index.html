@@ -200,12 +200,13 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .walkbox .yr{position:absolute;bottom:0;transform:translateX(-50%);font-family:var(--titel);font-size:20px;color:var(--g3)}
 .walkbox .yr.on{color:var(--ink)}
 .walker{position:absolute;bottom:26px;transition:left 1.4s linear}
-.bankrow{flex:1;display:flex;justify-content:center;align-self:flex-end;min-width:0}
+.bankrow{flex:1;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;align-self:flex-end;min-width:0}
+.top-in .bankrow.multi{grid-column:1/-1;order:3;flex-wrap:nowrap;gap:28px}
 .bankrow.lobby{justify-content:flex-start;padding:4px 0 10px}
-.bank{position:relative;display:flex;align-items:flex-end;gap:16px;padding:30px 22px 0;min-width:110px}
+.bank{position:relative;display:flex;align-items:flex-end;gap:8px;padding:30px 18px 0;min-width:110px}
 .bank .bseat{position:absolute;left:0;right:0;bottom:-2px;height:32px;z-index:2;pointer-events:none;image-rendering:pixelated;filter:grayscale(1) contrast(1.1);
  background:var(--bl) left bottom/14px 32px no-repeat,var(--br) right bottom/14px 32px no-repeat,var(--bm) left bottom/6px 32px repeat-x}
-.bank .bsit{position:relative;z-index:1;margin-bottom:25px;min-width:50px;display:flex;flex-direction:column;align-items:center}
+.bank .bsit{position:relative;z-index:1;margin-bottom:25px;min-width:52px;display:flex;flex-direction:column;align-items:center}
 .bank .bbub{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;display:flex;align-items:center;gap:4px;padding:3px 6px 2px;white-space:nowrap;line-height:1;
  box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink)}
 .bank .bbub::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-3px;width:6px;height:5px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
@@ -215,7 +216,7 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .bdots{display:inline-flex;gap:2px;font-style:normal}.bdots b{width:3px;height:3px;background:var(--ink);animation:bdot 1.2s steps(1) infinite}
 .bdots b:nth-child(2){animation-delay:.2s}.bdots b:nth-child(3){animation-delay:.4s}@keyframes bdot{0%,60%,100%{opacity:.25}20%,40%{opacity:1}}
 .bank .wait .fa{filter:none}
-@media(max-width:700px){.bankrow{flex-basis:100%;order:3;margin-top:4px}.bank{gap:6px;padding:28px 10px 0}.bank .bsit{min-width:54px}.bank .bbub em{font-size:11px}}
+@media(max-width:700px){.bankrow,.top-in .bankrow.multi{flex-basis:100%;order:3;margin-top:4px;flex-wrap:wrap;gap:6px}.bank{gap:6px;padding:28px 10px 0}.bank .bsit{min-width:54px}.bank .bbub em{font-size:11px}}
 .mates{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 4px}.mate{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px}
 .mate .mb{background:#fff;padding:3px 5px;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin-bottom:4px;line-height:0}
 .mate .mb img{image-rendering:pixelated;transform:scale(.6)}
@@ -1537,7 +1538,7 @@ function header(){
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.`;
  return `<div class="top"><div class="top-in">
  <div class="who">${figAnim(S.fig,4)}<div><div class="kick">13 Tonnen · Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
- ${G&&S.screen==="round"?`<div class="bankrow">${benchRound()}</div>`:""}<div class="chips" id="stats">
+ ${G&&S.screen==="round"?`<div class="bankrow${G.players().filter(p=>p.fig).length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${S.money}</span>${IC("geld",18)}</div>
@@ -1987,6 +1988,10 @@ function groupPanel(){const av=groupAvg("now");
  return `<div class="lbl">Gruppenziel</div><h3 style="margin:2px 0 4px">Im Schnitt 2050 unter ${fmt(GOAL)} t und Budget unter ${GOALB} t</h3><p class="hint">Gruppe heute: ${av==null?"–":fmt(av)+" t pro Jahr"}${sb?`, Budget bisher ${fmt(sb,0)} t`:""} im Schnitt. Beides zählt, ihr schafft es nur gemeinsam.</p><hr>`;}
 /* Bank oben: alle Mitspielenden sitzen darauf, die Sprechblase zeigt, ob sie fertig sind */
 function benchHTML(ps,stateOf){const B=SPR.bench;if(!B||!ps.length)return"";
+ // bis 4 Personen pro Bank, sonst gleichmaessig auf mehrere Baenke verteilen
+ const nb=Math.ceil(ps.length/4),per=Math.ceil(ps.length/nb),grp=[];for(let i=0;i<ps.length;i+=per)grp.push(ps.slice(i,i+per));
+ return grp.map(g=>benchOne(g,stateOf,B)).join("");}
+function benchOne(ps,stateOf,B){
  return `<div class="bank" style="--bl:url(${B.l});--bm:url(${B.m});--br:url(${B.r})">${ps.map(p=>{const st=stateOf(p),me=p.uid===NET.uid;
   return `<div class="bsit ${st[0]}" title="${p.fig} (${p.color})${me?", du":""}: ${st[1]}"><span class="bbub">${st[0]==="ok"?FXI("check"):st[0]==="wait"?'<i class="bdots"><b></b><b></b><b></b></i>':""}<em>${me?"du":esc0(p.color)}</em></span>${figAnim(p.fig,2)}</div>`;}).join("")}<i class="bseat"></i></div>`;}
 function benchRound(){if(!G||!ROOM)return"";const ps=G.players().filter(p=>p.fig);
