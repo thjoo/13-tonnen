@@ -66,6 +66,19 @@ img.icn.dim{opacity:.3}
 .seg:first-child .sl{left:0;transform:none}.seg:nth-child(5) .sl{left:auto;right:0;transform:none}
 .seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
 h3.bud{font-size:22px;margin:2px 0 12px}
+.cats{display:grid;gap:10px;margin-top:10px}
+.crow{display:grid;grid-template-columns:120px minmax(0,1fr) 92px;align-items:center;gap:12px;position:relative;outline:none}
+.crow .cnm{display:flex;align-items:center;gap:6px;font:400 12px var(--mono);text-transform:uppercase;white-space:nowrap}
+.crow .ctr{position:relative;height:22px;background:#fff;box-shadow:0 -2px 0 0 var(--g4),0 2px 0 0 var(--g4),-2px 0 0 0 var(--g4),2px 0 0 0 var(--g4)}
+.crow .ctr i{position:absolute;top:0;bottom:0;left:0}
+.crow .csav{background:repeating-linear-gradient(45deg,var(--g4) 0 2px,#fff 2px 4px);box-shadow:inset 0 0 0 2px var(--g3)}
+.crow .cup{background:repeating-linear-gradient(45deg,var(--ink) 0 2px,#fff 2px 4px)}
+.crow .cval{display:flex;justify-content:space-between;gap:6px;font:400 13px var(--fliess)}.crow .cval b{font-weight:700}
+.crow .cval em{font-style:normal;color:var(--muted)}.crow .cval em.dn{color:var(--text);font-weight:700}
+.crow:hover .ctr,.crow:focus .ctr{box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink)}
+.ckey{display:flex;gap:18px;margin-top:14px;font:400 12px var(--fliess);color:var(--muted)}.ckey span{display:flex;align-items:center;gap:6px}
+.ckey i{width:14px;height:10px;display:inline-block}.ckey .k1{background:var(--g2)}.ckey .k2{background:repeating-linear-gradient(45deg,var(--g4) 0 2px,#fff 2px 4px);box-shadow:inset 0 0 0 2px var(--g3)}
+@media(max-width:700px){.crow{grid-template-columns:92px minmax(0,1fr) 78px;gap:8px}.crow .cnm{font-size:10px}.crow .cnm img{display:none}}
 .seg::after{content:"";position:absolute;inset:0;background:var(--hatch)}
 .mark{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
 .legend{display:flex;flex-wrap:wrap;gap:2px 18px;margin-top:6px;font-family:var(--mono);font-size:12px;letter-spacing:0;color:var(--muted);text-transform:uppercase}
@@ -1091,7 +1104,7 @@ function projHTML(){
  const pct=Math.min(100,tot/need*100);
  h+=`<div class="row" style="justify-content:space-between"><span class="lbl">Herzen ${G?"der Gruppe":""}</span><span class="chance">${tot} / ${need}</span></div>
  <div class="cbar"><i style="width:${pct}%"></i></div>
- <div class="meta2"><span>bringt dir <b>${sgn(-vProj(s.pid),2)} t</b>/Jahr</span><span>bis 2050: <b>${sgn(-totalProj(s.pid),0)} t</b></span></div>`;
+ <div class="meta2"><span>bringt dir <b>${sgn(-vProj(s.pid),2)} t</b>/Jahr</span></div>`;
  if(!S.results)h+=`<div class="ctl"><button class="small" onclick="palloc(-1)">−</button><span class="mono">${HZ(S.palloc||0)}</span><button class="small" onclick="palloc(1)">+</button>${G?`<span class="hint" style="margin-left:auto">davon du</span>`:""}</div>`;
  h+=`<details><summary>Mehr dazu</summary><p>Kein Würfel: Kommen bis Ende ${rleft>0?"nächster Runde":"dieser Runde"} ${need} Herzen zusammen, wird es gebaut. ${G?`Das sind 2 pro Person, wer wie viel gibt, ist eure Sache.`:`Den Rest übernimmt die Nachbarschaft.`} Sonst scheitert es, und die Herzen sind weg.</p><p>${esc0(p.back)}</p></details>`;
  return h+`<hr>`;}
@@ -1255,7 +1268,7 @@ function beginRound(){
  if(S.carry||S.wishH)note.push("Diese Runde hast du "+S.hearts+" Herzen: 3"+(S.carry?", 1 mitgenommen":"")+(S.wishH?", 1 von deinem Wunsch":"")+".");
  S.carry=0;
  S.roundNote=note;
- S.snap[S.r]={y:PER[S.r].a,act:val(PER[S.r].a,ACT)};
+ S.snap[S.r]={y:PER[S.r].a,act:val(PER[S.r].a,ACT),c:bycat(subs(PER[S.r].a,ACT))};
  S.revealed=null;
  if(S.r==0&&!lsGet("13t_tut"))S.coach=0;
  if(G)NET.update(G.path(),{now:+val(PER[S.r].a,ACT).toFixed(2),sumnow:S.r?Math.round(sum(2026,PER[S.r].a-1,ACT)):0});
@@ -1303,8 +1316,7 @@ function toEvent(){
 }
 function nextRound(){
  if(S.flags.e2===S.r&&S.chosen.W2===undefined)S.flags.w2locked=true;
- if(S.r>=LAST)fx("walk");
- if(S.r<LAST){S.r++;beginRound();}else{S.screen="end";fx("end");render();window.scrollTo(0,0);}
+ if(S.r<LAST){S.r++;beginRound();}else{S.dorfFinal=true;startDorf();}
 }
 
 /* ---------- Ansicht ---------- */
@@ -1331,7 +1343,6 @@ function header(){
  <div class="who">${figAnim(S.fig,4)}<div><div class="kick">13 Tonnen · Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
  <div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
-  <div class="chip tip" tabindex="0" data-tip="${tb}"><span class="cl">Budget</span><span class="cv" id="budv">${fmt(so,0)} t</span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${S.money}</span>${IC("geld",18)}</div>
   ${wishChip()}
@@ -1356,7 +1367,6 @@ function cardHTML(id){
  <div class="hd"><span class="lbl">${CATIC(AREAC[id[0]])}${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
- <div class="meta2"><span>bis 2050: <b>${sgn(-totalOwn(id),0)} t</b></span>${h>0?`<span>pro Herz: <b>${sgn(-e/h,2)} t</b>/Jahr</span>`:""}</div>
  ${details(t)}
  ${!on&&wish()&&!wishBroken()&&wish().breaks.includes(id)?`<div class="cwhy">Damit gibst du deinen Wunsch «${esc0(wish().t)}» auf: kein Extraherz mehr.</div>`:""}
  ${costWhy(id).length?`<div class="cwhy">${costWhy(id).map(esc).join("<br>")}</div>`:""}
@@ -1373,7 +1383,7 @@ function ballotHTML(){
   <div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl">Chance</span><span class="chance">${c} %</span></div>
   <div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
-  <div class="meta2">${nopers?`<span>Wirkt nicht auf deinen Fussabdruck, weil Moore nicht zum Konsum zählen. Für die Schweiz: <b>${fmt(chv,2)} Mio. t</b>/Jahr weniger.</span>`:`<span>pro Herz für dich: <b>${sgn(-ve*(G?30/G.n():30)/100,3)} t</b>/Jahr</span>`}</div>
+  <div class="meta2">${nopers?`<span>Wirkt nicht auf deinen Fussabdruck, weil Moore nicht zum Konsum zählen. Für die Schweiz: <b>${fmt(chv,2)} Mio. t</b>/Jahr weniger.</span>`:""}</div>
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
   ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
   `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
@@ -1547,12 +1557,15 @@ function chartSVG(toYear,opts){
 const FARBE_VOLL=6;
 function farbeP(f){return Math.max(0,Math.min(1,(START-f)/(START-FARBE_VOLL)))}
 function dorfFoot(own){if(G){const ps=G.players().filter(p=>p.fig&&p.uid!==NET.uid&&typeof p.now=="number").map(p=>p.now);if(ps.length)return (ps.reduce((a,b)=>a+b,0)+own)/(ps.length+1);}return own;}
-function dorfVals(){const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
+function dorfVals(){if(S.dorfFinal){const f1=val(2050,ACT);return {a0:2026,nx:2050,f0:START,f1,b0:0,b1:0,p0:0,p1:farbeP(dorfFoot(f1))};}
+ const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const f0=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT),f1=val(nx,ACT);
  return {a0,nx,f0,f1,b0:a0>2026?sum(2026,a0-1,ACT):0,b1:sum(2026,nx-1,ACT),p0:farbeP(dorfFoot(f0)),p1:farbeP(dorfFoot(f1))};}
 const DORFK=["K1","K2","K3","K4","K7","K9","K12","K15","P2","P3","P4","P5"];
 function dorfGap(){return 1600}
+function dorfAll(){const L=[];for(const k in S.adopted)if(DORFK.includes(k))L.push([k,S.adopted[k]]);for(const k in (S.pdone||{}))if(DORFK.includes(k))L.push([k,S.pdone[k]]);return L.sort((a,b)=>a[1]-b[1]);}
 function dorfOn(){const on={},now=typeof performance!=="undefined"?performance.now():0,rm=RM();let i=0;
+ if(S.dorfFinal){dorfAll().forEach(([k],j)=>on[k]=rm?0:now+1200+j*1300);window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-500}));return on;}
  for(const x of (S.results||[])){if(x.ok&&DORFK.includes(x.k))on[x.k]=rm?0:now+600+i*dorfGap()+300;i++;}
  const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r&&DORFK.includes(ps.pid))on[ps.pid]=rm?0:now+600+i*dorfGap()+300;
  window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-500}));
@@ -1592,15 +1605,17 @@ function dorfBubble(k,box,cls){const T0=DORFTXT[k];if(!T0||!box)return null;cons
  b.style.setProperty("--ax",Math.round(Math.max(14,Math.min(bw-14,cx-x)))+"px");return b;}
 function dorfPops(){if(typeof innerWidth==="undefined"||innerWidth<1000||!document.querySelector)return;
  const host=document.querySelector(".szene .dorfkopf");if(!host||!window.dorfBox)return;
- const now=performance.now(),F=(window.DORF_FOCUS||[]);
- F.forEach(f=>{const wait=Math.max(0,f.t+500-now);setTimeout(()=>{if(S.screen!=="dorf")return;const b=dorfBubble(f.k,window.dorfBox(f.k),"pin");if(b)b.dataset.k=f.k;},wait);});
+ const now=performance.now(),F=(window.DORF_FOCUS||[]),tok=window.DORF_TOK=(window.DORF_TOK||0)+1;
+ F.forEach(f=>{const wait=Math.max(0,f.t+500-now);setTimeout(()=>{if(S.screen!=="dorf"||window.DORF_TOK!==tok)return;const b=dorfBubble(f.k,window.dorfBox(f.k),"pin");if(b)b.dataset.k=f.k;},wait);});
  const d=document.getElementById("dorf");if(!d||d.dataset.hov)return;d.dataset.hov=1;
  d.addEventListener("mousemove",e=>{const r=d.getBoundingClientRect(),h=window.dorfHit&&window.dorfHit(e.clientX-r.left,e.clientY-r.top);
   const old=host.querySelector(".dbub.hov");
   if(old&&(!h||old.dataset.k!==h.k))old.remove();if(h&&!host.querySelector(".dbub.hov")){const b=dorfBubble(h.k,h,"hov");if(b)b.dataset.k=h.k;}
   d.style.cursor=h?"help":"";});
  d.addEventListener("mouseleave",()=>{const o=host.querySelector(".dbub.hov");if(o)o.remove();});}
-function dorfItems(){const L=[];
+function dorfItems(){if(S.dorfFinal){const A=dorfAll();if(!A.length)return `<li class="no"><span class="ic">·</span><span>Keine Vorlage und kein Projekt kam durch. Das Dorf hat sich nur durch den allgemeinen Wandel verändert.</span></li>`;
+  return A.map(([k,y],j)=>`<li class="ok" style="animation-delay:${1200+j*1300}ms"><span class="ic">✓</span><span><b>«${esc(k[0]==="P"?PROJ[k].t:T[k].title)}»</b> seit ${y}</span></li>`).join("");}
+ const L=[];
  for(const x of (S.results||[]))if(x.ok&&cheaperBy(x.k).length)L.push(`<li class="no"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></li>`);
  const LB=L.splice(0);
  for(const x of (S.results||[]))L.push(x.ok?`<li class="ok"><span class="ic">✓</span><span><b>«${esc(T[x.k].title)}»</b> angenommen. Wirkt ab ${S.adopted[x.k]}.</span></li>`:`<li class="no"><span class="ic">✗</span><span>«${esc(T[x.k].title)}» abgelehnt.</span></li>`);
@@ -1609,13 +1624,14 @@ function dorfItems(){const L=[];
  if(!L.some(x=>x.includes('class="ok"')))L.push(`<li class="no"><span class="ic">·</span><span>Im Dorf ändert sich nur, was ohnehin passiert: der allgemeine Wandel.</span></li>`);
  return L.map((x,i)=>x.replace("<li ",`<li style="animation-delay:${600+i*dorfGap()}ms" `)).join("");}
 function viewDorf(){const d=dorfVals();
- const B=`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
+ const B=S.dorfFinal?`<span>2026 bis 2050</span><button class="primary" onclick="toEnd()">Zur Auswertung</button>`:`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
  return header()+`<div class="szene"><div class="dorfkopf"><div class="dorf" id="dorf"></div><h1 class="dtitel" aria-live="polite"><span class="o" id="szj1">${d.a0}</span><span class="f" id="szj2">${d.a0}</span></h1></div>
- <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">Was sich im Dorf verändert</div><ul class="szl">${dorfItems()}</ul><p class="hint lapo">Fahre über eine Massnahme im Dorf.</p></div>
+ <div class="wrap"><div class="layout half sz-info"><div><div class="lbl">${S.dorfFinal?"Was sich bis 2050 verändert hat":"Was sich im Dorf verändert"}</div><ul class="szl">${dorfItems()}</ul><p class="hint lapo">Fahre über eine Massnahme im Dorf.</p></div>
  <div><div class="lbl">Farbe im Dorf</div><div class="bmeter"><i id="szf" style="width:${(d.p0*100).toFixed(1)}%"></i></div>
  <div class="szscale"><span>${fmt(START)} t: grau</span><span>${FARBE_VOLL} t: ganz farbig</span></div></div></div></div></div>
  <div class="actbar"><div class="in">${B}</div></div>`;}
-function dorfTween(){if(S.dorfAnim===S.r)return;S.dorfAnim=S.r;const d=dorfVals(),DUR=3200,t0=typeof performance!=="undefined"?performance.now():0,ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function toEnd(){S.dorfFinal=false;S.screen="end";fx("end");render();window.scrollTo(0,0);}
+function dorfTween(){const key=S.dorfFinal?"F":S.r;if(S.dorfAnim===key)return;S.dorfAnim=key;const d=dorfVals(),DUR=S.dorfFinal?6000:3200,t0=typeof performance!=="undefined"?performance.now():0,ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
  const set=t=>{const e=ez(t),yr=Math.round(d.a0+(d.nx-d.a0)*e),q=id=>document.getElementById(id);
   for(const id of ["szj1","szj2"]){const el=q(id);if(el)el.textContent=yr;}
   const fv=q("footv");if(fv)fv.textContent=fmt(d.f0+(d.f1-d.f0)*e)+" t";
@@ -1641,13 +1657,19 @@ function viewSummary(){
  return header()+`<div class="wrap">${tabs(1)}
  <div class="layout half"><div>
   <div class="lbl">Bilanz ${p.l}</div><h2 class="btitle">${title}</h2>
-  <div class="ibox">${chartClean(Math.min(nx,2050))}</div>
-  <div class="ibox" style="margin-top:18px"><div class="lbl">Budget 2026 bis 2050</div>${budgetHTML(used,pf,nx-1)}</div>
+  <div class="ibox"><div class="lbl">Wo sich etwas verändert hat</div>${catHTML(S.snap[S.r]&&S.snap[S.r].c?S.snap[S.r].c:bycat(subs(a0,ACT)),bycat(subs(nx,ACT)),a0,nx)}</div>
  </div><div>
   <div class="ibox evbox" style="padding:14px 18px">${eventBox()}</div>
   <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}</div>
   ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
  </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
+/* Bilanz: Fussabdruck nach Bereichen, vorher und nachher */
+function catHTML(c0,c1,y0,y1){const mx=Math.max(...CATS.map(x=>Math.max(c0[x],c1[x])))*1.04,pc=v=>(v/mx*100).toFixed(2);
+ return `<div class="cats">${CATS.map((x,i)=>{const a=c0[x],b=c1[x],d=b-a,lo=Math.min(a,b);
+  return `<div class="crow tip" tabindex="0" data-tip="${x}: ${fmt(a)} t im Jahr ${y0}, ${fmt(b)} t im Jahr ${y1}."><span class="cnm">${CATIC(x)}${CATSHORT[x]}</span>
+  <span class="ctr"><i class="cnow" style="width:${pc(lo)}%;background:${GSH[i]}"></i>${Math.abs(d)>=0.05?`<i class="${d<0?"csav":"cup"}" style="left:${pc(lo)}%;width:${pc(Math.abs(d))}%"></i>`:""}</span>
+  <span class="cval"><b>${fmt(b)} t</b><em class="${d<-0.05?"dn":d>0.05?"up":""}">${Math.abs(d)<0.05?"±0":sgn(d)}</em></span></div>`;}).join("")}</div>
+ <div class="ckey"><span><i class="k1"></i>${y1}</span><span><i class="k2"></i>eingespart seit ${y0}</span></div>`;}
 /* Hover fuer Diagramme: Jahr mit Fadenkreuz oder Erklaerung an Balken */
 function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerdown="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
 function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".xh"),r=w.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
