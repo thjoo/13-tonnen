@@ -353,7 +353,6 @@ details.rules>summary{font-size:13px}
  .barbox{padding:0 12px 6px!important}.barbox .legend{display:none}.bar{height:10px}
  .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
  .tabs{gap:6px;flex-wrap:wrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
- .toprow:not(:has(.ibox,.callout,.crisis,section,details)){display:none}
  .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
  .btitle{font-size:19px}
  table.verlauf,table.verlauf tbody,table.verlauf tr,table.verlauf td{display:block;width:auto}
@@ -383,7 +382,7 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .layout.half .card .hd .lbl{font-size:10px}
 .layout.half .card .pts{font-size:17px}
 .layout.half .card .ft{padding-top:4px}
-@media(max-width:1000px){.layout.half{grid-template-columns:1fr}}
+@media(max-width:1000px){.layout.half{grid-template-columns:1fr}.toprow:not(:has(.ibox,.callout,.crisis,section,details)){display:none}}
 
 /* Bilanz */
 .btitle{font-size:26px;line-height:1.15;margin:2px 0 6px;max-width:620px}
