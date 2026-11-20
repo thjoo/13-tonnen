@@ -143,6 +143,18 @@ input.codein{font:400 16px var(--mono);width:7em;text-transform:uppercase;paddin
 .st,.ibox,.panel,.fig,.card{--fc:var(--edge)}
 .st.big,.ibox.hi{--fc:var(--ink)}
 .callout{--fc:var(--g4);--sh:transparent}
+.callout{margin:var(--p) var(--p) 16px}
+.crisis{margin:var(--p) var(--p) 16px!important}
+.topstack{margin-bottom:26px}.topstack>:last-child{margin-bottom:var(--p)!important}
+.colhd{display:flex;align-items:center;height:44px;box-sizing:border-box;white-space:nowrap;justify-content:space-between;gap:10px;background:var(--ink);color:#fff;padding:6px 12px 5px;margin:var(--p) var(--p) 18px;
+ box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink)}
+.colhd .t{font-family:var(--titel);font-size:30px;line-height:1}
+.colhd .s{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:#e7e2dd;text-align:right}
+.colhd.grp{background:#fff;color:var(--ink);box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink);background:var(--g5)}
+.colhd.grp .s{color:var(--ink)}
+.side{position:sticky;top:150px;align-self:start}
+.side .panel{position:static;max-height:calc(100vh - 230px)}
+@media(max-width:1000px){.side{position:static}.side .panel{max-height:none}.colhd .t{font-size:20px}}
 .bar{--sh:transparent;--fc:var(--ink);height:18px}
 .card:hover,.fig:hover{--fc:var(--ink);transform:translate(-1px,-1px)}
 .card.on,.fig.on{--fc:var(--ink);box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink),inset 0 0 0 var(--p) var(--ink),calc(2*var(--p)) calc(2*var(--p)) 0 0 var(--sh)}
@@ -1093,7 +1105,8 @@ function viewRound(){
   L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
  L+=wishHTML();
  L+=crisisHTML();
- L+=`<div class="sec"><h2>Deine Auswahl</h2><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
+ const TOP=L;L="";
+ L+=`<div class="colhd"><span class="t">Selber</span><span class="s">Deine Karten</span></div><div class="sec" style="margin-top:0"><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
@@ -1102,7 +1115,8 @@ function viewRound(){
  P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
  :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
- return header()+`<div class="wrap">${tabs(0)}<div class="layout"><div>${L}</div><aside class="panel" id="panel">${P}</aside></div></div>`;
+ const gh=`<div class="colhd grp"><span class="t">${G?"Gruppe":"Gemeinsam"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span></div>`;
+ return header()+`<div class="wrap">${tabs(0)}<div class="topstack">${TOP}</div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div>`;
 }
 function viewEvent(){
  let h="";
