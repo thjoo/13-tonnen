@@ -446,6 +446,19 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 @media(min-width:1100px){.szene .dorfkopf{--ds:1.25}}
 .szene .dtitel{transform:none;top:10px;bottom:auto;left:16px;right:auto;justify-content:start;font-size:calc(320px*var(--ds)*.2);animation:none}
 .szl{list-style:none;margin:6px 0 0;padding:0}
+.szene.intro{min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:var(--g5)}
+.szene.intro .iframe{width:min(1240px,100%);background:#fff;box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),10px 10px 0 0 rgba(55,53,47,.25)}
+.szene.intro .dorfkopf{--ds:.9}@media(min-width:1100px){.szene.intro .dorfkopf{--ds:1.4}}
+@media(max-width:700px){.szene.intro{padding:10px}}
+.ibub{position:absolute;z-index:2100;max-width:340px;background:#fff;padding:12px 14px;font:400 16px/1.45 var(--fliess);visibility:hidden;
+ box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),6px 6px 0 0 rgba(55,53,47,.3)}
+.ibub p{margin:0}.ibub::after{content:"";position:absolute;left:var(--ax,50%);bottom:-12px;width:12px;height:9px;margin-left:-6px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
+.ibub.pop{animation:bubin .3s steps(3) both}
+.ititel{top:auto!important;bottom:16px;transform:none!important;animation:none!important;font-size:calc(320px*var(--ds)*.16)!important;justify-content:start!important;left:20px;right:auto}
+.introbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 18px}
+.idots{display:flex;gap:8px}.idots i{width:12px;height:12px;background:var(--g4)}.idots i.on{background:var(--ink)}
+.linkish{background:none!important;border:0;box-shadow:none!important;padding:0;margin-top:6px;font:400 13px var(--fliess);text-decoration:underline;color:var(--muted);cursor:pointer}
+@media(max-width:700px){.ibub{max-width:260px;font-size:14px}}
 .dbub{position:absolute;z-index:2100;width:240px;background:#fff;padding:9px 12px 10px;font:400 13px/1.4 var(--fliess);color:var(--text);text-align:left;
  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),6px 6px 0 0 rgba(55,53,47,.3);animation:bubin .3s steps(3) both;pointer-events:none}
 .dbub::after{content:"";position:absolute;left:var(--ax,50%);bottom:-11px;width:10px;height:8px;margin-left:-5px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
@@ -989,6 +1002,7 @@ let S, G=null;
 function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
  flags:{},pdone:{},plog:{},palloc:0,carry:0,events:[],happened:[],ballot:[],alloc:{},results:null,event:null,log:[],snap:[]};}
 fresh();
+if(!lsGet("13t_intro"))S.screen="intro";
 
 /* ---------- Modell ---------- */
 function vorlFrom(r){return r<LAST?PER[r+1].a:Math.ceil((PER[LAST].a+PER[LAST].b)/2)}
@@ -1017,7 +1031,7 @@ function subs(y,opt){
   for(const id in S.adopted){if(id===opt.without)continue;if(S.adopted[id]>y)continue;
    const m=M.VORL[id].mult;for(const k in m)v[k]*=m[k];}
   if(opt.extraVorl){const m=M.VORL[opt.extraVorl].mult;for(const k in m)v[k]*=m[k];}
-  if(S.adopted.K12!==undefined&&S.adopted.K12<=y&&opt.without!=="K12")v.oeff-=0.002;
+  if(((S.adopted.K12!==undefined&&S.adopted.K12<=y)||opt.extraVorl==="K12")&&opt.without!=="K12")v.oeff-=0.0022;
   for(const id in (S.pdone||{})){if(S.pdone[id]>y)continue;const m=PROJ[id].mult;for(const k in m)v[k]*=m[k];}
   if(opt.extraProj){const m=PROJ[opt.extraProj].mult;for(const k in m)v[k]*=m[k];}
  }
@@ -1411,12 +1425,12 @@ function ballotHTML(){
  <p class="hint">${G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`} Wirkt ab ${vorlFrom(S.r)}.</p>`;
  for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k),c=chance(k);
   const ve=vEff(k),nopers=Math.abs(ve)<0.0005,chv=M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;
-  h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${strat(k)} · ${nopers?"wirkt auf die Schweiz":sgn(-ve,2)+" t für dich"}</span></div>
+  h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${strat(k)} · ${nopers?"wirkt auf die Schweiz":sgn(-ve,Math.abs(ve)<0.01?3:2)+" t für dich"}</span></div>
   <div class="ti">${esc(t.title)}</div><div class="tx" style="font-size:14px">${esc(t.front)}</div>
   <div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl">Chance</span><span class="chance">${c} %</span></div>
   <div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
-  <div class="meta2">${nopers?`<span>Wirkt nicht auf deinen Fussabdruck, weil Moore nicht zum Konsum zählen. Für die Schweiz: <b>${fmt(chv,2)} Mio. t</b>/Jahr weniger.</span>`:""}</div>
+  <div class="meta2">${nopers?`<span>Wirkt kaum auf deinen Fussabdruck. Für die Schweiz: <b>${fmt(chv,2)} Mio. t</b>/Jahr weniger.</span>`:""}</div>
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
   ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
   `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
@@ -1487,7 +1501,7 @@ function viewStart(){window.DORF_P=0;window.DORF_ON={};window.DORF_FOCUS=[];
  return `<header class="dorfkopf"><div class="dorf" id="dorf"><div class="dbase"></div><div class="anim"></div></div><h1 class="dtitel"><span class="o">13 Tonnen</span><span class="f">13 Tonnen</span></h1></header><div class="wrap"${sm?' style="padding-top:12px"':""}>
  ${sm?"":`<div class="hero"><div>
   <p class="sub">Eine Person in der Schweiz verursacht im Schnitt rund 13 Tonnen Treibhausgase pro Jahr, verträglich wären 0.6. Übernimm eine Figur und senke ihren Fussabdruck bis 2050: mit eigenen Entscheiden und mit Engagement für Vorlagen. Die erste Runde erklärt sich beim Spielen.</p>
-  <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details></div>
+  <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details><button class="linkish" onclick="startIntro()">Intro nochmals ansehen</button></div>
   <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>`}
  ${body}
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
@@ -1624,12 +1638,12 @@ function dorfEff(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0,from=null;
  else{if(S.adopted[k]===undefined)return "";from=S.adopted[k];const yy=Math.max(y,from);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
  const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;
  const hasCh=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null;
- return Math.abs(ve)<0.005?(hasCh?`Wirkt ab ${from} für die Schweiz: ${fmt(ch,2)} Mio. t pro Jahr weniger. Für deinen Fussabdruck zählt es nicht.`:`Wirkt ab ${from}. Für ${S.fig} kaum spürbar, weil ${S.fig} davon wenig betroffen ist.`)
-  :`Wirkt ab ${from}: <b>${fmt(ve,2)} t</b> pro Jahr weniger für dich, für die Schweiz rund ${fmt(ch,1)} Mio. t.`;}
+ return Math.abs(ve)<0.0005?(hasCh?`Wirkt ab ${from} für die Schweiz: ${fmt(ch,2)} Mio. t pro Jahr weniger. Für deinen Fussabdruck zählt es nicht.`:`Wirkt ab ${from}. Für ${S.fig} kaum spürbar, weil ${S.fig} davon wenig betroffen ist.`)
+  :`Wirkt ab ${from}: <b>${fmt(ve,ve<0.01?3:2)} t</b> pro Jahr weniger für dich, für die Schweiz rund ${fmt(ch,1)} Mio. t.`;}
 function dorfEffShort(k){const y=S.r<LAST?PER[S.r+1].a:2050;let ve=0;
  if(k[0]==="P"){const b=S.pdone[k];delete S.pdone[k];const v0=val(Math.max(y,b),ACT);S.pdone[k]=b;ve=v0-val(Math.max(y,b),ACT);}
  else{const yy=Math.max(y,S.adopted[k]);ve=val(yy,{...ACT,without:k})-val(yy,ACT);}
- const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;return Math.abs(ve)<0.005?(k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?`−${fmt(ch,2)} Mio. t Schweiz`:"für dich kaum spürbar"):`−${fmt(ve,2)} t für dich`;}
+ const ch=k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?M.VORL[k].ch:ve*9;return Math.abs(ve)<0.0005?(k[0]==="K"&&M.VORL[k]&&M.VORL[k].ch!=null?`−${fmt(ch,2)} Mio. t Schweiz`:"für dich kaum spürbar"):`−${fmt(ve,ve<0.01?3:2)} t für dich`;}
 function dorfBubble(k,box,cls){const T0=DORFTXT[k];if(!T0||!box)return null;const host=document.querySelector(".szene .dorfkopf");if(!host)return null;
  const b=document.createElement("div");b.className="dbub "+(cls||"");b.innerHTML=cls==="pin"?`<b>${T0[0]}</b><span class="ef">${dorfEffShort(k)}</span>`:`<div class="lbl">${k[0]==="P"?"Projekt":"Vorlage"}: ${esc(k[0]==="P"?PROJ[k].t:T[k].title)}</div>${(k[0]==="P"?PROJ[k].t:T[k].title)===T0[0]?"":`<b>${T0[0]}</b>`}<p>${T0[1]}</p><p class="ef">${dorfEff(k)}</p>`;
  host.appendChild(b);const W=host.clientWidth,H=host.clientHeight,bw=b.offsetWidth,bh=b.offsetHeight,cx=box.x+box.w/2;
@@ -1678,6 +1692,30 @@ function dorfTween(){const key=S.dorfFinal?"F":S.r;if(S.dorfAnim===key)return;S.
   else{const fd=document.getElementById("fdelta");if(fd){fd.textContent=sgn(d.f1-d.f0)+" t";fd.classList.remove("go");void fd.offsetWidth;fd.classList.add("go");}}};
  requestAnimationFrame(step);}
 
+/* Intro: das Dorf, einer Figur folgen, sie erklaert das Spiel */
+const INTRO=[n=>`Hoi, ich bin ${n}! In unserem Dorf verursacht jede Person rund 13 Tonnen CO₂ pro Jahr.`,
+ n=>`Verträglich wären 0.6 Tonnen. Bis 2050 müssen wir also gewaltig runter.`,
+ n=>`Du spielst eine Figur: Du entscheidest, wie sie wohnt, isst und unterwegs ist. Und du kämpfst im Dorf für Vorlagen und Projekte.`,
+ n=>`Was angenommen wird, siehst du im Dorf. Und je weniger wir ausstossen, desto farbiger wird es. Los geht's!`];
+function startIntro(){S.intro={n:["Lia","Noah","Ruth","Elif","Daniel"][Math.floor(Math.random()*5)],i:0};window.DORF_FOLLOW=S.intro.n;window.DORF_P=0;window.DORF_ON={};window.DORF_FOCUS=[];S.screen="intro";render();window.scrollTo(0,0);}
+function viewIntro(){if(!S.intro){S.intro={n:["Lia","Noah","Ruth","Elif","Daniel"][Math.floor(Math.random()*5)],i:0};window.DORF_FOLLOW=S.intro.n;window.DORF_P=0;window.DORF_ON={};}
+ const I=S.intro,last=I.i>=INTRO.length-1;
+ setTimeout(introTick,0);
+ return `<div class="szene intro"><div class="iframe"><div class="dorfkopf"><div class="dorf" id="dorf"></div><div class="ibub" id="ibub"><p>${INTRO[I.i](I.n)}</p></div>
+ <h1 class="dtitel ititel"><span class="o">13 Tonnen</span><span class="f">13 Tonnen</span></h1></div>
+ <div class="introbar"><div class="idots">${INTRO.map((_,j)=>`<i class="${j<=I.i?"on":""}"></i>`).join("")}</div>
+ <div class="row"><button onclick="introEnd()">Überspringen</button><button class="primary" onclick="introNext()">${last?"Los geht's":"Weiter"}</button></div></div></div></div>`;}
+function introNext(){const I=S.intro;if(!I)return introEnd();if(I.i>=INTRO.length-1)return introEnd();I.i++;
+ if(I.i===INTRO.length-1){const now=performance.now();window.DORF_ON={K4:now+200,K9:now+700,K3:now+1200,P4:now+1700};
+  const t0=now,st=n=>{if(S.screen!=="intro")return;const t=Math.min(1,(n-t0)/2200);window.DORF_P=t;if(t<1)requestAnimationFrame(st);};requestAnimationFrame(st);}
+ const b=document.getElementById("ibub"),bt=document.querySelector(".introbar .primary"),ds=document.querySelectorAll(".idots i");
+ if(b){b.querySelector("p").textContent=INTRO[I.i](I.n);b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");}
+ if(bt)bt.textContent=I.i>=INTRO.length-1?"Los geht's":"Weiter";ds.forEach((d,j)=>d.classList.toggle("on",j<=I.i));}
+function introEnd(){lsSet("13t_intro","1");window.DORF_FOLLOW=null;window.DORF_P=0;window.DORF_ON={};S.intro=null;S.screen="start";render();window.scrollTo(0,0);}
+function introTick(){if(S.screen!=="intro")return;const b=document.getElementById("ibub"),h=b&&b.parentElement,p=window.dorfEnt&&window.dorfEnt();
+ if(b&&h&&p){const bw=b.offsetWidth,bh=b.offsetHeight,W=h.clientWidth;let x=Math.max(8,Math.min(W-bw-8,p.x-bw/2)),y=p.y-bh-14;if(y<8)y=8;
+  b.style.left=Math.round(x)+"px";b.style.top=Math.round(y)+"px";b.style.setProperty("--ax",Math.round(Math.max(14,Math.min(bw-14,p.x-x)))+"px");b.style.visibility="visible";}
+ requestAnimationFrame(introTick);}
 /* Bilanz nach jeder Runde */
 function toSummary(){S.screen="summary";render();window.scrollTo(0,0);}
 function viewSummary(){
@@ -1868,7 +1906,7 @@ function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.
 
 function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
- const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
+ const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,intro:viewIntro,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
  document.getElementById("app").innerHTML=v()+crisisBigHTML()+coachHTML();
  if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"start",behavior:"smooth"});}}}
  placeCoach();
@@ -2099,7 +2137,10 @@ function wdx(a,b){return(((b-a)%D.W)+D.W*1.5)%D.W-D.W/2;}
 function setSt(o,st){o.st=st;}
 function face(o,vx,vy){const s=o.set;if(!s.up||Math.abs(vx)>=Math.abs(vy)){o.st=s.side;o.flip=vx<0;}else{o.st=vy<0?s.up:s.down;o.flip=false;}}
 function rest(o,back){const s=o.set;o.st=back&&s.idleB?s.idleB:(s.idleF||s.side);o.flip=false;}
+function isFol(o){return window.DORF_FOLLOW&&o.set&&o.set.side&&o.set.side.name===window.DORF_FOLLOW;}
+function folEnt(){return ents.find(o=>o.k==='p'&&isFol(o));}
 function decide(o){const r=Math.random();
+ if(isFol(o)){o.q=[[o.x+rnd(140,320),lane()]];return;}
  if(o.role==='road'){
   if(o.set.up&&r<0.3){let best=null,bd=1e9;for(const p of D.paths){const d=Math.abs(wdx(o.x,p[0]));if(d<bd&&d<350){bd=d;best=p;}}
    if(best){const px=o.x+wdx(o.x,best[0]);const north=best[1]<best[2];const ry=north?D.band[0]:D.band[1];
@@ -2191,19 +2232,20 @@ function layout(){const d=document.getElementById('dorf');if(!d)return false;
  ctx.imageSmoothingEnabled=false;if(!camX)camX=D.W/2;vx0=Math.round(camX-VW/2);return true;}
 // Kamera: auf schmalen Bildschirmen zum Element fahren, das gerade neu erscheint (window.DORF_FOCUS)
 const CX={};for(const e of (D.ext||[])){const c=e[5]+e[3]/2;if(CX[e[0]]===undefined||Math.abs(c-D.W/2)<Math.abs(CX[e[0]]-D.W/2))CX[e[0]]=c;}
-function camTarget(){const F=window.DORF_FOCUS;if(!F||!F.length||VW>=1000)return D.W/2;const now=performance.now();let k=null;for(const f of F)if(f.t<=now)k=f.k;
+function camTarget(){if(window.DORF_FOLLOW){const o=folEnt();if(o)return o.x;}const F=window.DORF_FOCUS;if(!F||!F.length||VW>=1000)return D.W/2;const now=performance.now();let k=null;for(const f of F)if(f.t<=now)k=f.k;
  if(k===null||CX[k]===undefined)return D.W/2;return Math.max(VW/2,Math.min(D.W-VW/2,CX[k]));}
 window.dorfBox=k=>{if(!cv||CX[k]===undefined)return null;let best=null;for(const e of D.ext){if(e[0]!==k)continue;if(!best||Math.abs(e[5]+e[3]/2-CX[k])<Math.abs(best[5]+best[3]/2-CX[k]))best=e;}
  let x=((Math.round(best[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;return {x:x*S,y:best[6]*S,w:best[3]*S,h:best[4]*S};};
 window.dorfHit=(px,py)=>{if(!cv)return null;const ON=window.DORF_ON||{},now=performance.now();let hit=null;
  for(const e of D.ext){const t=ON[e[0]];if(t===undefined||t>now)continue;let x=((Math.round(e[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;
   const X=px/S,Y=py/S;if(X>=x-2&&X<=x+e[3]+2&&Y>=e[6]-2&&Y<=e[6]+e[4]+2)hit={k:e[0],x:x*S,y:e[6]*S,w:e[3]*S,h:e[4]*S};}return hit;};
-function camStep(dt){const t=camTarget();camX+=(t-camX)*Math.min(1,dt*3.5);if(Math.abs(t-camX)<0.5)camX=t;vx0=Math.round(camX-VW/2);}
+function camStep(dt){const t=camTarget(),d=wdx(camX,t);camX+=d*Math.min(1,dt*3.5);camX=((camX%D.W)+D.W)%D.W;if(Math.abs(d)<0.5)camX=t;vx0=Math.round(camX-VW/2);}
+window.dorfEnt=()=>{const o=folEnt();if(!o||!cv)return null;let x=((Math.round(o.x-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;return {x:x*S,y:(o.y-o.st.h)*S};};
 function loop(ts){const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;
  if(document.getElementById('dorf')&&cv&&document.getElementById('dorf').contains(cv)){camStep(dt);update(dt);render();}
  raf=requestAnimationFrame(loop);}
 setup();
-new MutationObserver(()=>{const d=document.getElementById('dorf');if(d&&!d.dataset.ok){d.dataset.ok=1;cv=null;camX=D.W/2;if(layout()){im(D.base).decode?.().then(render).catch(()=>{});render();}}}).observe(document.documentElement,{childList:true,subtree:true});
+new MutationObserver(()=>{const d=document.getElementById('dorf');if(d&&!d.dataset.ok){d.dataset.ok=1;cv=null;camX=D.W/2;if(window.DORF_FOLLOW){const o=folEnt();if(o){o.hid=false;o.wait=0;o.q=[];camX=o.x;}}if(layout()){im(D.base).decode?.().then(render).catch(()=>{});render();}}}).observe(document.documentElement,{childList:true,subtree:true});
 addEventListener('resize',()=>{if(layout())render();});
 for(const src of [D.base,D.baseF,D.wasser,D.sailimg,D.atlasimg])im(src).addEventListener('load',()=>render());
 window.dorfRender=()=>{if(cv&&document.getElementById('dorf')&&document.getElementById('dorf').contains(cv))render();};
