@@ -103,7 +103,8 @@ table.pts td:first-child{width:60%}table.board tr.me td{background:var(--soft);f
 .crisis{margin:0 0 18px;padding:14px 16px;background:var(--paper,#fff);box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);position:relative}
 .crisis::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:repeating-linear-gradient(135deg,var(--ink) 0 3px,transparent 3px 7px)}
 .crisis .lbl{margin-top:6px}
-.stats{flex-wrap:nowrap;gap:12px!important}.stats .st{min-width:0;flex:0 0 auto;padding:6px 12px}.st .lbl{white-space:nowrap}.st.wish{max-width:180px;flex-shrink:1}.st.wish .s{white-space:nowrap}.who .kick{white-space:nowrap}
+.stats{flex-wrap:nowrap;gap:12px!important}.stats .st{min-width:0;flex:0 0 auto;padding:6px 12px}.st .lbl{white-space:nowrap}.st.wish{max-width:180px;min-width:160px!important;flex-shrink:0}.st.wish .s{white-space:nowrap}.who .kick{white-space:nowrap}
+@media(max-width:1200px){.stats{flex-wrap:wrap!important;justify-content:flex-end}.who .kick{white-space:normal}}
 @media(max-width:700px){.stats{flex-wrap:wrap!important;overflow:visible!important;gap:8px!important}.st.wish{max-width:none;flex:1 1 100%}.st.wish .v.w{font-size:20px}}.st.wish .v.w{font-size:20px;white-space:normal;line-height:1}.st.wish.gone .v.w{text-decoration:line-through;color:var(--muted)}
 .ovl{position:fixed;inset:0;z-index:70;background:rgba(43,36,32,.45);display:flex;align-items:center;justify-content:center;padding:20px}
 .crisis.big{max-width:560px;width:100%;margin:0!important;padding:22px 24px 18px;animation:popin .35s steps(6)}
@@ -160,7 +161,7 @@ input.codein{font:400 16px var(--mono);width:7em;text-transform:uppercase;paddin
 .callout{--fc:var(--g4);--sh:transparent}
 .callout{margin:var(--p) var(--p) 16px}
 .crisis{margin:var(--p) var(--p) 16px!important}
-.topstack{margin-bottom:26px}.topstack>:last-child{margin-bottom:var(--p)!important}
+.toprow{margin-bottom:22px}.toprow .crisis.sm{margin:var(--p)!important}.topstack>:last-child{margin-bottom:var(--p)!important}
 .colhd{display:flex;align-items:center;height:44px;box-sizing:border-box;white-space:nowrap;justify-content:space-between;gap:10px;background:var(--ink);color:#fff;padding:6px 12px 5px;margin:var(--p) var(--p) 18px;
  box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink)}
 .colhd .t{font-family:var(--titel);font-size:30px;line-height:1}
@@ -257,7 +258,7 @@ details.rules>summary{font-size:13px}
  .barbox{padding:0 14px 8px}
  .who h1{font-size:30px}.who .px{width:51px;height:66px}
  .stats{gap:8px;flex-wrap:nowrap;overflow-x:auto}
- .st{min-width:auto;padding:4px 8px}.st .s,.st .pips{display:none}.st .lbl{font-size:10px;white-space:nowrap}.stats .st:nth-child(2),.stats .st:nth-child(3){display:none}.st .v{font-size:20px}.st.big .v{font-size:30px}.st.big{min-width:auto}
+ .st{min-width:auto;padding:4px 8px}.st .s,.st .pips{display:none}.st .lbl{font-size:10px;white-space:nowrap}.stats .st:nth-child(2){display:none}.st .v{font-size:20px}.st.big .v{font-size:30px}.st.big{min-width:auto}
  .legend{font-size:10px;gap:2px 10px}
  .wrap{padding:16px 14px 80px}
  .panel{top:auto}
@@ -1079,8 +1080,7 @@ function header(){
  return `<div class="top"><div class="top-in">
  <div class="who">${figImg(S.fig,4)}<div><div class="kick">13 Tonnen · Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}${G?` <span class="muted" style="font-size:16px;font-weight:600">${G.myColor()}</span>`:""}</h1></div></div>
  <div class="stats">
-  <div class="st big" id="stats" style="position:relative"><div class="lbl">Fussabdruck ${y}</div><div class="v" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</div><div class="s">pro Jahr</div><span id="fdelta" class="fdelta"></span></div>
-  <div class="st"><div class="lbl">Ohne dein Zutun</div><div class="v">${fmt(n)} t</div><div class="s">nur Trend</div></div>
+  <div class="st big" id="stats" style="position:relative"><div class="lbl">Fussabdruck ${y}</div><div class="v" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</div><div class="s">pro Jahr · ohne dich ${fmt(n)} t</div><span id="fdelta" class="fdelta"></span></div>
   <div class="st"><div class="lbl">Budget verbraucht</div><div class="v">${S.r?fmt(so,0)+" t":"0 t"}</div><div class="s">Zielpfad bis ${y-1}: ${S.r?fmt(pfadBis(y-1),0):0} t</div></div>
   <div class="st"><div class="lbl">Herzen</div><div class="v">${freeH()}</div>${pips(freeH())}</div>
   <div class="st"><div class="lbl">Geld</div><div class="v">${S.money} ${IC("geld",22)}</div><div class="s">nimmst du mit</div></div>
@@ -1138,13 +1138,13 @@ function viewRound(){
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
- P=crisisHTML()+(G?groupPanel():"")+projHTML()+ballotHTML();
+ P=(G?groupPanel():"")+projHTML()+ballotHTML();
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
  P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
  :`<p class="hint">Übrig: ${HZ(freeH())} und ${GD(S.money)}. ${freeH()>0?"1 Herz nimmst du in die nächste Runde mit, der Rest verfällt.":"Ein übriges Herz könntest du in die nächste Runde mitnehmen."}</p><button id="finish" class="primary" style="width:100%" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`);
  const gh=`<div class="colhd grp"><span class="t">${G?"Gruppe":"Gemeinsam"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span></div>`;
- return header()+`<div class="wrap">${tabs(0)}<div class="topstack">${TOP}</div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div>`;
+ return header()+`<div class="wrap">${tabs(0)}<div class="layout toprow"><div class="topstack">${TOP}</div><div>${crisisHTML()}</div></div><div class="layout"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div>`;
 }
 function viewEvent(){
  let h="";
