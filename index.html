@@ -102,7 +102,22 @@ table.pts td:first-child{width:60%}table.board tr.me td{background:var(--soft);f
 .board td,.board th{white-space:nowrap}.board td:nth-child(3){white-space:normal}
 .crisis{margin:0 0 18px;padding:14px 16px;background:var(--paper,#fff);box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);position:relative}
 .crisis::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:repeating-linear-gradient(135deg,var(--ink) 0 3px,transparent 3px 7px)}
-.crisis .lbl{margin-top:6px}.crisis h3{margin:2px 0 4px;font-family:var(--titel);font-size:30px}.crisis .tx{margin:0 0 6px;font-size:14px}
+.crisis .lbl{margin-top:6px}
+.stats{flex-wrap:nowrap;gap:12px!important}.stats .st{min-width:0;flex:0 0 auto;padding:6px 12px}.st .lbl{white-space:nowrap}.st.wish{max-width:180px;flex-shrink:1}.st.wish .s{white-space:nowrap}.who .kick{white-space:nowrap}
+@media(max-width:700px){.stats{flex-wrap:wrap!important;overflow:visible!important;gap:8px!important}.st.wish{max-width:none;flex:1 1 100%}.st.wish .v.w{font-size:20px}}.st.wish .v.w{font-size:20px;white-space:normal;line-height:1}.st.wish.gone .v.w{text-decoration:line-through;color:var(--muted)}
+.ovl{position:fixed;inset:0;z-index:70;background:rgba(43,36,32,.45);display:flex;align-items:center;justify-content:center;padding:20px}
+.crisis.big{max-width:560px;width:100%;margin:0!important;padding:22px 24px 18px;animation:popin .35s steps(6)}
+.crisis.big h3{font-size:40px}
+@keyframes popin{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.crisis.sm{margin:0 0 14px!important;padding:12px 14px 8px}
+.crisis.sm>summary{font-family:var(--fliess);text-transform:none;letter-spacing:0;font-size:14px;color:var(--text);display:flex;align-items:center;gap:8px;list-style:none}
+.crisis.sm>summary::-webkit-details-marker{display:none}
+.crisis.sm>summary .ic{width:20px;height:20px;flex:0 0 20px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center}
+.crisis.sm>summary::after{content:"▾";margin-left:auto;color:var(--muted)}
+.crisis.sm[open]>summary::after{content:"▴"}
+.crisis.sm[open]>summary{margin-bottom:6px}
+.crisis.sm.landed{animation:land .3s steps(4)}
+@keyframes land{0%{transform:scale(1.04)}100%{transform:none}}.crisis h3{margin:2px 0 4px;font-family:var(--titel);font-size:30px}.crisis .tx{margin:0 0 6px;font-size:14px}
 .crisis .how{margin:6px 0 4px;font-weight:700;font-size:14px}.crisis table{margin-top:6px}
 .vote:first-of-type{border-top:0}
 .chance{font-family:var(--titel);font-weight:400;font-size:30px;line-height:1}
@@ -853,12 +868,23 @@ function evHow(e){
  if(e=="E4")return `Abwenden: Wähle in dieser Runde «${T.C4.title}». Die Karte liegt in deiner Auswahl.`;
  return "";}
 function evStatus(e){if(S.happened.includes(e))return "schon passiert";if(e===S.nextEvent)return "droht jetzt";if(eventCands().includes(e))return "kann noch kommen";return "betrifft dich nicht";}
+function crisisBody(ne){const t=T[ne];return `<p class="tx">${esc(t.front||t.back)}</p>${t.game?`<p class="tx"><i>Folge:</i> ${esc(t.game)}</p>`:""}<p class="how">${esc(evHow(ne))}</p>`;}
+function crisisAll(){return `<details><summary>Alle Ereignisse im Spiel</summary><table>${["E2","E4","E1","E3"].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table></details>`;}
+function crisisBigOpen(){return S.screen==="round"&&!S.results&&!S.waiting&&S.nextEvent&&S.nextEvent!=="ruhig"&&S.crisisSeen!==S.r;}
+function crisisBigHTML(){if(!crisisBigOpen())return"";const ne=S.nextEvent;
+ return `<div class="ovl" onclick="if(event.target===this)crisisAway()"><div class="crisis big" id="crisisBig"><div class="lbl">${EVKIND[ne]} nach dieser Runde</div><h3>${esc(T[ne].title)}</h3>${crisisBody(ne)}<div class="row" style="margin-top:12px"><button class="primary" onclick="crisisAway()">Verstanden</button><span class="hint">Du findest sie rechts wieder.</span></div></div></div>`;}
+function crisisAway(){const big=document.getElementById&&document.getElementById("crisisBig");const r0=big&&big.getBoundingClientRect?big.getBoundingClientRect():null;const html=big?big.outerHTML:"";
+ S.crisisSeen=S.r;render();
+ const slot=document.getElementById&&document.getElementById("crisisSlot");
+ if(!r0||!slot||!slot.getBoundingClientRect||(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))return;
+ const r1=slot.getBoundingClientRect();const g=document.createElement("div");g.innerHTML=html;const el=g.firstChild;el.removeAttribute("id");
+ el.classList.add("ghost");Object.assign(el.style,{position:"fixed",left:r0.left+"px",top:r0.top+"px",width:r0.width+"px",margin:0,zIndex:80,transformOrigin:"0 0",transition:"transform .45s steps(9),opacity .45s steps(9)"});
+ document.body.appendChild(el);slot.style.visibility="hidden";
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.transform=`translate(${r1.left-r0.left}px,${r1.top-r0.top}px) scale(${r1.width/r0.width},${r1.height/r0.height})`;el.style.opacity=".4";}));
+ setTimeout(()=>{el.remove();slot.style.visibility="";slot.classList.add("landed");},480);}
 function crisisHTML(){const ne=S.nextEvent;
- let h=`<div class="crisis"><div class="lbl">${ne=="ruhig"?"Nach dieser Runde":EVKIND[ne]+" nach dieser Runde"}</div>`;
- if(ne=="ruhig")h+=`<h3>Ruhig</h3><p class="tx">Diesmal ist nichts in Sicht.</p>`;
- else{const t=T[ne];h+=`<h3>${esc(t.title)}</h3><p class="tx">${esc(t.front||t.back)}</p>${t.game?`<p class="tx"><i>Folge:</i> ${esc(t.game)}</p>`:""}<p class="how">${esc(evHow(ne))}</p>`;}
- h+=`<details><summary>Alle Ereignisse im Spiel</summary><table>${["E2","E4","E1","E3"].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table></details></div>`;
- return h;}
+ if(!ne||ne==="ruhig")return `<details class="crisis sm" id="crisisSlot"><summary><span class="ic">–</span>Nach dieser Runde: ruhig</summary><p class="tx">Diesmal ist nichts in Sicht.</p>${crisisAll()}</details>`;
+ return `<details class="crisis sm" id="crisisSlot"><summary><span class="ic">!</span>${EVKIND[ne]}: <b>${esc(T[ne].title)}</b></summary>${crisisBody(ne)}${crisisAll()}</details>`;}
 
 
 /* ---------- Persönlicher Wunsch (B, Variante 3) ---------- */
@@ -871,6 +897,9 @@ const WISH={
 function wish(){return WISH[S.fig]}
 function wishBroken(){const w=wish();return !!w&&w.breaks.some(id=>S.chosen[id]!==undefined);}
 function wishBonusRound(r){return r%2==1}
+function wishBox(){const w=wish();if(!w)return"";const b=wishBroken();
+ const nx=b?"aufgegeben":wishBonusRound(S.r)&&S.screen==="round"&&S.wishH?"diese Runde +1 "+IC("herz",12):S.r<LAST?"+1 "+IC("herz",12)+" jede 2. Runde":"bis 2050 gelebt";
+ return `<div class="st wish ${b?"gone":""}" title="${b?"Wunsch aufgegeben":"Aufgeben würdest du ihn mit "+w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")}"><div class="lbl">Wunsch</div><div class="v w">${esc0(w.t)}</div><div class="s">${nx}</div></div>`;}
 function wishHTML(){const w=wish();if(!w)return"";const b=wishBroken();
  return `<div class="callout"><span class="ic">${b?"✗":IC("herz")}</span><span><b>Dein Wunsch: ${esc0(w.t)}.</b> ${b?`Aufgegeben. Ab jetzt kein Extraherz mehr.`:`Solange du ihn lebst, bekommst du jede zweite Runde 1 Herz extra${wishBonusRound(S.r)?", auch diese Runde":wishBonusRound(S.r+1)&&S.r<LAST?", das nächste Mal in der nächsten Runde":""}. Aufgeben würdest du ihn mit ${w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")}.`}</span></div>`;}
 
@@ -1055,6 +1084,7 @@ function header(){
   <div class="st"><div class="lbl">Budget verbraucht</div><div class="v">${S.r?fmt(so,0)+" t":"0 t"}</div><div class="s">Zielpfad bis ${y-1}: ${S.r?fmt(pfadBis(y-1),0):0} t</div></div>
   <div class="st"><div class="lbl">Herzen</div><div class="v">${freeH()}</div>${pips(freeH())}</div>
   <div class="st"><div class="lbl">Geld</div><div class="v">${S.money} ${IC("geld",22)}</div><div class="s">nimmst du mit</div></div>
+  ${wishBox()}
  </div></div><div class="barbox">${barHTML(v)}</div></div>`;
 }
 function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis","Bilanz"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<div class="tab" style="padding-left:12px;border-style:dashed">${PER[S.r].l}</div></div>`}
@@ -1103,14 +1133,12 @@ function viewRound(){
  if(S.r>0){const p=S.snap[S.r-1],y=PER[S.r].a,d=val(y,ACT)-p.act;
   const dt=val(y,NO)-val(p.y,NO), dv=(val(y,VO)-val(y,NO))-(val(p.y,VO)-val(p.y,NO));
   L+=`<div class="callout"><span class="ic">Δ</span><span>Seit der letzten Runde <b class="mono">${sgn(d)} t</b> pro Jahr. Trend <span class="mono">${sgn(dt)}</span>, Vorlagen <span class="mono">${sgn(dv)}</span>, deine Entscheide und Ereignisse <span class="mono">${sgn(d-dt-dv)}</span>.</span></div>`;}
- L+=wishHTML();
- L+=crisisHTML();
  const TOP=L;L="";
  L+=`<div class="colhd"><span class="t">Selber</span><span class="s">Deine Karten</span></div><div class="sec" style="margin-top:0"><p class="sub">${S.hand.length} Karten aus allen Bereichen. Jede gilt ab jetzt jedes Jahr bis 2050. Was du nicht nimmst, kann später wieder auftauchen.</p></div>
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t</td></tr>`).join("")}</table>`;
- P=(G?groupPanel():"")+projHTML()+ballotHTML();
+ P=crisisHTML()+(G?groupPanel():"")+projHTML()+ballotHTML();
  const stc=G&&ROOM&&ROOM.stage&&ROOM.stage[S.r]&&ROOM.stage[S.r].contrib;
  P+=`<hr>`+(S.results?`${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig} (${c.color})</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}<button class="primary" style="width:100%" onclick="toEvent()">Weiter zum Ereignis</button>`
  :S.waiting?`<p>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</p><button style="width:100%" onclick="G.unready()">Doch noch ändern</button>`
@@ -1288,7 +1316,7 @@ const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben deine Herze
  ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
  ["panel","Rechts stehen zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
  ["finish","Wenn du fertig bist, stimmst du ab. Danach kommt ein Ereignis und die Bilanz der Runde."]];
-function coachHTML(){if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt]=COACH[S.coach];
+function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt]=COACH[S.coach];
  return `<div class="coach"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div>`;}
 function coachNext(){S.coach++;if(S.coach>=COACH.length)coachEnd();else render();}
 function coachEnd(){S.coach=null;lsSet("13t_tut","1");render();}
@@ -1354,7 +1382,7 @@ function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.
 function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
  const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
- document.getElementById("app").innerHTML=v()+coachHTML();
+ document.getElementById("app").innerHTML=v()+crisisBigHTML()+coachHTML();
  if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"center",behavior:"smooth"});}}}
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
  juice();
