@@ -475,6 +475,13 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 @media(min-width:1100px){.szene .dorfkopf{--ds:1.25}}
 .szene .dtitel{transform:none;top:10px;bottom:auto;left:16px;right:auto;justify-content:start;font-size:calc(320px*var(--ds)*.2);animation:none}
 .szl{list-style:none;margin:6px 0 0;padding:0}
+.szene.intro.iout{background:#fff;transition:background .8s}
+.szene.intro.iout .iframe{box-shadow:none}.szene.intro.iout .pbub{display:none!important}
+.szene.intro.iout .introbar{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden;transition:all .35s}
+.szene.intro .introbar{max-height:120px}
+.dorfkopf.drop .dtitel{animation:tdrop .7s cubic-bezier(.3,1.6,.6,1) both,schweben 4s ease-in-out .7s infinite}
+@keyframes tdrop{0%{transform:translateY(-260%)}100%{transform:translateY(-55%)}}
+.wrap.fadein{animation:wfade .5s ease .25s both}@keyframes wfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .introfly{position:fixed;z-index:3000;pointer-events:none;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;box-shadow:0 0 0 3px var(--ink);transition:left .75s cubic-bezier(.65,0,.3,1),top .75s cubic-bezier(.65,0,.3,1),width .75s cubic-bezier(.65,0,.3,1),height .75s cubic-bezier(.65,0,.3,1),background-size .75s cubic-bezier(.65,0,.3,1)}
 .introfly.out{opacity:0;box-shadow:none;transition:opacity .45s steps(5)}
 .szene.intro{min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:var(--g5)}
@@ -1840,15 +1847,24 @@ function introNext(){const I=S.intro;if(!I)return;
  if(I.i>=INTRO.length-1)return introEnd();
  I.i++;I.ph="walk";window.DORF_WALK=IST[I.i].x;const t=document.getElementById("dtxt");if(t)t.textContent="";const b0=document.getElementById("pbub");if(b0)b0.classList.remove("on");
  document.querySelectorAll(".idots i").forEach((d,j)=>d.classList.toggle("on",j<=I.i));}
-function introEnd(){const cvs=document.querySelector&&document.querySelector(".szene.intro .dorf canvas"),q=UQ();let snap=null,r0=null,sw=0,sh=0,ds0=1;
- try{if(cvs&&!RM()){r0=cvs.parentElement.getBoundingClientRect();snap=cvs.toDataURL();sw=cvs.offsetWidth;sh=cvs.offsetHeight;ds0=+getComputedStyle(cvs.closest(".dorfkopf")).getPropertyValue("--ds")||1;}}catch(e){snap=null;}
- lsSet("13t_intro","1");window.DORF_FOLLOW=null;window.DORF_WALK=null;window.DORF_WALK0=null;window.DORF_P=0;window.DORF_ON={};S.intro=null;S.screen="start";render();window.scrollTo(0,0);
- if(!snap)return;const hd=document.querySelector("header.dorfkopf");if(!hd)return;const r1=hd.getBoundingClientRect(),ds1=+getComputedStyle(hd).getPropertyValue("--ds")||.75,f=ds1/ds0;
- const o=document.createElement("div");o.className="introfly";
- Object.assign(o.style,{left:r0.left/q+"px",top:r0.top/q+"px",width:r0.width/q+"px",height:r0.height/q+"px",backgroundImage:`url(${snap})`,backgroundSize:`${sw}px ${sh}px`});
- document.body.appendChild(o);void o.offsetWidth;
- requestAnimationFrame(()=>Object.assign(o.style,{left:r1.left/q+"px",top:r1.top/q+"px",width:r1.width/q+"px",height:r1.height/q+"px",backgroundSize:`${sw*f}px ${sh*f}px`}));
- setTimeout(()=>o.classList.add("out"),800);setTimeout(()=>o.remove(),1300);}
+function introDone(anim){lsSet("13t_intro","1");window.DORF_FOLLOW=null;window.DORF_WALK=null;window.DORF_WALK0=null;window.DORF_OUT=null;window.DORF_P=0;window.DORF_ON={};S.intro=null;S.introOut=0;S.screen="start";render();window.scrollTo(0,0);
+ if(anim&&document.querySelector){const hd=document.querySelector("header.dorfkopf"),w=document.querySelector(".wrap");if(hd)hd.classList.add("drop");if(w)w.classList.add("fadein");}}
+/* Abschluss: Verbesserungen verschwinden, Dorf wird grau, rutscht nach oben, wird breit und flach wie der Header; dann faellt der Titel herab. */
+function introEnd(){if(S.introOut)return;const fr=document.querySelector&&document.querySelector(".szene.intro .iframe"),kopf=fr&&fr.querySelector(".dorfkopf");
+ if(!fr||!kopf||RM()||typeof requestAnimationFrame==="undefined"){introDone(false);return;}
+ S.introOut=1;window.scrollTo(0,0);const q=UQ(),r0=fr.getBoundingClientRect(),ds0=+getComputedStyle(kopf).getPropertyValue("--ds")||1.4;
+ const ds1=+getComputedStyle(document.documentElement).getPropertyValue("--ds")||.75,W1=innerWidth/(window.UIZ||1),P0=+(window.DORF_P||0);
+ window.DORF_FOLLOW=null;window.DORF_WALK=null;window.DORF_OUT=performance.now();
+ const bb=document.getElementById("pbub");if(bb)bb.classList.remove("on");
+ fr.closest(".szene").classList.add("iout");kopf.classList.add("nosnap");
+ const L0=r0.left/q,T0=r0.top/q,W0=r0.width/q;Object.assign(fr.style,{position:"fixed",left:L0+"px",top:T0+"px",width:W0+"px",margin:0,zIndex:50});
+ const t0=performance.now(),ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,cl=x=>Math.max(0,Math.min(1,x));
+ const step=()=>{if(S.screen!=="intro")return;const t=performance.now()-t0;
+  window.DORF_P=P0*(1-cl((t-250)/700));
+  const f=ease(cl((t-700)/1000));fr.style.left=(L0*(1-f))+"px";fr.style.top=(T0*(1-f))+"px";fr.style.width=(W0+(W1-W0)*f)+"px";
+  kopf.style.setProperty("--ds",String(ds0+(ds1-ds0)*f));dispatchEvent(new Event("resize"));
+  if(t<1750)requestAnimationFrame(step);else introDone(true);};
+ requestAnimationFrame(step);}
 function introTick(){if(S.screen!=="intro"||!S.intro)return;const I=S.intro,now=performance.now();
  const bb=document.getElementById("pbub"),t=document.getElementById("dtxt"),nx=document.getElementById("dnext"),go=document.getElementById("igo");
  if(I.ph==="walk"&&window.dorfArrived&&window.dorfArrived()){I.ph="type";I.typ=0;I.t0=now+250;const st=IST[I.i];
@@ -2361,10 +2377,11 @@ function scene(){
  for(let x=ox;x<VW;x+=D.W){ctx.drawImage(wat,0,k*D.H,D.W,D.H,x,0,D.W,D.H);ctx.drawImage(base,x,0);}
  const ON=window.DORF_ON||{},now=performance.now(),ex=[];
  // Huehner verschwinden, sobald das Moor (K12) im Gehege erscheint
- const mo=ON.K12!==undefined&&now-ON.K12>200?(D.ext||[]).filter(e=>e[0]==='K12'):[];
+ const mo=ON.K12!==undefined&&now-ON.K12>200&&!(window.DORF_OUT&&now-window.DORF_OUT>250)?(D.ext||[]).filter(e=>e[0]==='K12'):[];
  const underMoor=o=>{if(o.k!=='chick'||!mo.length)return false;const cx=(o.b[0]+o.b[2])/2,cy=(o.b[1]+o.b[3])/2;return mo.some(e=>cx>=e[5]-8&&cx<=e[5]+e[3]+8&&cy>=e[6]-8&&cy<=e[6]+e[4]+16);};
  const vis=ents.filter(o=>!o.hid&&!o.top&&!underMoor(o));const oc=new Set();for(const o of vis)occluders(o,oc);
- for(const e of (D.ext||[])){const t=ON[e[0]];if(t===undefined)continue;const a=Math.max(0,Math.min(1,(now-t)/450));if(a<=0)continue;ex.push({y:e[7],x:e,a});occluders({st:{w:e[3],h:e[4]},x:e[5]+e[3]/2,y:e[7]},oc);}
+ const OUTF=window.DORF_OUT?Math.max(0,1-(now-window.DORF_OUT)/500):1;
+ for(const e of (D.ext||[])){const t=ON[e[0]];if(t===undefined)continue;const a=Math.max(0,Math.min(1,(now-t)/450))*OUTF;if(a<=0)continue;ex.push({y:e[7],x:e,a});occluders({st:{w:e[3],h:e[4]},x:e[5]+e[3]/2,y:e[7]},oc);}
  const L=vis.map(o=>({y:o.y,o})).concat(ex,[...oc].map(q=>({y:q.b,q}))).sort((a,b)=>a.y-b.y);
  for(const e of L){if(e.o)sprite(e.o);else if(e.x)drawExt(e.x,e.a);else drawOcc(e.q);}
  for(const o of ents)if(o.top)sprite(o);return true;}
@@ -2382,10 +2399,10 @@ function render(){if(!ctx)return;
  ctx.globalAlpha=1;}
 function layout(){const d=document.getElementById('dorf');if(!d)return false;
  if(!cv||!d.contains(cv)){d.innerHTML='';cv=document.createElement('canvas');d.appendChild(cv);ctx=cv.getContext('2d');}
- S=+getComputedStyle(d).getPropertyValue('--ds')||.75;SNAP=!!(d.closest&&d.closest('.szene'));
+ S=+getComputedStyle(d).getPropertyValue('--ds')||.75;SNAP=!!(d.closest&&d.closest('.szene')&&!d.closest('.nosnap'));
  const cw=d.clientWidth;
  if(SNAP){const dpr=(window.devicePixelRatio||1)*(window.UIZ||1);K=Math.max(1,Math.round(S*dpr));S=K/dpr;VW=Math.ceil(cw/S)+2;cv.width=Math.ceil(VW*K);cv.height=D.H*K;cv.style.width=(cv.width/dpr)+'px';cv.style.height=(D.H*S)+'px';d.style.height=(D.H*S)+'px';}
- else{K=1;VW=Math.ceil(cw/S)+1;cv.width=VW;cv.height=D.H;cv.style.width=(VW*S)+'px';cv.style.height=(D.H*S)+'px';}
+ else{K=1;VW=Math.ceil(cw/S)+1;cv.width=VW;cv.height=D.H;cv.style.width=(VW*S)+'px';cv.style.height=(D.H*S)+'px';d.style.height='';}
  ctx.imageSmoothingEnabled=false;if(!camX)camX=D.W/2;vx0=Math.round(camX-VW/2);return true;}
 // Kamera: auf schmalen Bildschirmen zum Element fahren, das gerade neu erscheint (window.DORF_FOCUS)
 const CX={};for(const e of (D.ext||[])){const c=e[5]+e[3]/2;if(CX[e[0]]===undefined||Math.abs(c-D.W/2)<Math.abs(CX[e[0]]-D.W/2))CX[e[0]]=c;}
