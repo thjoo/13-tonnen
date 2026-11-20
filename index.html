@@ -1767,13 +1767,15 @@ function dorfVals(){if(S.dorfFinal){const f1=val(2050,ACT);return {a0:2026,nx:20
  const f0=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT),f1=val(nx,ACT);
  return {a0,nx,f0,f1,b0:a0>2026?sum(2026,a0-1,ACT):0,b1:sum(2026,nx-1,ACT),p0:farbeP(dorfFoot(f0)),p1:farbeP(dorfFoot(f1))};}
 const DORFK=["K1","K2","K3","K4","K7","K9","K12","K15","P2","P3","P4","P5"];
-function dorfGap(){return 1600}
+// Auf schmalen Bildschirmen faehrt die Kamera zu jedem neuen Element: dort mehr Zeit lassen
+const dorfNarrow=()=>typeof innerWidth!=="undefined"&&innerWidth<1000;
+function dorfGap(){return dorfNarrow()?3400:1600}
 function dorfAll(){const L=[];for(const k in S.adopted)if(DORFK.includes(k))L.push([k,S.adopted[k]]);for(const k in (S.pdone||{}))if(DORFK.includes(k))L.push([k,S.pdone[k]]);return L.sort((a,b)=>a[1]-b[1]);}
 function dorfOn(){const on={},now=typeof performance!=="undefined"?performance.now():0,rm=RM();let i=0;
- if(S.dorfFinal){dorfAll().forEach(([k],j)=>on[k]=rm?0:now+1200+j*1300);window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-500}));return on;}
+ if(S.dorfFinal){const fg=dorfNarrow()?2600:1300,lead=dorfNarrow()?1100:500;dorfAll().forEach(([k],j)=>on[k]=rm?0:now+1200+j*fg);window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-lead}));return on;}
  for(const x of (S.results||[])){if(x.ok&&DORFK.includes(x.k))on[x.k]=rm?0:now+600+i*dorfGap()+300;i++;}
  const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r&&DORFK.includes(ps.pid))on[ps.pid]=rm?0:now+600+i*dorfGap()+300;
- window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-500}));
+ window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-(dorfNarrow()?1100:500)}));
  for(const k in S.adopted)if(DORFK.includes(k)&&on[k]===undefined)on[k]=0;
  for(const k in (S.pdone||{}))if(DORFK.includes(k)&&on[k]===undefined&&S.pdone[k]<=(S.r<LAST?PER[S.r+1].a:2050))on[k]=0;
  return on;}
