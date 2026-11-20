@@ -336,6 +336,26 @@ details.rules>summary{font-size:13px}
  .panel{top:auto}
  .coach{left:8px;right:8px;bottom:8px;max-width:none}
  .tabs .tab{font-size:12px}
+ .hero{grid-template-columns:minmax(0,1fr);gap:16px}
+ .herobox{gap:8px}.herobox .ibox{min-width:0;flex:1 1 0}.herobox .arrow{font-size:28px}
+ /* Figurenwahl: eine Spalte, Bild links */
+ .figs.five{grid-template-columns:1fr!important}
+ .fig{display:grid!important;grid-template-columns:84px minmax(0,1fr);column-gap:14px;row-gap:6px;align-items:start}
+ .fig .im{grid-row:1/span 2;width:84px!important;height:96px!important;overflow:hidden}
+ .fig h3{grid-column:2;margin:0!important}.fig .life{grid-column:2;margin:0!important}
+ .fig .fmeta,.fig .fwish,.fig .fgo{grid-column:1/-1}.fig .fwish{min-height:0!important}
+ /* Kopf kompakt */
+ .top-in{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px 10px!important;padding:6px 12px 4px!important}
+ .who{gap:8px}.who .fa{zoom:.5}.who h1{font-size:22px!important;line-height:1}.who .kick{font-size:9px}
+ .chips{display:flex;flex-wrap:nowrap!important;gap:6px!important;width:100%}
+ .chip{padding:3px 7px!important;flex:0 0 auto}.chip .cv{font-size:16px!important}.chip .cl{font-size:9px}
+ .chip.wish{flex:1 1 auto;min-width:0}.chip.wish .cw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+ .barbox{padding:0 12px 6px!important}.barbox .legend{display:none}.bar{height:10px}
+ .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
+ .tabs{gap:6px;flex-wrap:nowrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
+ .toprow:not(:has(.ibox,.callout,.crisis,section,details)){display:none}
+ .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
+ .btitle{font-size:19px}
 }
 .meta2{display:flex;flex-wrap:wrap;gap:2px 16px;font-family:var(--mono);font-size:12px;color:var(--muted)}
 .meta2 b{color:var(--text)}
@@ -1226,6 +1246,7 @@ function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.mone
 function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0)return;if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;if(d>0)fx("heart");if(G)G.push();render();}
 function freeRide(){}
+function voteScroll(){if(typeof innerWidth==='undefined'||innerWidth>=1000||!document.getElementById)return;setTimeout(()=>{const p=document.getElementById('panel');if(p&&p.scrollIntoView)p.scrollIntoView({block:'start',behavior:'smooth'});},120);}
 function vote(){
  S.carry=Math.min(1,freeH());
  if(G){G.ready();return;}
@@ -1235,7 +1256,7 @@ function vote(){
  freeRide();
  S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
  fx(S.results.some(x=>x.ok)?"yay":"sad");
- render();
+ render();voteScroll();
 }
 function toEvent(){
  let e=S.nextEvent||"ruhig";
@@ -1553,7 +1574,7 @@ function viewSummary(){
   ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
  </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
 /* Hover fuer Diagramme: Jahr mit Fadenkreuz oder Erklaerung an Balken */
-function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
+function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerdown="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
 function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".xh"),r=w.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top;
  const t=e.target.closest("[data-ht]");let html="";xh.style.display="none";
  if(t)html=t.getAttribute("data-ht");
@@ -1567,25 +1588,25 @@ function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".x
  const tw=tip.offsetWidth,th=tip.offsetHeight;let x=px+14,yy=py-th-10;if(x+tw>r.width)x=px-tw-14;if(yy<0)yy=py+16;tip.style.left=Math.max(0,x)+"px";tip.style.top=yy+"px";}
 /* Kurve ohne Legende, direkt beschriftet */
 function chartClean(toYear){
- const W=640,H=230,L=34,R=104,T=12,B=26,y0=2026,y1=2050,vmax=13.5;
+ const nar=typeof innerWidth!=='undefined'&&innerWidth<700,W=nar?360:640,H=nar?210:230,L=nar?24:34,R=nar?78:104,T=12,B=26,y0=2026,y1=2050,vmax=13.5;
  const q=v=>Math.round(v/2)*2, X=y=>q(L+(y-y0)/(y1-y0)*(W-L-R)), Y=v=>q(T+(1-v/vmax)*(H-T-B)), zp=y=>START+(ZIEL-START)*(y-y0)/(y1-y0);
  const path=(f,to)=>{let d="";for(let y=y0;y<=to;y++){const v=f(y);const x=X(y),x2=X(Math.min(y+1,y1));d+=(y==y0?"M":"L")+x+" "+Y(v)+"L"+x2+" "+Y(v);}return d};
  let g="";
  for(const v of [0,4,8,12]){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--g5)" stroke-width="1"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end" class="cn">${v}</text>`;}
- for(const y of [2026,2030,2035,2040,2045,2050])g+=`<text x="${X(y)}" y="${H-7}" text-anchor="middle" class="cn">${y}</text>`;
+ for(const y of nar?[2026,2035,2050]:[2026,2030,2035,2040,2045,2050])g+=`<text x="${X(y)}" y="${H-7}" text-anchor="middle" class="cn">${y}</text>`;
  const tEnd=val(y1,NO),aEnd=val(toYear,ACT);
  g+=`<path d="${path(zp,y1)}" fill="none" stroke="var(--g2)" stroke-width="2"/>`;
  g+=`<path d="${path(y=>val(y,NO),y1)}" fill="none" stroke="var(--g3)" stroke-width="4"/>`;
  g+=`<path d="${path(y=>val(y,ACT),toYear)}" fill="none" stroke="var(--ink)" stroke-width="4"/>`;
  const xe=X(Math.min(toYear+1,y1));
- g+=`<rect x="${xe-4}" y="${Y(aEnd)-4}" width="8" height="8" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)+4}" class="cl2 b">${S.fig} ${fmt(aEnd)} t</text>`;
- g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">weiter wie bisher ${fmt(tEnd)} t</text>`;
+ g+=`<rect x="${xe-4}" y="${Y(aEnd)-4}" width="8" height="8" fill="var(--ink)"/><text x="${xe+8}" y="${Y(aEnd)-8}" class="cl2 b">${S.fig}</text><text x="${xe+8}" y="${Y(aEnd)+6}" class="cl2 b">${fmt(aEnd)} t</text>`;
+ g+=`<text x="${X(y1)+6}" y="${Y(tEnd)+4}" class="cl2">wie bisher</text><text x="${X(y1)+6}" y="${Y(tEnd)+18}" class="cl2">${fmt(tEnd)} t</text>`;
  g+=`<text x="${X(y1)+6}" y="${Y(ZIEL)+4}" class="cl2">Zielpfad bis</text><text x="${X(y1)+6}" y="${Y(ZIEL)+18}" class="cl2">Ziel 0.6 t</text>`;
  const dv=[];for(let y=y0;y<=y1;y++)dv.push([y,y<=toYear?+val(y,ACT).toFixed(2):null,+val(y,NO).toFixed(2),+zp(y).toFixed(2)]);
  return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Verlauf des Fussabdrucks pro Jahr: ${S.fig} ${fmt(aEnd)} t, weiter wie bisher bis 2050 ${fmt(tEnd)} t, Zielpfad bis 0.6 t">${g}</svg>`,`data-l="${L}" data-r="${R}" data-v='${JSON.stringify(dv)}'`);}
 /* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
 function waterfallSVG(parts,d){
- const W=520,H=180,T=34,Bm=22,n=parts.length+1,bw=64,gap=(W-n*bw)/(n+1);
+ const nar=typeof innerWidth!=='undefined'&&innerWidth<700,W=nar?340:520,H=180,T=34,Bm=22,n=parts.length+1,bw=nar?56:64,gap=(W-n*bw)/(n+1);
  const EXP={Wandel:"<b>Allgemeiner Wandel</b><br>Sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Passiert auch ohne dich, rund 1.1 % pro Jahr.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
  let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
  const span=Math.max(0.5,hi-lo),Y=v=>Math.round((T+(hi-v)/span*(H-T-Bm))/2)*2;
@@ -1601,7 +1622,7 @@ function waterfallSVG(parts,d){
  const x=Math.round(gap+parts.length*(bw+gap));
  g+=`<rect x="${x}" y="0" width="${bw}" height="${H}" fill="transparent" data-ht="<b>Zusammen</b><br>So viel stösst du jetzt pro Jahr mehr oder weniger aus als zu Beginn der Runde: <b>${sgn(d)} t</b>"/><rect x="${x}" y="${Math.min(Y(0),Y(d))}" width="${bw}" height="${Math.max(2,Math.abs(Y(0)-Y(d)))}" fill="var(--ink)" pointer-events="none"/>`;
  g+=`<text x="${x+bw/2}" y="${(d<0?Y(d)+16:Y(d)-6)}" text-anchor="middle" class="cl2 b">${sgn(d)} t</text><text x="${x+bw/2}" y="14" text-anchor="middle" class="cn b">Zusammen</text>`;
- return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>`)+`<p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn. Fahre über einen Balken für die Erklärung.</p>`;}
+ return chWrap(`<svg viewBox="0 0 ${W} ${H}" class="chart" shape-rendering="crispEdges" role="img" aria-label="Veränderung pro Jahr: ${parts.map(p=>p[0]+" "+sgn(p[1])+" t").join(", ")}, zusammen ${sgn(d)} t"><defs><pattern id="wfh" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="var(--ink)"/><rect x="2" y="2" width="2" height="2" fill="var(--ink)"/></pattern></defs>${g}</svg>`)+`<p class="hint" style="margin:6px 0 0">Graue Balken senken den Fussabdruck, karierte erhöhen ihn. ${typeof matchMedia!=='undefined'&&matchMedia('(hover:none)').matches?'Tippe':'Fahre über'} einen Balken für die Erklärung.</p>`;}
 /* Budget als eigene Groesse: Summe der Jahre */
 function budgetHTML(used,pf,yEnd){
  const mx=Math.max(PFAD,used)*1.08,pc=v=>Math.min(100,v/mx*100);
@@ -1889,7 +1910,7 @@ function onRoom(){
  const st=ROOM.stage&&ROOM.stage[S.r];
  if(S.screen==="round"){
   if(st&&!S.results){
-   S.results=st.res;S.waiting=false;freeRide();fx(S.results.some(x=>x.ok)?"yay":"sad");
+   S.results=st.res;S.waiting=false;freeRide();fx(S.results.some(x=>x.ok)?"yay":"sad");voteScroll();
    S.log.push({r:S.r,cards:[...S.thisRound],votes:S.results,hearts:Object.values(S.alloc).reduce((a,b)=>a+b,0),proj:S.palloc||0,don:Object.values(S.don).reduce((a,b)=>a+b,0)*SPENDE});
    render();return;
   }
