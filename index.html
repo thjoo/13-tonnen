@@ -398,7 +398,7 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .chwrap svg text,.chwrap svg line{pointer-events:none}
 .szene .dorfkopf{--ds:.7}
 @media(min-width:1100px){.szene .dorfkopf{--ds:1.25}}
-.szene .dtitel{transform:none;top:auto;bottom:18px;animation:none}
+.szene .dtitel{transform:none;top:10px;bottom:auto;left:16px;right:auto;justify-content:start;font-size:calc(320px*var(--ds)*.2);animation:none}
 .szl{list-style:none;margin:6px 0 0;padding:0}
 .szl li{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-bottom:2px dotted var(--g4);animation:szin .35s steps(4) both}
 .szl li .ic{font-family:var(--titel);width:16px}
@@ -1401,7 +1401,7 @@ function rulesHTML(){
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
  <div class="fmeta"><span>Geld:</span><span>${M.START[f]} ${IC("geld",14)} zu Beginn</span><span></span><span>${inc}</span></div>${WISH[f]?`<div class="fwish">${IC("herz",14)} <span><b>Wunsch:</b> ${esc0(WISH[f].t)}</span></div>`:""}<div class="fgo">Mit ${f} spielen ›</div></div>`}
-function viewStart(){window.DORF_P=0;window.DORF_ON={};
+function viewStart(){window.DORF_P=0;window.DORF_ON={};window.DORF_FOCUS=[];
  const sm=S.startMode;
  const back=`<a href="#" class="back" onclick="S.startMode=null;render();return false">‹ zurück zur Auswahl</a>`;
  let body;
@@ -1525,9 +1525,11 @@ function dorfVals(){const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const f0=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT),f1=val(nx,ACT);
  return {a0,nx,f0,f1,b0:a0>2026?sum(2026,a0-1,ACT):0,b1:sum(2026,nx-1,ACT),p0:farbeP(dorfFoot(f0)),p1:farbeP(dorfFoot(f1))};}
 const DORFK=["K1","K2","K3","K4","K7","K9","K12","K15","P2","P3","P4","P5"];
+function dorfGap(){return typeof innerWidth!=='undefined'&&innerWidth<1000?1600:700}
 function dorfOn(){const on={},now=typeof performance!=="undefined"?performance.now():0,rm=RM();let i=0;
- for(const x of (S.results||[])){if(x.ok&&DORFK.includes(x.k))on[x.k]=rm?0:now+600+i*700+300;i++;}
- const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r&&DORFK.includes(ps.pid))on[ps.pid]=rm?0:now+600+i*700+300;
+ for(const x of (S.results||[])){if(x.ok&&DORFK.includes(x.k))on[x.k]=rm?0:now+600+i*dorfGap()+300;i++;}
+ const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r&&DORFK.includes(ps.pid))on[ps.pid]=rm?0:now+600+i*dorfGap()+300;
+ window.DORF_FOCUS=Object.keys(on).filter(k=>on[k]>0).sort((a,b)=>on[a]-on[b]).map(k=>({k,t:on[k]-500}));
  for(const k in S.adopted)if(DORFK.includes(k)&&on[k]===undefined)on[k]=0;
  for(const k in (S.pdone||{}))if(DORFK.includes(k)&&on[k]===undefined&&S.pdone[k]<=(S.r<LAST?PER[S.r+1].a:2050))on[k]=0;
  return on;}
@@ -1536,7 +1538,7 @@ function dorfItems(){const L=[];
  for(const x of (S.results||[]))L.push(x.ok?`<li class="ok"><span class="ic">✓</span><span><b>«${esc(T[x.k].title)}»</b> angenommen. Wirkt ab ${S.adopted[x.k]}.</span></li>`:`<li class="no"><span class="ic">✗</span><span>«${esc(T[x.k].title)}» abgelehnt.</span></li>`);
  const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r)L.push(`<li class="ok"><span class="ic">✓</span><span><b>«${esc(PROJ[ps.pid].t)}»</b> gebaut. Wirkt ab ${S.pdone[ps.pid]}.</span></li>`);
  if(!L.some(x=>x.includes('class="ok"')))L.push(`<li class="no"><span class="ic">·</span><span>Im Dorf ändert sich nur, was ohnehin passiert: der allgemeine Wandel.</span></li>`);
- return L.map((x,i)=>x.replace("<li ",`<li style="animation-delay:${600+i*700}ms" `)).join("");}
+ return L.map((x,i)=>x.replace("<li ",`<li style="animation-delay:${600+i*dorfGap()}ms" `)).join("");}
 function viewDorf(){const d=dorfVals();
  const B=`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
  return header()+`<div class="szene"><div class="dorfkopf"><div class="dorf" id="dorf"></div><h1 class="dtitel" aria-live="polite"><span class="o" id="szj1">${d.a0}</span><span class="f" id="szj2">${d.a0}</span></h1></div>
@@ -1964,7 +1966,7 @@ function grayOf(src,lo){const k=src+(lo?'#lo':'');if(GR[k])return GR[k];const i=
   a[j]=Math.min(255,v+4);a[j+1]=v;a[j+2]=Math.max(0,v-3);}
  x.putImageData(d,0,0);GR[k]=c;return c;}
 function pic(src,lo){if(MODE==='f'||NOG.has(src)){const i=im(src);return i.complete&&i.naturalWidth?i:null;}return grayOf(src,lo);}
-let cv=null,ctx=null,S=.75,VW=0,vx0=0,ents=[],last=0,raf=0,wt=0,clouds=[];
+let camX=0,cv=null,ctx=null,S=.75,VW=0,vx0=0,ents=[],last=0,raf=0,wt=0,clouds=[];
 // Wolkenschatten: schwarze Silhouetten vorbereiten
 function shadowOf(src){const c=document.createElement('canvas'),i=im(src);const mkS=()=>{c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);};if(i.complete)mkS();else i.addEventListener('load',mkS);return c;}
 function lane(){return rnd(D.band[0],D.band[1]);}
@@ -2061,12 +2063,17 @@ function layout(){const d=document.getElementById('dorf');if(!d)return false;
  if(!cv||!d.contains(cv)){d.innerHTML='';cv=document.createElement('canvas');d.appendChild(cv);ctx=cv.getContext('2d');}
  S=+getComputedStyle(d).getPropertyValue('--ds')||.75;
  const cw=d.clientWidth;VW=Math.ceil(cw/S)+1;cv.width=VW;cv.height=D.H;cv.style.width=(VW*S)+'px';cv.style.height=(D.H*S)+'px';
- ctx.imageSmoothingEnabled=false;vx0=Math.round(D.W/2-VW/2);return true;}
+ ctx.imageSmoothingEnabled=false;if(!camX)camX=D.W/2;vx0=Math.round(camX-VW/2);return true;}
+// Kamera: auf schmalen Bildschirmen zum Element fahren, das gerade neu erscheint (window.DORF_FOCUS)
+const CX={};for(const e of (D.ext||[])){const c=e[5]+e[3]/2;if(CX[e[0]]===undefined||Math.abs(c-D.W/2)<Math.abs(CX[e[0]]-D.W/2))CX[e[0]]=c;}
+function camTarget(){const F=window.DORF_FOCUS;if(!F||!F.length||VW>=1000)return D.W/2;const now=performance.now();let k=null;for(const f of F)if(f.t<=now)k=f.k;
+ if(k===null||CX[k]===undefined)return D.W/2;return Math.max(VW/2,Math.min(D.W-VW/2,CX[k]));}
+function camStep(dt){const t=camTarget();camX+=(t-camX)*Math.min(1,dt*3.5);if(Math.abs(t-camX)<0.5)camX=t;vx0=Math.round(camX-VW/2);}
 function loop(ts){const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;
- if(document.getElementById('dorf')&&cv&&document.getElementById('dorf').contains(cv)){update(dt);render();}
+ if(document.getElementById('dorf')&&cv&&document.getElementById('dorf').contains(cv)){camStep(dt);update(dt);render();}
  raf=requestAnimationFrame(loop);}
 setup();
-new MutationObserver(()=>{const d=document.getElementById('dorf');if(d&&!d.dataset.ok){d.dataset.ok=1;cv=null;if(layout()){im(D.base).decode?.().then(render).catch(()=>{});render();}}}).observe(document.documentElement,{childList:true,subtree:true});
+new MutationObserver(()=>{const d=document.getElementById('dorf');if(d&&!d.dataset.ok){d.dataset.ok=1;cv=null;camX=D.W/2;if(layout()){im(D.base).decode?.().then(render).catch(()=>{});render();}}}).observe(document.documentElement,{childList:true,subtree:true});
 addEventListener('resize',()=>{if(layout())render();});
 for(const src of [D.base,D.baseF,D.wasser,D.sailimg,D.atlasimg])im(src).addEventListener('load',()=>render());
 window.dorfRender=()=>{if(cv&&document.getElementById('dorf')&&document.getElementById('dorf').contains(cv))render();};
