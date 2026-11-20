@@ -64,7 +64,7 @@ img.icn.dim{opacity:.3}
 .seg{position:relative;height:100%;border-right:1px solid #fff;cursor:help;outline:none}
 .seg .sl{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:400 11px var(--mono);text-transform:uppercase;padding:4px 7px 3px;white-space:nowrap;opacity:0;pointer-events:none;z-index:70;transition:opacity .1s}
 .seg:first-child .sl{left:0;transform:none}.seg:nth-child(5) .sl{left:auto;right:0;transform:none}
-.seg .sic{position:absolute;left:5px;top:3px;width:16px;height:16px;display:block;pointer-events:none;line-height:0}.seg .sic img{display:block;filter:brightness(0) invert(1)}.seg .sic.k img{filter:brightness(0);opacity:.75}
+.seg .sic{position:absolute;left:0;top:0;width:20px;height:100%;display:grid;place-items:center;background:#fff;pointer-events:none;line-height:0}.seg .sic img{display:block}
 .seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
 h3.bud{font-size:22px;margin:2px 0 12px}
 .endtop{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px;margin-top:18px}
@@ -351,6 +351,25 @@ details.rules>summary{font-size:13px}
 .vov{position:fixed;inset:0;z-index:95;background:rgba(255,255,255,.62);display:grid;place-items:center;padding:16px}
 .vbox{background:#fff;width:min(540px,100%);padding:18px 22px;box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
 .vrow{margin:12px 0 4px}.vti{font-weight:700;margin-bottom:6px}
+.vbox.urne{width:min(860px,100%)}
+.vhd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.vclock{font:400 34px/1 var(--titel);background:var(--ink);color:#fff;padding:6px 10px 4px;letter-spacing:1px}
+.vticker{margin:12px 0 4px;padding:7px 10px;background:var(--soft);border-left:4px solid var(--ink);font-size:14px;min-height:36px}
+.vcols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.vcols .vti{min-height:44px;line-height:1.35}
+.vstat{font:400 11px var(--mono);text-transform:uppercase;color:var(--muted);min-height:16px;margin-bottom:8px}
+.kgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:300px}
+.kt{display:grid;place-items:center;aspect-ratio:1;font:400 10px var(--mono);font-style:normal;background:var(--g5);color:var(--muted);transition:background .2s steps(2)}
+.kt.in{animation:kin .3s steps(3)}@keyframes kin{0%{transform:scale(1.35)}100%{transform:none}}
+.kt.j{background:#4f7f4c;color:#fff}.kt.n{background:#b2523f;color:#fff}
+.vcount{margin-top:10px}
+.vjn{position:relative;height:16px;background:#b2523f}
+.vjn .vj{position:absolute;left:0;top:0;bottom:0;background:#4f7f4c;transition:width .25s steps(4)}
+.vjn .v50{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink)}
+.vres .hint{display:block;margin-top:2px}
+.vnum{display:flex;justify-content:space-between;font:400 11px var(--mono);text-transform:uppercase;margin-top:5px}
+.vpct{font-weight:700;color:var(--ink)}.vk{color:var(--muted)}
+@media(max-width:700px){.vcols{grid-template-columns:1fr;gap:14px}.vbox.urne{max-height:92vh;overflow:auto;padding:14px 14px 0}.vbox.urne>.row:last-child{position:sticky;bottom:0;background:#fff;padding:10px 0 14px;margin-top:6px!important}.vclock{font-size:24px}.kgrid{max-width:190px;gap:2px}.kt{font-size:8px}.vcols .vti{min-height:0;margin-bottom:2px}.vticker{font-size:13px;margin-top:8px}.vbox.urne h2{font-size:24px}}
 .vbar{position:relative;height:24px;background:#fff;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink)}
 .vbar .ja{position:absolute;left:0;top:0;bottom:0;background:repeating-linear-gradient(45deg,var(--g4) 0 2px,var(--g5) 2px 4px)}
 .vbar .ja span{position:absolute;left:6px;top:4px;font:400 11px var(--mono);text-transform:uppercase;white-space:nowrap;color:var(--ink)}
@@ -397,7 +416,7 @@ details.rules>summary{font-size:13px}
  .chips{display:flex;flex-wrap:nowrap!important;gap:6px!important;width:100%}
  .chip{padding:3px 7px!important;flex:0 0 auto}.chip .cv{font-size:16px!important}.chip .cl{font-size:9px}
  .chip.wish{flex:1 1 auto;min-width:0}.chip.wish .cw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
- .barbox{padding:0 12px 8px!important}.bar{height:18px}.seg .sic{left:3px;top:2px;width:12px;height:12px}.seg .sic img{width:12px;height:12px}
+ .barbox{padding:0 12px 8px!important}.bar{height:18px}.seg .sic{width:16px}.seg .sic img{width:12px;height:12px}
  .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
  .tabs{gap:6px;flex-wrap:wrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
  .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
@@ -1369,20 +1388,60 @@ function alloc(k,d){if(S.results||S.waiting)return;
 function freeRide(){}
 function mStep(n){if(typeof innerWidth!=='undefined'&&innerWidth>=700)return;S.mstep=S.mstep===n?0:n;render();const h=document.querySelectorAll('.colhd.mstp')[n-1];if(h&&h.scrollIntoView)h.scrollIntoView({block:'start'});}
 /* Abstimmungssonntag: Auszaehlung als kurze Animation */
+/* Abstimmungssonntag wie im Fernsehen: Urnenschluss 12 Uhr, Trend, Hochrechnung, Kantone treffen ein, Schlussresultat.
+   Die Kantonsresultate werden aus Vorlage und Los berechnet (gleicher Seed fuer alle in der Gruppe). Bei Gesetzen zaehlt das Volksmehr. */
+const KT=[["BS",2,0],["BL",3,0],["SH",5,0],["TG",6,0],["JU",1,1],["SO",2,1],["AG",3,1],["ZH",4,1],["SG",5,1],["AR",6,1],["AI",7,1],["NE",1,2],["BE",2,2],["LU",3,2],["ZG",4,2],["SZ",5,2],["GL",6,2],["VD",1,3],["FR",2,3],["OW",3,3],["NW",4,3],["UR",5,3],["GR",6,3],["GE",0,4],["VS",2,4],["TI",4,4]];
+const KW={ZH:18,BE:12,LU:4.8,UR:.4,SZ:1.9,OW:.4,NW:.5,GL:.5,ZG:1.5,FR:3.8,SO:3.2,BS:2.2,BL:3.3,SH:1,AR:.6,AI:.2,SG:5.9,GR:2.3,AG:8,TG:3.3,TI:4,VD:9.4,VS:4,NE:2,GE:5.8,JU:.8};
+const KB={ZH:3,BE:0,LU:-3,UR:-8,SZ:-10,OW:-9,NW:-8,GL:-7,ZG:-2,FR:2,SO:-4,BS:12,BL:2,SH:-3,AR:-6,AI:-11,SG:-4,GR:-2,AG:-4,TG:-6,TI:-3,VD:5,VS:-6,NE:4,GE:9,JU:3};
+const KORD=["AI","AR","OW","NW","UR","GL","JU","SH","ZG","SZ","TG","SO","NE","FR","GR","LU","BL","VS","TI","SG","AG","BS","BE","GE","VD","ZH"];
+function rngS(seed){let s=(seed>>>0)||1;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
+function hashS(t){let h=2166136261;for(const ch of String(t)){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function urne(x){const R=rngS(hashS(x.k+"|"+x.roll+"|"+S.r+"|"+x.c));
+ let ja=50+(x.c-x.roll-0.5)*0.17+(R()-0.5)*1.2;ja=x.ok?Math.max(50.3,ja):Math.min(49.7,ja);ja=Math.max(28,Math.min(72,ja));
+ const k={};let sw=0,sm=0;for(const [c] of KT){k[c]=ja+KB[c]+(R()-0.5)*4;sw+=KW[c];sm+=KW[c]*k[c];}
+ const d=ja-sm/sw;for(const c in k)k[c]=Math.max(10,Math.min(90,k[c]+d));
+ const ord=KORD.map((c,i)=>[c,i+R()*4]).sort((p,q)=>p[1]-q[1]).map(p=>p[0]);
+ return {ja,k,ord,bet:Math.round(38+R()*16)};}
+const f1=x=>x.toFixed(1).replace(".",".");
 function voteShow(done){if(typeof document==="undefined"||!document.body||!document.createElement||!S.results){done&&done();return;}
  const old=document.querySelector(".vov");if(old)old.remove();
+ const U=S.results.map(urne),yr=vorlFrom(S.r)-1;
  const o=document.createElement("div");o.className="vov";
- o.innerHTML=`<div class="vbox" role="dialog" aria-modal="true"><div class="lbl">Abstimmungssonntag ${PER[S.r].l}</div><h2 style="margin:2px 0 12px">Das Volk hat entschieden</h2>
- ${S.results.map((x,i)=>`<div class="vrow" data-i="${i}"><div class="vti">${esc(T[x.k].title)}</div><div class="vbar"><i class="ja" style="width:${x.c}%"><span>Ja-Chance ${x.c} %</span></i><b class="vm"></b></div><div class="vres"></div></div>`).join("")}
- <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="primary" id="vgo">Weiter</button></div></div>`;
- document.body.appendChild(o);let fin=false;const go=()=>{if(fin)return;fin=true;o.remove();done&&done();};o.querySelector("#vgo").onclick=go;
- const rows=[...o.querySelectorAll(".vrow")],rm=RM(),GAP=rm?0:1700;
- const land=(i)=>{if(fin||!S.results)return;const x=S.results[i],r=rows[i],m=r.querySelector(".vm"),res=r.querySelector(".vres");m.style.left=x.roll+"%";
-  res.className="vres "+(x.ok?"ok":"no");res.innerHTML=`${x.ok?"Angenommen":"Abgelehnt"} <span class="hint">Los ${x.roll}, ${x.ok?"im":"ausserhalb vom"} Ja-Bereich</span>`;};
- rows.forEach((r,i)=>{if(rm){land(i);return;}const m=r.querySelector(".vm");m.style.left="0%";
-  setTimeout(()=>{let k=0;const seq=[];for(let j=0;j<9;j++)seq.push(Math.floor(Math.random()*100));
-   const iv=setInterval(()=>{if(fin){clearInterval(iv);return;}if(k<seq.length){m.style.left=seq[k++]+"%";}else{clearInterval(iv);land(i);}},110);},300+i*GAP);});
- if(!rm)setTimeout(()=>{const b=o.querySelector("#vgo");if(b)b.textContent=S.screen==="round"&&!G?"Weiter ins Dorf":"Weiter";},300+rows.length*GAP);}
+ o.innerHTML=`<div class="vbox urne" role="dialog" aria-modal="true"><div class="vhd"><div><div class="lbl">Abstimmungssonntag ${yr}</div><h2 style="margin:2px 0 0">Die Schweiz stimmt ab</h2></div><div class="vclock" id="vclock">12:00</div></div>
+ <div class="vticker" id="vtick">Die Urnen sind zu. Jetzt wird gezählt.</div>
+ <div class="vcols">${S.results.map((x,i)=>`<div class="vrow" data-i="${i}"><div class="vti">${esc(T[x.k].title)}</div>
+  <div class="vstat">Umfrage vorher: ${x.c} % Chance auf ein Ja</div>
+  <div class="kgrid">${KT.map(([c,gx,gy])=>`<i class="kt" data-k="${c}" style="grid-column:${gx+1};grid-row:${gy+1}">${c}</i>`).join("")}</div>
+  <div class="vcount"><div class="vjn"><i class="vj" style="width:0%"></i><b class="v50"></b></div><div class="vnum"><span class="vpct">Ja –</span><span class="vk">0 von 26 Kantonen</span></div></div>
+  <div class="vres"></div></div>`).join("")}</div>
+ <div class="row" style="justify-content:flex-end;gap:8px;margin-top:14px"><button class="small" id="vskip">Zum Schlussresultat</button><button class="primary" id="vgo">Weiter</button></div></div>`;
+ document.body.appendChild(o);let fin=false,end=false;const T0=[];const go=()=>{if(fin)return;fin=true;T0.forEach(clearTimeout);o.remove();done&&done();};o.querySelector("#vgo").onclick=go;
+ const rows=[...o.querySelectorAll(".vrow")],clock=o.querySelector("#vclock"),tick=o.querySelector("#vtick");
+ const cnt=U.map(()=>({n:0,w:0,s:0,ja:0}));
+ const showK=(i,c)=>{const u=U[i],r=rows[i],t=r.querySelector(`.kt[data-k="${c}"]`);if(!t||t.classList.contains("in"))return;const y=u.k[c];
+  t.classList.add("in",y>=50?"j":"n");t.title=`${c}: ${f1(y)} % Ja`;const q=cnt[i];q.n++;q.w+=KW[c];q.s+=KW[c]*y;if(y>=50)q.ja++;
+  const pj=q.s/q.w;r.querySelector(".vj").style.width=pj+"%";r.querySelector(".vpct").textContent=`Ja ${f1(pj)} %`;r.querySelector(".vk").textContent=`${q.n} von 26 Kantonen`;};
+ const final=()=>{if(end||fin)return;end=true;T0.forEach(clearTimeout);clock.textContent="17:00";
+  U.forEach((u,i)=>{u.ord.forEach(c=>showK(i,c));const r=rows[i],x=S.results[i],q=cnt[i];
+   r.querySelector(".vj").style.width=u.ja+"%";r.querySelector(".vpct").textContent=`Ja ${f1(u.ja)} %`;
+   r.querySelector(".vstat").textContent=`Schlussresultat · Stimmbeteiligung ${u.bet} %`;
+   const res=r.querySelector(".vres");res.className="vres "+(x.ok?"ok":"no");
+   res.innerHTML=`${x.ok?"Angenommen":"Abgelehnt"}<span class="hint">${q.ja} von 26 Kantonen sagen Ja · Chance vorher ${x.c} %</span>`;});
+  tick.textContent=S.results.some(x=>x.ok)?"Das Volk hat entschieden. Was angenommen ist, wirkt ab "+vorlFrom(S.r)+".":"Das Volk hat entschieden. Diesmal kommt nichts durch.";
+  const sk=o.querySelector("#vskip");if(sk)sk.remove();const b=o.querySelector("#vgo");if(b)b.textContent=S.screen==="round"&&!G?"Weiter ins Dorf":"Weiter";};
+ o.querySelector("#vskip").onclick=final;
+ if(RM()){final();return;}
+ const at=(ms,f)=>T0.push(setTimeout(()=>{if(!fin&&!end)f();},ms));
+ at(900,()=>{clock.textContent="12:30";
+  const t=U.map((u,i)=>Math.abs(u.ja-50)>=3?`${i?"zweite":"erste"} Vorlage: Trend ${u.ja>50?"Ja":"Nein"}`:`${i?"zweite":"erste"} Vorlage: zu knapp für einen Trend`);
+  tick.textContent="Erster Trend: "+t.join(", ")+".";U.forEach((u,i)=>rows[i].querySelector(".vstat").textContent=Math.abs(u.ja-50)>=3?`Trend: ${u.ja>50?"Ja":"Nein"}`:"Trend: zu knapp");});
+ at(1900,()=>{clock.textContent="13:00";tick.textContent="Erste Hochrechnung. Jetzt treffen die Kantone ein, die kleinen zuerst.";
+  U.forEach((u,i)=>{const h=Math.round(u.ja);rows[i].querySelector(".vstat").textContent=`Hochrechnung: ${h} % Ja (± 2)`;});});
+ const n=26,t0=2500,dt=200;
+ for(let j=0;j<n;j++)at(t0+j*dt,()=>{const mins=13*60+Math.round((j+1)/n*210);clock.textContent=`${Math.floor(mins/60)}:${String(mins%60).padStart(2,"0")}`;
+  U.forEach((u,i)=>showK(i,u.ord[j]));
+  if(j===n-4)tick.textContent="Es fehlen noch die grossen Kantone.";});
+ T0.push(setTimeout(()=>{if(!fin)final();},t0+n*dt+500));}
 function voteScroll(){if(typeof innerWidth==='undefined'||innerWidth>=1000||!document.getElementById)return;setTimeout(()=>{const p=document.getElementById('panel');if(p&&p.scrollIntoView)p.scrollIntoView({block:'start',behavior:'smooth'});},120);}
 function vote(){
  S.carry=Math.min(1,freeH());
@@ -1423,7 +1482,7 @@ const CATSHORT={"Mobilität":"Mobilität","Wohnen":"Wohnen","Ernährung":"Ernäh
 function pips(n,max=3){let s="";for(let i=0;i<Math.max(max,n);i++)s+=IC("herz",16,i>=n);return `<div class="pips">${s}</div>`}
 function barHTML(v){
  const c=bycat(v),W=13.5;
- const segs=CATS.map((x,i)=>`<div class="seg" tabindex="0" style="width:${c[x]/W*100}%;background:${GSH[i]}">${c[x]/W>0.035?`<span class="sic${i>2?" k":""}">${CATIC(x,16)}</span>`:""}<span class="sl">${CATIC(x)} ${CATSHORT[x]} ${fmt(c[x])} t</span></div>`).join("");
+ const segs=CATS.map((x,i)=>`<div class="seg" tabindex="0" style="width:${c[x]/W*100}%;background:${GSH[i]}">${c[x]/W>0.035?`<span class="sic">${CATIC(x,16)}</span>`:""}<span class="sl">${CATIC(x)} ${CATSHORT[x]} ${fmt(c[x])} t</span></div>`).join("");
  return `<div class="bar">${segs}<div class="mark" style="left:${ZIEL/W*100}%" title="Ziel 0.6 t"></div></div>`;
 }
 function header(){
