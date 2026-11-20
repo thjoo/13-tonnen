@@ -805,16 +805,17 @@ function wanderTick(ts){if(typeof requestAnimationFrame!=="undefined")requestAni
  const now=Date.now(),dt=Math.min(0.1,WLAST?(now-WLAST)/1000:0);WLAST=now;
  document.querySelectorAll(".stage").forEach(st=>{const ws=[...st.querySelectorAll(".wander")];const W=st.clientWidth;if(!W)return;
   ws.forEach((w,i)=>{const sc=+w.dataset.sc,fw=17*sc;
-   let s=w._s;if(!s){const x=ws.length>1?(W/(ws.length+1))*(i+1)-fw/2:(W-fw)/2;s=w._s={x,tx:x,next:now+300+Math.random()*1200,walking:false};w.style.left=x+"px";w.dataset.init=1;}
+   let s=w._s;if(!s){const x=ws.length>1?(W/(ws.length+1))*(i+1)-fw/2:(W-fw)/2;s=w._s={x,tx:x,next:now+800+Math.random()*3000,walking:false};w.style.left=x+"px";w.dataset.init=1;}
    const setWalk=on=>{if(on===s.walking)return;s.walking=on;w.classList.toggle("walking",on);};
-   if(s.x!==s.tx){const step=40*dt,d=s.tx-s.x;s.x=Math.abs(d)<=step?s.tx:s.x+Math.sign(d)*step;w.style.left=Math.round(s.x)+"px";setWalk(true);if(s.x===s.tx){setWalk(false);s.next=now+400+Math.random()*1400;}return;}
+   if(s.x!==s.tx){const step=40*dt,d=s.tx-s.x;s.x=Math.abs(d)<=step?s.tx:s.x+Math.sign(d)*step;w.style.left=Math.round(s.x)+"px";setWalk(true);if(s.x===s.tx){setWalk(false);s.next=now+2000+Math.random()*3500;}return;}
    if(now<s.next)return;
-   if(Math.random()<0.8){const pv=ws[i-1]&&ws[i-1]._s,nb=ws[i+1]&&ws[i+1]._s,gap=8;
+   const r=Math.random();if(r<0.6){const pv=ws[i-1]&&ws[i-1]._s,nb=ws[i+1]&&ws[i+1]._s,gap=8;
     const lo=pv?Math.max(pv.x,pv.tx)+fw+gap:4,hi=nb?Math.min(nb.x,nb.tx)-fw-gap:W-fw-4;
-    if(hi-lo<20){s.next=now+300;return;}
-    const nx=lo+Math.random()*(hi-lo);if(Math.abs(nx-s.x)<20){s.next=now+200;return;}
+    if(hi-lo<20){s.next=now+1000;return;}
+    const nx=lo+Math.random()*(hi-lo);if(Math.abs(nx-s.x)<20){s.next=now+800;return;}
     w.classList.toggle("left",nx<s.x);s.tx=nx;}
-   else{w.classList.toggle("left");s.next=now+600+Math.random()*1000;}});});}
+   else if(r<0.75){w.classList.toggle("left");s.next=now+1500+Math.random()*2500;}
+   else s.next=now+2000+Math.random()*3000;});});}
 function figImg(f,sc=4){return `<img class="px" src="${(FARBE?SPR.figc:SPR.fig)[f]}" width="${17*sc}" height="${22*sc}" alt="${f}">`}
 
 const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
