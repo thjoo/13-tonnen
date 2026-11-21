@@ -506,7 +506,7 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
 .wrap.fadein{animation:wfade .5s ease .25s both}@keyframes wfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .introfly{position:fixed;z-index:3000;pointer-events:none;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;box-shadow:0 0 0 3px var(--ink);transition:left .75s cubic-bezier(.65,0,.3,1),top .75s cubic-bezier(.65,0,.3,1),width .75s cubic-bezier(.65,0,.3,1),height .75s cubic-bezier(.65,0,.3,1),background-size .75s cubic-bezier(.65,0,.3,1)}
 .introfly.out{opacity:0;box-shadow:none;transition:opacity .45s steps(5)}
-.szene.intro{min-height:100vh;display:grid;place-items:center;padding:24px;box-sizing:border-box;background:var(--g5)}
+.szene.intro{min-height:calc(100vh / var(--uiz,1));display:grid;place-items:center;padding:24px;box-sizing:border-box;background:var(--g5)}
 .szene.intro .iframe{width:min(1240px,100%);background:#fff;box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),10px 10px 0 0 rgba(55,53,47,.25)}
 .szene.intro .dorfkopf{--ds:.9}@media(min-width:1100px){.szene.intro .dorfkopf{--ds:1.4}}
 @media(max-width:700px){.szene.intro{padding:10px}}
@@ -1170,7 +1170,7 @@ const esc=s=>esc0(NAMES(s));
 /* Ganze Seite an den Bildschirm anpassen (ab 700 px Breite). UZF: wie stark Mauskoordinaten mitskaliert sind. */
 function uiZoom(){if(typeof document==="undefined"||!document.documentElement||typeof innerWidth==="undefined")return;
  const z=innerWidth<=700?1:Math.max(.7,Math.min(1.25,Math.min(innerWidth/1440,innerHeight/860)));
- const zr=Math.round(z*100)/100;if(window.UIZ===zr)return;window.UIZ=zr;document.documentElement.style.zoom=zr===1?"":String(zr);
+ const zr=Math.round(z*100)/100;if(window.UIZ===zr)return;window.UIZ=zr;document.documentElement.style.zoom=zr===1?"":String(zr);document.documentElement.style.setProperty("--uiz",String(zr));
  try{const t=document.createElement("div");t.style.cssText="position:fixed;left:100px;top:0;width:1px;height:1px";document.body.appendChild(t);window.UZF=t.getBoundingClientRect().left/100||1;t.remove();}catch(e){window.UZF=1;}}
 const UQ=()=>(typeof window!=="undefined"&&window.UZF)||1;
 if(typeof addEventListener!=="undefined"){addEventListener("resize",()=>{const o=window.UIZ;uiZoom();if(o!==window.UIZ&&typeof render==="function")try{render()}catch(e){}});}
@@ -1985,6 +1985,7 @@ function viewIntro(){introInit();const I=S.intro;setTimeout(introTick,0);
  return `<div class="szene intro"><div class="iframe"><div class="dorfkopf"><div class="dorf" id="dorf" onclick="introNext()"></div><div class="pbub" id="pbub" onclick="introNext()"><div class="pname">${I.n}</div><p id="dtxt"></p><span class="dnext" id="dnext">▼</span></div></div>
  <div class="introbar"><div class="idots">${INTRO.map((_,j)=>`<i class="${j<=I.i?"on":""}"></i>`).join("")}</div><div class="row"><button onclick="introEnd()">Überspringen</button><button class="primary" id="igo" onclick="introNext()">Weiter</button></div></div></div></div>`;}
 function introNext(){const I=S.intro;if(!I)return;
+ if(I.ph==="walk"){if(window.dorfSkipWalk)window.dorfSkipWalk();return;}
  if(I.ph==="type"){I.typ=1e9;return;}
  if(I.ph!=="done")return;
  if(I.i>=INTRO.length-1)return introEnd();
@@ -2590,6 +2591,7 @@ window.dorfHit=(px,py)=>{if(!cv)return null;const ON=window.DORF_ON||{},now=perf
  for(const e of D.ext){const t=ON[e[0]];if(t===undefined||t>now)continue;let x=((Math.round(e[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;
   const X=px/S+camFr,Y=py/S;if(X>=x-2&&X<=x+e[3]+2&&Y>=e[6]-2&&Y<=e[6]+e[4]+2)hit={k:e[0],x:(x-camFr)*S,y:e[6]*S,w:e[3]*S,h:e[4]*S};}return hit;};
 function camStep(dt){const t=camTarget(),d=wdx(camX,t);if(window.DORF_FOLLOW&&folEnt()&&Math.abs(d)<40)camX=t;else camX+=d*Math.min(1,dt*3.5);camX=((camX%D.W)+D.W)%D.W;if(Math.abs(d)<0.05)camX=t;const fx=camX-VW/2;vx0=Math.floor(fx);camFr=SNAP?Math.round((fx-vx0)*K)/K:0;}
+window.dorfSkipWalk=()=>{const o=folEnt();if(!o||window.DORF_WALK==null)return;o.x=window.DORF_WALK;o.y=(D.band[0]+D.band[1])/2;o.q=[];o.wait=0;};
 window.dorfArrived=()=>{const o=folEnt();return !!o&&window.DORF_WALK!=null&&Math.abs(wdx(o.x,window.DORF_WALK))<=1.5;};
 window.dorfEnt=()=>{const o=folEnt();if(!o||!cv)return null;let x=((Math.round(o.x-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;x+=Math.round((o.x-vx0)*K)/K-Math.round(o.x-vx0);return {x:(x-camFr)*S,y:(o.y-(o.set.side.h||o.st.h))*S};};
 function loop(ts){const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;
