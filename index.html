@@ -363,8 +363,11 @@ details.rules>summary{font-size:13px}
 .coach{position:fixed;left:24px;bottom:24px;z-index:50;background:#fff;max-width:380px;padding:14px 16px;margin:3px;
  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
 .coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite;scroll-margin-top:190px}
-.coachov{position:fixed;inset:0;z-index:90;background:rgba(255,255,255,.62);display:grid;place-items:center;padding:16px}
-.coachov .coach{position:static!important;max-width:440px;width:100%;margin:0}
+.coachov{position:fixed;inset:0;z-index:90}
+.coachhole{position:fixed;pointer-events:none;box-shadow:0 0 0 200vmax rgba(255,255,255,.66);transition:left .2s,top .2s,width .2s,height .2s}
+.coachov .coach{position:fixed!important;right:auto!important;bottom:auto!important;max-width:380px;width:calc(100vw - 32px);margin:0;left:50%;top:50%;transform:translate(-50%,-50%)}
+.coachov .coach.placed{transform:none}
+.coachov .coach .arr{position:absolute;width:0;height:0;border:9px solid transparent}
 @keyframes blink{50%{outline-color:transparent}}
 /* Spielgefühl */
 .fdelta{position:absolute;right:10px;top:8px;font-family:var(--titel);font-weight:400;font-size:20px;opacity:0;pointer-events:none}
@@ -535,6 +538,12 @@ img.cic{image-rendering:pixelated;vertical-align:-3px;margin-right:6px;display:i
  clip-path:polygon(0 0,100% 0,100% 25%,75% 25%,75% 50%,50% 50%,50% 75%,25% 75%,25% 100%,0 100%)}
 .pbub .pname{position:absolute;top:-14px;left:12px;background:var(--ink);color:#fff;font:400 12px var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:4px 9px 3px}
 .pbub p,.pbub #dtxt{margin:4px 0 0;font:400 16px/1.3 var(--pix);color:var(--ink);min-height:42px;letter-spacing:0}
+.pbub .ibar{display:none;margin:10px 0 2px}.pbub .ibar.on{display:block;animation:dbin .4s steps(4)}
+.pbub .dseg{display:flex;gap:2px;height:10px;margin-bottom:6px}.pbub .dseg i{display:block}
+.pbub .dseg i:nth-child(1),.pbub .dleg .c0{background:var(--ink)}.pbub .dseg i:nth-child(2),.pbub .dleg .c1{background:#8a827a}.pbub .dseg i:nth-child(3),.pbub .dleg .c2{background:#c9c2ba}
+.pbub .dleg{display:grid;grid-template-columns:10px 44px 1fr;gap:6px;align-items:baseline;font:400 12px/1.3 var(--fliess);color:var(--ink);margin-top:2px}
+.pbub .dleg i{width:10px;height:10px;display:block;align-self:center}.pbub .dleg b{font:400 13px var(--titel)}
+@keyframes dbin{from{opacity:0}to{opacity:1}}
 .pbub .dnext{position:absolute;right:10px;bottom:4px;font:400 16px var(--titel);animation:dnb .7s steps(2) infinite}
 @media(max-width:700px){.pbub{width:220px;padding:12px 12px 14px}.pbub p,.pbub #dtxt{font-size:14px;min-height:36px}}
 .ititel{top:auto!important;bottom:16px;transform:none!important;animation:none!important;font-size:calc(320px*var(--ds)*.16)!important;justify-content:start!important;left:20px;right:auto}
@@ -1973,16 +1982,17 @@ function dorfTween(){const key=S.dorfFinal?"F":S.r;if(S.dorfAnim===key)return;S.
 
 /* Intro: Figur geht durchs Dorf, bleibt stehen und erzaehlt (Dialogbox wie in Pixel-RPGs) */
 const INTRO=[n=>`Hoi, ich bin ${n}! In unserem Dorf verursacht jede Person rund 13 Tonnen CO₂ pro Jahr.`,
+ n=>`Woher? Einiges verbrennen wir direkt. Das meiste steckt in dem, was für uns hergestellt wird, oft im Ausland.`,
  n=>`Verträglich wären 0.6 Tonnen. Bis 2050 müssen wir also gewaltig runter.`,
  n=>`Du spielst eine Figur: Du entscheidest, wie sie wohnt, isst und unterwegs ist. Und du kämpfst im Dorf für Vorlagen und Projekte.`,
  n=>`Was angenommen wird, siehst du im Dorf. Los geht's!`];
-const IST=[{x:1400},{x:1550},{x:1730,on:["K12","K4"],p:.25},{x:1905,on:["P4","K3"],p:.6}],IX0=1290;
+const IST=[{x:1400},{x:1475},{x:1550},{x:1730,on:["K12","K4"],p:.25},{x:1905,on:["P4","K3"],p:.6}],IX0=1290;
 function startIntro(){S.intro=null;S.screen="intro";render();window.scrollTo(0,0);}
 function introInit(){if(S.intro)return;S.intro={n:["Lia","Noah","Ruth","Elif","Daniel"][Math.floor(Math.random()*5)],i:0,ph:"walk",typ:0};
  window.DORF_FOLLOW=S.intro.n;window.DORF_WALK0=IX0;window.DORF_WALK=IST[0].x;window.DORF_P=0;window.DORF_ON={};window.DORF_FOCUS=[];
  if(!window.__ikey&&typeof addEventListener!=="undefined"){window.__ikey=1;addEventListener("keydown",e=>{if(S.screen==="intro"&&(e.key===" "||e.key==="Enter")){e.preventDefault();introNext();}});}}
 function viewIntro(){introInit();const I=S.intro;setTimeout(introTick,0);
- return `<div class="szene intro"><div class="iframe"><div class="dorfkopf"><div class="dorf" id="dorf" onclick="introNext()"></div><div class="pbub" id="pbub" onclick="introNext()"><div class="pname">${I.n}</div><p id="dtxt"></p><span class="dnext" id="dnext">▼</span></div></div>
+ return `<div class="szene intro"><div class="iframe"><div class="dorfkopf"><div class="dorf" id="dorf" onclick="introNext()"></div><div class="pbub" id="pbub" onclick="introNext()"><div class="pname">${I.n}</div><p id="dtxt"></p><div class="ibar" id="dbar">${(()=>{const d=M.BASE.heiz+M.BASE.auto+M.BASE.flug,g=M.BASE.oeff+M.BASE.oeffbesch,k=START-d-g,P=[[d,"direkt verbrannt: Heizung, Auto, Flüge"],[k,"Essen, Wohnen, Dinge"],[g,"gemeinsam: Schulen, Spitäler, Strassen"]];return `<div class="dseg">${P.map(p=>`<i style="flex:${p[0]}"></i>`).join("")}</div>${P.map((p,j)=>`<div class="dleg"><i class="c${j}"></i><b>${fmt(p[0])} t</b><span>${p[1]}</span></div>`).join("")}`;})()}</div><span class="dnext" id="dnext">▼</span></div></div>
  <div class="introbar"><div class="idots">${INTRO.map((_,j)=>`<i class="${j<=I.i?"on":""}"></i>`).join("")}</div><div class="row"><button onclick="introEnd()">Überspringen</button><button class="primary" id="igo" onclick="introNext()">Weiter</button></div></div></div></div>`;}
 function introNext(){const I=S.intro;if(!I)return;
  if(I.ph==="walk"){if(window.dorfSkipWalk)window.dorfSkipWalk();return;}
@@ -2017,6 +2027,7 @@ function introTick(){if(S.screen!=="intro"||!S.intro)return;const I=S.intro,now=
  if(I.ph==="type"){const full=INTRO[I.i](I.n);I.typ=Math.max(I.typ,Math.floor((now-I.t0)/30));const n=Math.max(0,Math.min(full.length,I.typ));if(t&&t.textContent.length!==n)t.textContent=full.slice(0,n);if(n>=full.length)I.ph="done";}
  if(bb)bb.classList.toggle("on",I.ph!=="walk");
  if(nx)nx.style.visibility=I.ph==="done"?"visible":"hidden";
+ const db=document.getElementById("dbar");if(db)db.classList.toggle("on",I.i===1&&I.ph!=="walk");
  if(go){go.textContent=I.ph==="done"&&I.i>=INTRO.length-1?"Los geht's":"Weiter";}
  const p=window.dorfEnt&&window.dorfEnt();
  if(bb&&p&&bb.parentElement){const W=bb.parentElement.clientWidth,bw=bb.offsetWidth,bh=bb.offsetHeight;let x=Math.max(8,Math.min(W-bw-8,p.x-bw/2)),y=Math.max(8,p.y-bh-16);
@@ -2141,23 +2152,30 @@ function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="l
 const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr, bei Fleisch und Milch 0.5 %) schreibt die Jahre 2000 bis 2023 grob fort. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Folgen der Erwärmung gibt es nur als vier Klima-Ereignisse mit geschätzter Wirkung. Rückkopplungen im Klimasystem fehlen.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
 /* Geführte erste Runde */
-const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
+const COACH=[["stats|.barbox","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
  ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
  ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
  ["finish","Unten siehst du, was dir übrig bleibt. Wenn du fertig bist, stimmst du ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
 function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt0]=COACH[S.coach];const touch=typeof matchMedia!=="undefined"&&matchMedia("(hover:none)").matches,nar=typeof innerWidth!=="undefined"&&innerWidth<1000;
  const txt=txt0.replace("{HOVER}",touch?"Tippe darauf, dann erscheint eine Erklärung.":"Fahre mit der Maus darüber, dann erscheint eine Erklärung.").replace("{RECHTS}",nar?"Weiter unten":"Rechts");
- return `<div class="coachov"><div class="coach" role="dialog" aria-modal="true"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
-function placeCoach(){return;const c=document.querySelector&&document.querySelector(".coach");if(!c||S.coach==null||typeof innerWidth==="undefined"||innerWidth<700)return;
- const tg=document.getElementById(COACH[S.coach][0]);if(!tg||!tg.getBoundingClientRect)return;
- const r=tg.getBoundingClientRect(),cw=c.offsetWidth,ch=c.offsetHeight,vw=innerWidth;
- if(tg.closest&&tg.closest(".actbar")){c.style.position="fixed";c.style.left="auto";c.style.top="auto";c.style.right="24px";c.style.bottom=(innerHeight-r.top+14)+"px";return;}
- c.style.position="absolute";c.style.right="auto";c.style.bottom="auto";let x,y;
- if(r.top<160){x=Math.min(Math.max(8,r.right-cw),vw-cw-8);y=r.bottom+14;}
- else if(vw-r.right>=cw+24){x=r.right+16;y=r.top;}
- else if(r.left>=cw+24){x=r.left-cw-16;y=r.top;}
- else{x=Math.min(Math.max(8,r.right-cw),vw-cw-8);y=r.bottom+14;}
- c.style.left=(x+scrollX)+"px";c.style.top=(Math.max(8,y)+scrollY)+"px";}
+ return `<div class="coachov"><div class="coachhole" id="coachhole"></div><div class="coach" id="coachbox" role="dialog" aria-modal="true"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
+/* Hilfe: Loch im Schleier ueber dem erklaerten Teil, Kasten daneben (Laptop) bzw. unten (Handy). Koordinaten in CSS-px (UQ: Zoom). */
+function coachTgs(){if(S.coach==null||!COACH[S.coach]||typeof document==="undefined"||!document.querySelector)return[];return COACH[S.coach][0].split("|").map(k=>k[0]==="."?document.querySelector(k):document.getElementById(k)).filter(t=>t&&t.getBoundingClientRect);}
+function placeCoach(){if(typeof document==="undefined"||!document.getElementById)return;const c=document.getElementById("coachbox"),h=document.getElementById("coachhole");
+ if(!c||!h||S.coach==null)return;const tgs=coachTgs();if(!tgs.length)return;const tg=tgs[0];
+ const q=UQ(),RR=tgs.map(t=>t.getBoundingClientRect()),R0={left:Math.min(...RR.map(x=>x.left)),top:Math.min(...RR.map(x=>x.top)),right:Math.max(...RR.map(x=>x.right)),bottom:Math.max(...RR.map(x=>x.bottom))},vw=innerWidth/q,vh=innerHeight/q,pad=12;
+ const r={l:R0.left/q-pad,t:R0.top/q-pad,r:R0.right/q+pad,b:R0.bottom/q+pad};r.t=Math.max(r.t,-4);r.b=Math.min(r.b,vh+4);
+ h.style.left=r.l+"px";h.style.top=r.t+"px";h.style.width=(r.r-r.l)+"px";h.style.height=Math.max(0,r.b-r.t)+"px";
+ const cw=c.offsetWidth,ch=c.offsetHeight,gap=14,inBar=tg.closest&&tg.closest(".actbar");let x,y;
+ if(vw<700){x=(vw-cw)/2;y=inBar?r.t-ch-gap:vh-ch-10;if(!inBar&&r.b>y-gap)y=Math.max(r.b+gap,vh-ch-10);}
+ else if(inBar){x=Math.min(vw-cw-16,Math.max(16,r.r-cw));y=r.t-ch-gap;}
+ else if(r.b<vh*0.4){x=Math.min(vw-cw-16,Math.max(16,r.r-cw));y=r.b+gap;}
+ else if(vw-r.r>=cw+gap+8){x=r.r+gap;y=Math.max(r.t,8);}
+ else if(r.l>=cw+gap+8){x=r.l-cw-gap;y=Math.max(r.t,8);}
+ else{x=Math.min(vw-cw-16,Math.max(16,r.l));y=r.b+gap<vh-ch?r.b+gap:Math.max(8,r.t-ch-gap);}
+ y=Math.max(8,Math.min(vh-ch-8,y));c.style.left=Math.round(x)+"px";c.style.top=Math.round(y)+"px";c.classList.add("placed");}
+function coachFollow(){if(typeof requestAnimationFrame==="undefined"||typeof performance==="undefined")return;const t0=performance.now(),k=S.coach,f=n=>{if(S.coach!==k)return;try{placeCoach()}catch(e){}if(n-t0<900)requestAnimationFrame(f);};requestAnimationFrame(f);}
+if(typeof addEventListener!=="undefined")addEventListener("scroll",()=>{if(S&&S.coach!=null)try{placeCoach()}catch(e){}},{passive:true});
 if(typeof addEventListener!=="undefined")addEventListener("resize",()=>{try{placeCoach()}catch(e){}});
 function coachNext(){S.coach++;if(S.coach>=COACH.length)coachEnd();else render();}
 function coachEnd(){S.coach=null;lsSet("13t_tut","1");render();}
@@ -2224,7 +2242,7 @@ function render(){
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
  const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,intro:viewIntro,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
  document.getElementById("app").innerHTML=v()+crisisBigHTML()+coachHTML();
- if(S.coach!=null&&S.screen==="round"&&document.getElementById){const tg=document.getElementById(COACH[S.coach][0]);if(tg&&tg.classList){tg.classList.add("coachme");if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;tg.scrollIntoView({block:"start",behavior:"smooth"});}}}
+ if(S.coach!=null&&S.screen==="round"&&document.getElementById){coachTgs().forEach(t=>t.classList&&t.classList.add("coachme"));const tg=coachTgs()[0];if(tg&&tg.classList){if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;if(!(tg.closest&&tg.closest(".actbar,.top")))tg.scrollIntoView({block:"start",behavior:"smooth"});}}coachFollow();}
  placeCoach();
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
  juice();
