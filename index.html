@@ -1072,7 +1072,10 @@ const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,
 let PER=[],LAST=3;
 function setMode(m){PER=MODES[m].map(([a,b])=>({a,b,l:a+" bis "+b}));LAST=PER.length-1;}
 setMode("kurz");
-const TREND=0.011, START=12.8, ZIEL=0.6, MAXC=95;
+// Wandel um dich herum: Fabriken, Landwirtschaft, Strom und Staat werden sauberer, auch dank Klimapolitik anderer Laender.
+// Rund 1 % pro Jahr (BAFU/EBP 2025: Ausland-Anteil 2000-2023 -15 %, Inland -37 %). Was du selbst entscheidest
+// (Heizung, Auto, Fluege), sinkt nicht von selbst: das geht nur ueber Karten, Ereignisse und Vorlagen.
+const TREND=0.010, OWNFIX=new Set(["heiz","auto","flug"]), START=12.8, ZIEL=0.6, MAXC=95;
 const AREA={I:"Mobilität",W:"Wohnen",N:"Ernährung",C:"Konsum und Freizeit"};
 const CATS=Object.keys(M.CAT);
 const SHADE=["#111","#555","#888","#b5b5b5","#e2e2e2"];
@@ -1143,7 +1146,7 @@ function subs(y,opt){
  if(opt.own&&opt.extraOwn==="I2")a.oev=(a.oev||0)+0.1;
  for(const k in a)v[k]+=a[k];
  const f=Math.pow(1-TREND,y-2026);
- for(const k in v)v[k]*=f;
+ for(const k in v)if(!OWNFIX.has(k))v[k]*=f;
  return v;
 }
 const tot=v=>Object.values(v).reduce((s,x)=>s+x,0);
@@ -1540,7 +1543,7 @@ function barHTML(v){
 }
 function header(){
  const atEnd=S.screen==='summary'||S.screen==='dorf',p=PER[S.r],y=atEnd?(S.r<LAST?PER[S.r+1].a:2050):p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),used=y>2026,so=used?sum(2026,y-1,ACT):0;
- const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. So weit bringt dich der allgemeine Wandel: sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Ziel bis 2050: 0.6 t.`;
+ const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland werden sauberer. Deine Heizung, dein Auto und deine Flüge ändern sich nicht von selbst. Ziel bis 2050: 0.6 t.`;
  const tb=used?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
  const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?" 2 Geld sind gesperrt: Das Schnäppchen nach dieser Runde kostet dich 2 Geld, ausser du wählst noch «Allgemein weniger kaufen».":""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
@@ -1641,7 +1644,11 @@ function rulesHTML(){
  <div class="ibox"><div class="lbl">Geld</div><div class="v">wenig</div><div class="hint">für Anschaffungen und Kampagnen, bleibt dir</div></div></div>
  <div class="callout"><span class="ic">1</span><span><b>Entscheide und Abstimmung.</b> Du bekommst 4 Karten, je eine aus Mobilität, Wohnen, Ernährung und Konsum. Jede gewählte Karte gilt ab jetzt jedes Jahr bis 2050. Daneben stehen zwei Vorlagen mit kleiner Grundchance. Jedes Herz fürs Engagement bringt +30 Prozentpunkte, eine Kampagne mit 2 Geld +15. Angenommene Vorlagen wirken ab der nächsten Runde für alle.</span></div>
  <div class="callout"><span class="ic">2</span><span><b>Ereignis und Bilanz.</b> Etwas passiert, das du nicht ganz planen konntest. Danach siehst du, was die Runde gebracht hat.</span></div>
- <div class="callout"><span class="ic">!</span><span><b>Der allgemeine Wandel.</b> Auch ohne dich sinkt der Fussabdruck langsam: Der Strom wird sauberer, alte Heizungen und Autos werden ersetzt, Produkte brauchen weniger Energie. Von 2000 bis 2023 waren das rund 1.1 % pro Jahr, das Spiel rechnet so weiter. Die Linie «weiter wie bisher» zeigt, wo du ohne eigene Karten und ohne neue Vorlagen landen würdest: 2050 bei rund 9.8 t, weit über dem Ziel.</span></div>`;
+ <div class="callout"><span class="ic">!</span><span><b>Woher deine 12.8 t kommen.</b> Gut zwei Drittel davon entstehen im Ausland: in allem, was für dich hergestellt wird, vom Brot bis zum Handy (BAFU 2025). Das Spiel unterscheidet drei Ebenen:
+ <br><b>Was du selbst verbrennst</b> (Heizung, Auto, Flüge, ${fmt(M.BASE.heiz+M.BASE.auto+M.BASE.flug,1)} t): Das ändert sich nur, wenn du etwas änderst.
+ <br><b>Was in deinen Einkäufen steckt</b> (Essen, Wohnung, Strom, Kleider, Geräte, ${fmt(START-M.BASE.heiz-M.BASE.auto-M.BASE.flug-M.BASE.oeff-M.BASE.oeffbesch,1)} t): Du entscheidest, wie viel und was du kaufst. Wie es hergestellt wird, entscheiden andere.
+ <br><b>Was wir gemeinsam brauchen</b> (Schulen, Spitäler, Strassen, Verwaltung, ${fmt(M.BASE.oeff+M.BASE.oeffbesch,1)} t): Das ändert sich nur über die Politik.
+ <br>Die zwei letzten Ebenen sinken langsam auch ohne dich, rund 1 % pro Jahr, weil Fabriken, Bauernhöfe und Kraftwerke sauberer werden, auch dank Klimapolitik in anderen Ländern. Die Linie «weiter wie bisher» zeigt, wo du ohne eigene Karten und ohne neue Vorlagen landest: 2050 bei rund ${fmt(val(2050,NO))} t.</span></div>`;
 }
 function figCard(f,onclick,on){const c=M.INC[f],inc=c.length==1?`+${c[0]} ${IC("geld",14)} pro Runde`:`+1 ${IC("geld",14)} jede 2. Runde`;
  return `<div class="fig ${on?"on":""}" onclick="${onclick}" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"><div class="im stage">${wanderFig(f,4)}</div><h3>${f}</h3><p class="life">${esc(M.FIG[f].life)}</p>
@@ -1827,7 +1834,7 @@ function dorfPops(){if(typeof innerWidth==="undefined"||innerWidth<1000||!docume
   if(old&&(!h||old.dataset.k!==h.k))old.remove();if(h&&!host.querySelector(".dbub.hov")){const b=dorfBubble(h.k,h,"hov");if(b)b.dataset.k=h.k;}
   d.style.cursor=h?"help":"";});
  d.addEventListener("mouseleave",()=>{const o=host.querySelector(".dbub.hov");if(o)o.remove();});}
-function dorfItems(){if(S.dorfFinal){const A=dorfAll();if(!A.length)return `<li class="no"><span class="ic">·</span><span>Keine Vorlage und kein Projekt kam durch. Das Dorf hat sich nur durch den allgemeinen Wandel verändert.</span></li>`;
+function dorfItems(){if(S.dorfFinal){const A=dorfAll();if(!A.length)return `<li class="no"><span class="ic">·</span><span>Keine Vorlage und kein Projekt kam durch. Das Dorf hat sich nur durch den Wandel um dich herum verändert.</span></li>`;
   return A.map(([k,y],j)=>`<li class="ok" style="animation-delay:${1200+j*1300}ms"><span class="ic">✓</span><span><b>«${esc(k[0]==="P"?PROJ[k].t:T[k].title)}»</b> seit ${y}</span></li>`).join("");}
  const L=[];
  for(const x of (S.results||[]))if(x.ok&&cheaperBy(x.k).length)L.push(`<li class="no"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></li>`);
@@ -1835,7 +1842,7 @@ function dorfItems(){if(S.dorfFinal){const A=dorfAll();if(!A.length)return `<li 
  for(const x of (S.results||[]))L.push(x.ok?`<li class="ok"><span class="ic">✓</span><span><b>«${esc(T[x.k].title)}»</b> angenommen. Wirkt ab ${S.adopted[x.k]}${RAMP[x.k]?", schrittweise bis "+(S.adopted[x.k]+RAMP[x.k]-1):""}.</span></li>`:`<li class="no"><span class="ic">✗</span><span>«${esc(T[x.k].title)}» abgelehnt.</span></li>`);
  const ps=projState(S.r);if(ps&&ps.done&&ps.doneAt===S.r)L.push(`<li class="ok"><span class="ic">✓</span><span><b>«${esc(PROJ[ps.pid].t)}»</b> gebaut. Wirkt ab ${S.pdone[ps.pid]}.</span></li>`);
  L.push(...LB);
- if(!L.some(x=>x.includes('class="ok"')))L.push(`<li class="no"><span class="ic">·</span><span>Im Dorf ändert sich nur, was ohnehin passiert: der allgemeine Wandel.</span></li>`);
+ if(!L.some(x=>x.includes('class="ok"')))L.push(`<li class="no"><span class="ic">·</span><span>Im Dorf ändert sich nur, was ohnehin passiert: der Wandel um dich herum.</span></li>`);
  return L.map((x,i)=>x.replace("<li ",`<li style="animation-delay:${600+i*dorfGap()}ms" `)).join("");}
 function viewDorf(){const d=dorfVals();
  const B=S.dorfFinal?`<span>2026 bis 2050</span><button class="primary" onclick="toEnd()">Zur Auswertung</button>`:`<span>Die Zeit vergeht: ${PER[S.r].l}</span><button class="primary" onclick="toSummary()">Weiter zur Bilanz</button>`;
@@ -1913,7 +1920,7 @@ function viewSummary(){
  const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const before=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT);
  const now=val(nx,ACT),dt=val(nx,NO)-val(a0,NO),dv=(val(nx,VO)-val(nx,NO))-(val(a0,VO)-val(a0,NO)),d=now-before,dme=d-dt-dv;
- const parts=[["der allgemeine Wandel","Wandel",dt],["die Vorlagen","Vorlagen",dv],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
+ const parts=[["der Wandel um dich herum","Wandel",dt],["die Vorlagen","Vorlagen",dv],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
  const big=parts.slice().sort((a,b)=>d<=0?a[2]-b[2]:b[2]-a[2])[0];
  const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht hat":"Am meisten dazu beigetragen hat"} ${big[0]}.${big[1]==="Wandel"&&Math.abs(dme)>=0.05?` Dein Alltag: ${sgn(dme)} t.`:""}`;
  const used=sum(2026,nx-1,ACT),pf=pfadBis(nx-1),over=used>pf+0.5;
@@ -1968,7 +1975,7 @@ function chartClean(toYear){
 /* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
 function waterfallSVG(parts,d){
  const nar=typeof innerWidth!=='undefined'&&innerWidth<700,W=nar?340:520,H=180,T=34,Bm=22,n=parts.length+1,bw=nar?56:64,gap=(W-n*bw)/(n+1);
- const EXP={Wandel:"<b>Allgemeiner Wandel</b><br>Sauberer Strom, neue Heizungen und Autos, effizientere Produkte. Passiert auch ohne dich, rund 1.1 % pro Jahr.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
+ const EXP={Wandel:"<b>Wandel um dich herum</b><br>Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland werden sauberer, rund 1 % pro Jahr. Deine Heizung, dein Auto und deine Flüge ändern sich dadurch nicht.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
  let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
  const span=Math.max(0.5,hi-lo),Y=v=>Math.round((T+(hi-v)/span*(H-T-Bm))/2)*2;
  let g=`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--g3)" stroke-width="1"/>`;
@@ -2023,7 +2030,7 @@ const FRAGEN=["Welche Entscheidung hat bei dir am meisten gebracht, und warum ge
 function lsGet(k){try{return localStorage.getItem(k)||""}catch(e){return""}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="lbl">Frage ${i+1}</div><p style="margin:4px 0 8px">${q}</p><textarea class="ta" rows="3" oninput="lsSet('13t_q${i}',this.value)">${esc0(lsGet('13t_q'+i))}</textarea></div>`).join("")+`<p class="hint">Deine Antworten bleiben nur in diesem Browser. Für Auftrag 4.3 schreibst du sie ab.</p>`;}
-const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der allgemeine Wandel von 1.1 % pro Jahr schreibt die Jahre 2000 bis 2023 einfach fort. Er wirkt im Spiel auch auf das, was du selbst schon gesenkt hast. Bei aktiven Figuren ist er darum etwas zu gross.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Rückkopplungen im Klimasystem und die Folgen der Erwärmung fehlen im Spiel.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
+const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr) schreibt die Jahre 2000 bis 2023 grob fort. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Rückkopplungen im Klimasystem und die Folgen der Erwärmung fehlen im Spiel.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
 /* Geführte erste Runde */
 const COACH=[["stats","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der Strich das Ziel 0.6 t."],
