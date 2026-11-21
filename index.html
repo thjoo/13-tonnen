@@ -1067,6 +1067,15 @@ const T={
 "back": "Die Heizgradtage sind in der Schweiz in den letzten Jahrzehnten zurückgegangen, als Folge der Erwärmung (MeteoSchweiz). 2022 gab es 17 % weniger Heizgradtage als im Vorjahr, der Energieverbrauch sank (BFE). Fehlvorstellung: «Dann ist die Erwärmung ja gut.» Das gesparte Heizöl ist klein gegen Hitze, Dürre und Unwetter.",
 "game": "Drei Jahre lang heizt du 10 % weniger.",
 "why": ""
+},
+"E2m": {
+"id": "E2m",
+"title": "Die Heizung ist kaputt",
+"head": " · Krise · wenn du mietest oder bei den Eltern wohnst",
+"front": "Mitten im Winter fällt die Ölheizung im Haus aus. Ob wieder eine Ölheizung oder eine Wärmepumpe eingebaut wird, entscheidest nicht du, sondern wer das Haus besitzt.",
+"back": "Beim Heizungsersatz wird je nach Kanton nur in 16 bis 58 % der Fälle erneuerbar eingebaut (EBP 2024, WWF-Rating 2024). Viele Besitzer:innen ersetzen eine alte Ölheizung lieber durch die gleiche Art. Wer mietet, kann nur mitreden: nachfragen, Argumente bringen, auf Förderbeiträge hinweisen. Eine neue Ölheizung läuft 20 bis 25 Jahre, das ist ein Lock-in.",
+"game": "Das Spiel würfelt, etwa 50 zu 50. Kommt wieder Öl, ist «W2b» bis 2050 gesperrt. Kommt eine Wärmepumpe, heizt du ab dann 90 % klimafreundlicher.",
+"why": ""
 }
 };
 const M={"START": {"Daniel": 2, "Lia": 1, "Noah": 2, "Ruth": 3, "Elif": 2}, "INC": {"Daniel": [1], "Lia": [1], "Noah": [2], "Ruth": [1], "Elif": [0, 1]}, "BASE": {"auto": 1.3, "flug": 1.4, "oev": 0.2, "heiz": 0.9, "strom": 0.2, "wuebrig": 1.0, "bau": 0.8, "moebel": 0.4, "fleisch": 0.43, "milch": 0.26, "waste": 0.19, "saison": 0.1, "kette": 0.2, "kantine": 0.06, "ernrest": 1.46, "sonst": 0.05, "elek": 0.05, "stream": 0.03, "recyc": 0.02, "lkw": 0.4, "ind": 0.2, "repar": 0.05, "freizeit": 0.5, "kleider": 0.3, "beherb": 0.2, "oeff": 1.3, "oeffbesch": 0.8}, "CAT": {"Mobilität": ["auto", "flug", "oev"], "Wohnen": ["heiz", "strom", "wuebrig", "bau", "moebel"], "Ernährung": ["fleisch", "milch", "waste", "saison", "kette", "kantine", "ernrest"], "Konsum und Freizeit": ["sonst", "elek", "stream", "recyc", "lkw", "ind", "repar", "freizeit", "kleider", "beherb"], "Öffentliche Leistungen": ["oeff", "oeffbesch"]}, "CARDS": {"I1a": {"h": 1, "g": 0, "mult": {"flug": 0.5}}, "I1b": {"h": 3, "g": 0, "mult": {"flug": 0.0}}, "I2": {"h": 2, "g": -2, "mult": {"auto": 0.0}, "add": {"oev": 0.1}, "excl": ["I3", "I4", "I6"]}, "I3": {"h": 0, "g": 4, "mult": {"auto": 0.3333333333333333}, "excl": ["I2"]}, "I7": {"h": 3, "g": 0, "mult": {"auto": 0.3333333333333333}, "excl": ["I2", "I3", "I4", "I6"]}, "I4": {"h": 1, "g": 0, "mult": {"auto": 0.5}, "excl": ["I2"]}, "W1": {"h": 1, "g": 0, "mult": {"heiz": 0.88}}, "W2": {"h": 0, "g": 4, "mult": {"heiz": 0.1}, "excl": ["W2b"]}, "W2b": {"h": 3, "g": 0, "mult": {"heiz": 0.1}, "excl": ["W2"]}, "W3": {"h": 1, "g": 4, "mult": {"heiz": 0.7}}, "W4": {"h": 2, "g": -2, "mult": {"heiz": 0.75, "bau": 0.75, "moebel": 0.75}}, "W5": {"h": 0, "g": 1, "mult": {"strom": 0.1}}, "W6": {"h": 1, "g": 0, "mult": {"moebel": 0.7}}, "N1": {"h": 1, "g": 0, "mult": {"fleisch": 0.3}}, "N2": {"h": 2, "g": 0, "mult": {"fleisch": 0.0}}, "N3": {"h": 3, "g": 0, "mult": {"fleisch": 0.0, "milch": 0.0}}, "N4": {"h": 1, "g": 0, "mult": {"waste": 0.0}}, "N5": {"h": 1, "g": 1, "mult": {"saison": 0.0}}, "I5": {"h": 0, "g": 2, "mult": {"flug": 0.7}}, "I6": {"h": 1, "g": 1, "mult": {"auto": 0.85}, "excl": ["I2"]}, "W7": {"h": 0, "g": 1, "mult": {"strom": 0.8}}, "N6": {"h": 0, "g": 2, "mult": {"ernrest": 0.93}}, "C1": {"h": 2, "g": 0, "mult": {"kleider": 0.5}}, "C2": {"h": 2, "g": 0, "mult": {"elek": 0.67}}, "C3": {"h": 1, "g": 0, "mult": {"stream": 0.5}}, "N7": {"h": 1, "g": 0, "mult": {"milch": 0.5}, "excl": ["N3"]}, "N8": {"h": 1, "g": -1, "mult": {"ernrest": 0.9}}, "C4": {"h": 3, "g": -2, "mult": {"sonst": 0.7, "elek": 0.7, "stream": 0.7, "recyc": 0.7, "lkw": 0.7, "ind": 0.7, "repar": 0.7, "freizeit": 0.7}}, "C5": {"h": 1, "g": 0, "mult": {"sonst": 0.9, "elek": 0.9, "stream": 0.9, "recyc": 0.9, "lkw": 0.9, "ind": 0.9, "repar": 0.9, "freizeit": 0.9}}, "C6": {"h": 1, "g": 0, "mult": {"recyc": 0.0}}}, "VORL": {"K1": {"c": 0.14, "mult": {"auto": 0.3333333333333333}}, "K6": {"c": 0.18, "mult": {"flug": 0.9}}, "K9": {"c": 0.18, "mult": {"auto": 0.6}}, "K3": {"c": 0.22, "mult": {"heiz": 0.1}}, "K4": {"c": 0.24, "mult": {"strom": 0.5}}, "K8": {"c": 0.12, "mult": {"heiz": 0.9, "bau": 0.9, "moebel": 0.9}}, "K7": {"c": 0.26, "mult": {"kette": 0.0}}, "K10": {"c": 0.18, "mult": {"kantine": 0.0}}, "K2": {"c": 0.2, "mult": {"lkw": 0.0}}, "K5": {"c": 0.22, "mult": {"ind": 0.0}}, "K15": {"c": 0.24, "mult": {"repar": 0.0}}, "K11": {"c": 0.2, "mult": {"oeffbesch": 0.0}}, "K12": {"c": 0.28, "mult": {}, "ch": 0.02}, "K17": {"c": 0.18, "mult": {"oeff": 0.85}}, "K16": {"c": 0.16, "mult": {"sonst": 0.75, "freizeit": 0.75, "kleider": 0.75, "beherb": 0.75, "wuebrig": 0.75, "bau": 0.75, "moebel": 0.75, "ernrest": 0.75, "milch": 0.75, "fleisch": 0.75}}}, "FIG": {"Daniel": {"geld": 2, "mod": {}, "ban": ["W2b", "I7"], "life": "43, so alt wie die Schweiz im Mittel. Wohnt mit Partnerin und zwei Kindern im eigenen Reihenhaus in der Agglomeration, hat ein Auto und arbeitet im Büro. Entscheidet bei allem mit, auch bei Heizung und Haus."}, "Lia": {"geld": 2, "mod": {"I1a": 1, "I2": -1, "I4": -1}, "ban": ["W2", "W3", "I7"], "life": "25, wohnt in einer WG in Zürich, ÖV vor der Tür, fährt aber noch das alte Auto ihrer Eltern. Reist für ihr Leben gern. Mieterin: über die Heizung entscheidet die Vermieterin."}, "Noah": {"geld": 2, "mod": {"I2": 1, "I4": 1, "I6": 1, "N1": 1, "N2": 1}, "ban": ["W2", "W3", "W4", "N3", "I7"], "life": "25, Lehrabschluss, wohnt bei den Eltern im Einfamilienhaus auf dem Land, der Bus fährt stündlich, isst gern Fleisch."}, "Ruth": {"geld": 3, "mod": {"W4": 1, "I1b": -1}, "ban": ["W2b", "I7"], "life": "70, pensioniert, wohnt allein im eigenen Haus. Hat Ersparnisse, zieht aber ungern um."}, "Elif": {"geld": 1, "mod": {"C1": -1, "C2": -1, "C3": -1, "C4": -1, "C5": -1, "C6": -1}, "ban": ["W2", "W3", "W4", "I2", "I3", "I4", "I6"], "life": "17, Gymnasiastin, wohnt mit Eltern und Bruder in einer Mietwohnung, wenig eigenes Geld. Über Auto und Heizung entscheiden die Eltern."}}, "SYN": {"K9": {"h": ["I2", "I4", "I7"]}, "K10": {"h": ["N2"]}, "K15": {"h": ["C2"]}, "K6": {"h": ["I1a", "I1b"]}, "K3": {"g": ["W2"], "h": ["W2b"]}, "K1": {"g": ["I3"]}}};
@@ -1193,7 +1202,8 @@ function adds(y,own){
 // Vorlagen zum Flotten- oder Heizungsersatz wirken schrittweise ueber 15 Jahre.
 // Wer die gleiche Massnahme schon selbst umgesetzt hat, spart durch Vorlage oder Projekt nichts mehr.
 const RAMP={K1:15,K2:15,K3:15,K17:14},SAME={K1:["I3","I7"],K3:["W2","W2b"],P1:["W2","W2b"]};
-function sameOwn(id,y,opt){return !!(opt.own&&SAME[id]&&SAME[id].some(c=>c!==opt.without&&(ownActive(c,y)||opt.extraOwn===c)));}
+function e2wp(y){return S.events.some(e=>e.id=="E2wp"&&e.from<=y);}
+function sameOwn(id,y,opt){return !!(opt.own&&SAME[id]&&(SAME[id].some(c=>c!==opt.without&&(ownActive(c,y)||opt.extraOwn===c))||((id=="K3"||id=="P1")&&e2wp(y))));}
 function rampQ(id,from,y){return RAMP[id]?Math.max(0,Math.min(1,(y-from+1)/RAMP[id])):1;}
 function vmul(v,id,from,y,opt){if(sameOwn(id,y,opt))return;const m=M.VORL[id].mult,q=rampQ(id,from,y);for(const k in m)v[k]*=1-(1-m[k])*q;}
 function subs(y,opt){
@@ -1205,6 +1215,7 @@ function subs(y,opt){
    const m=M.CARDS[id].mult;for(const k in m)v[k]*=m[k];}
   if(opt.extraOwn){const m=M.CARDS[opt.extraOwn].mult;for(const k in m)v[k]*=m[k];}
   for(const e of S.events)if(e.id=="E8"&&e.from<=y&&y<=e.to)v.heiz*=0.9;
+  if(e2wp(y)&&!ownActive("W2b",y)&&opt.extraOwn!=="W2b")v.heiz*=0.1;
  }
  if(opt.vorl){
   for(const id in S.adopted){if(id===opt.without)continue;if(S.adopted[id]>y)continue;vmul(v,id,S.adopted[id],y,opt);}
@@ -1254,6 +1265,7 @@ function blocked(id){
  if(S.chosen[id]!==undefined)return null;
  if(id=="W2"&&S.flags.w2locked)return "Gesperrt: Es wurde wieder eine Ölheizung eingebaut (Lock-in bis 2050).";
  if(id=="W2b"&&S.flags.w2locked)return "Gesperrt: Es wurde wieder eine Ölheizung eingebaut (Lock-in bis 2050).";
+ if(id=="W2b"&&S.events.some(e=>e.id=="E2wp"))return "Es wurde schon eine Wärmepumpe eingebaut.";
  for(const x of (c.excl||[]))if(S.chosen[x]!==undefined)return "Geht nicht zusammen mit «"+T[x].title+"».";
  if((id=="I1a"||id=="I5")&&S.chosen.I1b!==undefined)return "Schon abgedeckt: Du fliegst gar nicht mehr.";
  if(id=="N1"&&(S.chosen.N2!==undefined||S.chosen.N3!==undefined))return "Schon abgedeckt durch vegetarisch oder vegan.";
@@ -1334,13 +1346,14 @@ function shuffle(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).ma
 function pickProj(){return shuffle(Object.keys(PROJ));}
 
 /* ---------- Krisen offen ---------- */
-const EVKIND={E1:"Krise",E2:"Krise",E3:"Gelegenheit",E4:"Krise",E5:"Klima",E6:"Klima",E7:"Klima",E8:"Klima"};
+const EVKIND={E1:"Krise",E2:"Krise",E2m:"Krise",E3:"Gelegenheit",E4:"Krise",E5:"Klima",E6:"Klima",E7:"Klima",E8:"Klima"};
 const KLIMA=["E5","E6","E7","E8"];
 // Klima-Ereignisse werden haeufiger, je naeher 2050 (Klimaszenarien 2025): von 12 % in Runde 2 bis 50 % in der letzten Runde.
 function klimaP(){return LAST?0.12+0.38*Math.max(0,S.r-1)/Math.max(1,LAST-1):0;}
 function evHow(e){
  if(e=="E1")return "Trifft dich, weil du ein E-Auto fährst. Nimmst du es in dieser Runde zurück, fällt sie weg.";
  if(e=="E2")return `Abwenden: Wähle in dieser Runde «${T.W2.title}». Die Karte liegt in deiner Auswahl.`;
+ if(e=="E2m")return `Abwenden: Wähle in dieser Runde «${T.W2b.title}». Dann hast du vorher überzeugt. Die Karte liegt in deiner Auswahl.`;
  if(e=="E3")return "Fällt weg, wenn du schon vegetarisch oder vegan isst.";
  if(e=="E4")return `Abwenden: Wähle in dieser Runde «${T.C4.title}». Die Karte liegt in deiner Auswahl.`;
  if(e=="E7")return `Abwenden kannst du das Niedrigwasser nicht. Die Geldkosten fallen weg, wenn du in dieser Runde die Heizung ersetzt.`;
@@ -1348,7 +1361,7 @@ function evHow(e){
  return "";}
 function evStatus(e){if(S.happened.includes(e))return "schon passiert";if(e===S.nextEvent)return "droht jetzt";if(eventCands().includes(e))return "kann noch kommen";return "betrifft dich nicht";}
 function crisisBody(ne){const t=T[ne];return `<p class="tx">${esc(t.front||t.back)}</p>${t.game?`<p class="tx"><i>Folge:</i> ${esc(t.game)}</p>`:""}<p class="how">${esc(evHow(ne))}</p>`;}
-function crisisAll(){return `<details><summary>Alle Ereignisse im Spiel</summary><table>${["E2","E4","E1","E3",...KLIMA].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table><p class="hint">Klima-Ereignisse werden häufiger: In dieser Runde kommt mit ${Math.round(klimaP()*100)} % Wahrscheinlichkeit eines.</p></details>`;}
+function crisisAll(){return `<details><summary>Alle Ereignisse im Spiel</summary><table>${[fig()&&fig().ban.includes("W2")?"E2m":"E2","E4","E1","E3",...KLIMA].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table><p class="hint">Klima-Ereignisse werden häufiger: In dieser Runde kommt mit ${Math.round(klimaP()*100)} % Wahrscheinlichkeit eines.</p></details>`;}
 function crisisBigOpen(){return S.screen==="round"&&!S.results&&!S.waiting&&S.nextEvent&&S.nextEvent!=="ruhig"&&S.crisisSeen!==S.r;}
 function crisisBigHTML(){if(!crisisBigOpen())return"";const ne=S.nextEvent;
  return `<div class="ovl" onclick="if(event.target===this)crisisAway()"><div class="crisis big" id="crisisBig"><div class="lbl">${EVKIND[ne]} nach dieser Runde</div><h3>${esc(T[ne].title)}</h3>${crisisBody(ne)}<div class="row" style="margin-top:12px"><button class="primary" onclick="crisisAway()">Verstanden</button><span class="hint">Du findest sie rechts wieder.</span></div></div></div>`;}
@@ -1392,9 +1405,11 @@ function scoreNow(){ // null, wenn in der Gruppe noch nicht alle fertig sind
  const ga=groupAvg("end"),gb=groupAvg("endsum");
  return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,ziel:ga!=null&&gb!=null&&ga<GOAL&&gb<GOALB};}
 let BOARD={key:null,rows:null,err:null};
+// Bestenliste neu ab 21.11.2026 08:00: Seit Wandel und Klima-Ereignissen sind die Punkte nicht mehr mit frueheren Spielen vergleichbar. Alte Eintraege bleiben gespeichert, werden aber ausgeblendet.
+const BOARDSINCE=Date.UTC(2026,10,21,7,0);
 function boardKey(n,mode){return "scores/"+(mode||S.mode||"kurz")+"/"+n;}
 async function loadBoard(n,mode){const k=boardKey(n,mode);BOARD={key:k,rows:null,err:null};render();
- try{await netInit();const v=await NET.top(k,10);BOARD={key:k,rows:v,err:null};}
+ try{await netInit();const v=(await NET.top(k,300)).filter(x=>(x.at||0)>=BOARDSINCE).slice(0,10);BOARD={key:k,rows:v,err:null};}
  catch(e){BOARD={key:k,rows:[],err:"Bestenliste nicht erreichbar"+(e&&e.code?" ("+e.code+")":"")+"."};}
  render();}
 async function submitScore(){
@@ -1455,6 +1470,7 @@ function avail(id){ // kommt grundsätzlich noch in Frage (ohne Kosten)
  const f=fig(),c=M.CARDS[id];
  if(f.ban.includes(id)||chalBan(id)||S.chosen[id]!==undefined)return false;
  if((id=="W2"||id=="W2b")&&S.flags.w2locked)return false;
+ if(id=="W2b"&&S.events.some(e=>e.id=="E2wp"))return false;
  for(const x of (c.excl||[]))if(S.chosen[x]!==undefined)return false;
  if((id=="I1a"||id=="I5")&&S.chosen.I1b!==undefined)return false;
  if(id=="N1"&&(S.chosen.N2!==undefined||S.chosen.N3!==undefined))return false;
@@ -1466,7 +1482,7 @@ function drawHand(){
  const pool=Object.keys(M.CARDS).filter(avail),hand=[];
  const take=id=>{if(pool.includes(id)&&!hand.includes(id))hand.push(id)};
  if(S.flags.e2==S.r)take("W2"); if(S.flags.e3==S.r)take("N2");
- if(S.nextEvent=="E2")take("W2"); if(S.nextEvent=="E4")take("C4");
+ if(S.nextEvent=="E2")take("W2"); if(S.nextEvent=="E2m")take("W2b"); if(S.nextEvent=="E4")take("C4");
  const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
  for(const a of "IWNC"){if(hand.length>=HAND)break;const c=shuf(pool.filter(k=>k[0]==a&&!hand.includes(k)));if(c.length)hand.push(c[0]);}
  for(const k of shuf(pool.filter(k=>!hand.includes(k)))){if(hand.length>=HAND)break;hand.push(k);}
@@ -1596,6 +1612,7 @@ function toEvent(){
   if(e!=="ruhig"){S.happened.push(e);}
   if(e=="E1")S.events.push({id:"E1",from:nextY});
   if(e=="E2")S.flags.e2=S.r+1;
+  if(e=="E2m"){S.e2mRes=Math.random()<E2WP?"wp":"oel";if(S.e2mRes=="wp")S.events.push({id:"E2wp",from:nextY});else S.flags.w2locked=true;}
   if(e=="E3")S.flags.e3=S.r+1;
   if(e=="E4"){S.money=Math.max(0,S.money-2);S.events.push({id:"E4",from:nextY});}
   if(KLIMA.includes(e)){const c=evCost(e);if(c)S.money=Math.max(0,S.money-c);S.events.push({id:e,from:nextY,to:nextY+(e=="E6"?0:2)});}}
@@ -1712,7 +1729,8 @@ function eventBox(){
  if(S.event=="abgewendet"){const t=T[S.averted];h=`<div class="lbl">Ereignis abgewendet</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${AVERT[S.averted]||"Du hast vorgesorgt."}</p><div class="callout"><span class="ic">✓</span><span>Vorsorgen hat sich gelohnt.</span></div>`;}
  else if(S.event=="ruhig")h=`<div class="lbl">Ereignis</div><h2>Ein ruhiges Jahr</h2><p class="sub">Nichts Besonderes passiert. Deine Vorsätze halten.</p>`;
  else{const t=T[S.event];h=`<div class="lbl">Ereignis · ${esc(t.head.replace(/^ · /,""))}</div><h2>${esc(t.title)}</h2><p class="sub" style="color:var(--text);font-size:16px">${esc(t.front||"")}</p>${t.game?`<div class="callout"><span class="ic">!</span><span>${esc(t.game)}</span></div>`:""}<details><summary>Mehr dazu</summary><p>${esc(t.back)}</p></details>`;
-  if(S.event=="E1")h+=`<div class="callout"><span class="ic">!</span><span>Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</span></div>`;}
+  if(S.event=="E1")h+=`<div class="callout"><span class="ic">!</span><span>Dein Fussabdruck steigt ab ${vorlFrom(S.r)} um 0.1 t pro Jahr.</span></div>`;
+  if(S.event=="E2m"){const wer=S.fig=="Noah"?"Deine Eltern haben":"Die Vermieterin hat";h+=S.e2mRes=="wp"?`<div class="callout"><span class="ic">✓</span><span>${wer} eine Wärmepumpe einbauen lassen. Ab ${vorlFrom(S.r)} heizt du 90 % klimafreundlicher, ohne dass du etwas zahlst.</span></div>`:`<div class="callout"><span class="ic">!</span><span>${wer} wieder eine Ölheizung einbauen lassen. Sie läuft bis weit nach 2040. «${esc0(T.W2b.title)}» ist bis 2050 gesperrt.</span></div>`;}}
  return h;
 }
 function viewEvent(){return viewSummary();}
@@ -1826,6 +1844,7 @@ function chalBan(id){const c=CHAL[S.chal||"keine"];return c.ban==="alle"||(c.ban
 function eventCands(){const f=fig(),c=[];
  if((S.chosen.I3!==undefined||S.chosen.I7!==undefined)&&!S.happened.includes("E1"))c.push("E1");
  if(!f.ban.includes("W2")&&!chalBan("W2")&&S.chosen.W2===undefined&&!S.flags.w2locked&&!S.happened.includes("E2")&&S.r<LAST)c.push("E2");
+ if(f.ban.includes("W2")&&!f.ban.includes("W2b")&&!chalBan("W2b")&&S.chosen.W2b===undefined&&!S.flags.w2locked&&!S.happened.includes("E2m"))c.push("E2m");
  if(!f.ban.includes("N2")&&!chalBan("N2")&&S.chosen.N2===undefined&&S.chosen.N3===undefined&&!S.happened.includes("E3")&&S.r<LAST)c.push("E3");
  if(S.chosen.C4===undefined&&!S.happened.includes("E4"))c.push("E4");
  for(const e of KLIMA)if(!S.happened.includes(e))c.push(e);
@@ -1834,7 +1853,8 @@ function announceEvent(){if(S.r===0){S.nextEvent="ruhig";return;}
  const k=KLIMA.filter(e=>!S.happened.includes(e));
  if(k.length&&Math.random()<klimaP()){S.nextEvent=k[Math.floor(Math.random()*k.length)];return;}
  const c=eventCands().filter(e=>!KLIMA.includes(e));c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
-const AVERT={E1:"Du fährst kein E-Auto. Der Rebound trifft dich nicht.",E2:"Deine Heizung ist schon ersetzt. Der Ausfall kostet dich nichts.",E3:"Du isst schon vegetarisch.",E4:"Du kaufst bewusst weniger. Die Aktionen lassen dich kalt."};
+const E2WP=0.5; // Anteil erneuerbar beim Heizungsersatz je nach Kanton 16 bis 58 % (EBP 2024)
+const AVERT={E2m:"Du hast schon überzeugt: Statt Öl kommt eine Wärmepumpe.",E1:"Du fährst kein E-Auto. Der Rebound trifft dich nicht.",E2:"Deine Heizung ist schon ersetzt. Der Ausfall kostet dich nichts.",E3:"Du isst schon vegetarisch.",E4:"Du kaufst bewusst weniger. Die Aktionen lassen dich kalt."};
 
 /* Pech-Ausgleich */
 function bonus(k){let n=0;
