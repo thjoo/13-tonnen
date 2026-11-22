@@ -37,11 +37,28 @@ jobs:
       - name: Tests
         run: python -m pytest tests -q -p no:cacheprovider
 
-  # Veroeffentlichen: nur index.html, und nur wenn die Tests auf main gruen sind.
+  # Seite zusammenstellen: nur index.html, und nur wenn die Tests auf main gruen sind.
   # Die Grafiken bleiben im privaten Repo; sie stecken bereits eingebettet in index.html.
-  veroeffentlichen:
+  seite:
     needs: tests
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - name: Seite zusammenstellen
+        run: |
+          mkdir _site
+          cp index.html .nojekyll _site/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  # Veroeffentlichen in einem eigenen Schritt, wie es GitHub empfiehlt
+  veroeffentlichen:
+    needs: seite
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -55,16 +72,5 @@ jobs:
       group: pages
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-          persist-credentials: false
-      - name: Seite zusammenstellen
-        run: |
-          mkdir _site
-          cp index.html .nojekyll _site/
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: _site
       - id: deploy
         uses: actions/deploy-pages@v4
