@@ -1,0 +1,14 @@
+:root{--ds:.5}
+@media (min-width:1100px){:root{--ds:.75}}
+.dorfkopf{position:relative;padding:0;text-align:center;overflow:hidden}
+.dorfkopf.links{text-align:left}
+.dtitel{position:absolute;left:0;right:0;top:50%;transform:translateY(-60%);z-index:2000;pointer-events:none;margin:0;display:grid;justify-content:center;font-family:var(--titel);font-size:calc(__H__px*var(--ds)*.34);line-height:.8;letter-spacing:.03em!important;white-space:nowrap;animation:schweben 4s ease-in-out infinite}
+@keyframes schweben{0%,100%{transform:translateY(calc(-55% - 2px))}50%{transform:translateY(calc(-55% + 2px))}}
+@media (prefers-reduced-motion:reduce){.dtitel{animation:none}}
+.dtitel span{grid-area:1/1;white-space:nowrap}
+.dtitel .o{color:var(--ink);text-shadow:-4px -4px 0 var(--ink),-4px -2px 0 var(--ink),-4px 0px 0 var(--ink),-4px 2px 0 var(--ink),-4px 4px 0 var(--ink),-4px 6px 0 var(--ink),-4px 8px 0 var(--ink),-4px 10px 0 var(--ink),-4px 12px 0 var(--ink),-2px -4px 0 var(--ink),-2px 4px 0 var(--ink),-2px 6px 0 var(--ink),-2px 8px 0 var(--ink),-2px 10px 0 var(--ink),-2px 12px 0 var(--ink),0px -4px 0 var(--ink),0px 4px 0 var(--ink),0px 6px 0 var(--ink),0px 8px 0 var(--ink),0px 10px 0 var(--ink),0px 12px 0 var(--ink),2px -4px 0 var(--ink),2px 4px 0 var(--ink),2px 6px 0 var(--ink),2px 8px 0 var(--ink),2px 10px 0 var(--ink),2px 12px 0 var(--ink),4px -4px 0 var(--ink),4px -2px 0 var(--ink),4px 0px 0 var(--ink),4px 2px 0 var(--ink),4px 4px 0 var(--ink),4px 6px 0 var(--ink),4px 8px 0 var(--ink),4px 10px 0 var(--ink),4px 12px 0 var(--ink)}
+.dtitel .f{background:linear-gradient(#fff 0 58%,#d8d2cc 58%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dorfkopf.links .dtitel{justify-content:start;max-width:1360px;margin:0 auto;padding:0 32px}
+.dorf{position:relative;height:calc(__H__px*var(--ds));overflow:hidden;background:#e9e5e1}
+.dorf canvas{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:crisp-edges}
+.wrap .hero{margin-top:22px}

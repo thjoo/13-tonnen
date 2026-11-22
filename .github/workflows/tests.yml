@@ -1,0 +1,70 @@
+name: Tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Grafiken holen (privates Repo)
+        env:
+          GRAFIK_TOKEN: ${{ secrets.GRAFIK_TOKEN }}
+        run: |
+          if [ -z "$GRAFIK_TOKEN" ]; then echo "::warning::Secret GRAFIK_TOKEN fehlt: Build-Pruefung wird uebersprungen"; exit 0; fi
+          # Schluessel nur fuer diesen einen Befehl, er bleibt danach nirgends gespeichert
+          git -c url."https://x-access-token:${GRAFIK_TOKEN}@github.com/".insteadOf="https://github.com/" submodule update --init --depth 1 grafik
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Pruefen, ob index.html zum Quellcode passt
+        run: |
+          if [ -f grafik/sprites.json ]; then python src/build.py --check; else echo "uebersprungen (keine Grafiken)"; fi
+      - name: Werkzeuge installieren
+        run: |
+          pip install -r tests/requirements.txt
+          python -m playwright install --with-deps chromium
+          npm install axe-core@4 --prefix tests --no-save --silent
+      - name: Tests
+        run: python -m pytest tests -q -p no:cacheprovider
+
+  # Veroeffentlichen: nur index.html, und nur wenn die Tests auf main gruen sind.
+  # Die Grafiken bleiben im privaten Repo; sie stecken bereits eingebettet in index.html.
+  veroeffentlichen:
+    needs: tests
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - name: Seite zusammenstellen
+        run: |
+          mkdir _site
+          cp index.html .nojekyll _site/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

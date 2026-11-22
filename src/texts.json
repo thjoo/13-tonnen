@@ -1,0 +1,488 @@
+{
+"I1a": {
+"id": "I1a",
+"title": "Halb so viel fliegen",
+"head": " · −0.7 t pro Jahr · 1 Herz (Lia 2) · Geld 0 · Suffizienz",
+"front": "Ab jetzt lässt du jede zweite Flugreise weg.",
+"back": "Flüge verursachen pro Person in der Schweiz rund 1.4 t pro Jahr (2019, vor Covid), etwa ein Zehntel des ganzen Fussabdrucks (BAFU/EBP 2025). Zum Vergleich: Ein einziger Flug Zürich–New York und zurück sind je nach Rechner 1.9 bis 2.9 t (myclimate 2.3 t). Im Schnitt fliegt man also etwas mehr als eine solche Reise alle zwei Jahre.",
+"game": "",
+"why": ""
+},
+"I1b": {
+"id": "I1b",
+"title": "Gar nicht mehr fliegen",
+"head": " · −1.4 t pro Jahr (−0.7 t, wenn I1a schon gilt) · 3 Herzen (Ruth 2) · Geld 0 · Suffizienz",
+"front": "Ab jetzt reist du nur noch auf dem Landweg.",
+"back": "Ein Zehntel des Fussabdrucks fällt weg. Das ist mehr als dreimal so viel, wie ein Wechsel auf vegetarische Ernährung bringt (0.4 t).",
+"game": "",
+"why": ""
+},
+"I2": {
+"id": "I2",
+"title": "Auto abgeben",
+"head": " · −1.2 t pro Jahr · 2 Herzen (Lia 1, Noah 3) · Geld +2 ab nächster Runde · Suffizienz · nicht für Elif",
+"front": "Du verkaufst dein Auto. Dafür kaufst du ein Abo für Bahn und Bus und ein gutes Velo.",
+"back": "Im Schnitt fährt jede Person in der Schweiz rund 21 km pro Tag im Auto (Mikrozensus Mobilität 2021). Das gibt rund 1.3 t pro Jahr; der ÖV kommt für die gleichen Wege auf rund 0.1 t. Zum Vergleich: 10 000 km allein im Benzinauto verursachen rund 2.6 t, die Herstellung eingerechnet (Nos Gestes Climat); das ist 40 Mal Zürich–Bern und zurück.",
+"game": "",
+"why": ""
+},
+"I3": {
+"id": "I3",
+"title": "Aufs E-Auto umsteigen",
+"head": " · −0.9 t pro Jahr · 0 Herzen · Geld 4 (3, wenn K1 angenommen ist) · Konsistenz · nicht für Elif",
+"front": "Du ersetzt dein Benzinauto durch ein Elektroauto. Du fährst gleich viel wie vorher.",
+"back": "Ein E-Auto kommt mit Schweizer Strom auf rund einen Drittel der Emissionen eines Benzinautos; der grösste Teil davon ist die Herstellung, vor allem der Batterie (Nos Gestes Climat). Fehlvorstellung: «Ein E-Auto ist klimaneutral.» Es ist besser, aber nicht null.",
+"game": "",
+"why": ""
+},
+"I4": {
+"id": "I4",
+"title": "Fahrgemeinschaft",
+"head": " · −0.65 t pro Jahr · 1 Herz (Noah 2) · Geld 0 · Effizienz · nicht für Elif",
+"front": "Für regelmässige Fahrten, zur Arbeit, ins Training oder zum Einkaufen, nimmst du jemanden mit oder fährst bei jemandem mit. Ihr wechselt euch ab.",
+"back": "Zwei Personen im gleichen Auto teilen sich die Emissionen. Dein Anteil am Auto halbiert sich ungefähr.",
+"game": "",
+"why": ""
+},
+"K1": {
+"id": "K1",
+"title": "Neue Autos nur noch elektrisch",
+"head": " · bis 2050 −0.9 t für alle, die noch Benzin fahren, schrittweise · Chance 14 % · Konsistenz",
+"front": "Ab 2035 dürfen in der Schweiz nur noch Autos ohne Auspuff neu verkauft werden.",
+"back": "Autos werden rund 15 Jahre gefahren, darum wirkt die Vorlage schrittweise: Im Spiel ist die Flotte 15 Jahre nach dem Ja ganz ersetzt. Ein E-Auto verursacht mit Schweizer Strom rund einen Drittel eines Benzinautos (Nos Gestes Climat), darum fallen rund zwei Drittel der Auto-Emissionen weg. Die ZHAW rechnet schon bis 2030 mit 5.8 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Die 0.9 t bis 2050 sind eine Modellannahme. Wer schon ein E-Auto fährt, spart durch die Vorlage nichts mehr.",
+"game": "I3 (E-Auto) kostet danach 1 Geld weniger. Die EU hatte 2023 beschlossen, dass Neuwagen ab 2035 kein CO₂ mehr ausstossen dürfen. 2026 wird diese Regel abgeschwächt: Im Oktober und November 2026 stimmten drei Ausschüsse des EU-Parlaments für eine Lockerung: 95 statt 100 Prozent weniger CO₂, mit Gutschriften für grünen Stahl bis 87.5 Prozent. Das ganze Parlament entscheidet im Dezember. Wie die Schweiz nachzieht, ist offen.",
+"why": "Warum 14 %? Ein Verbot ist an der Urne schwieriger als ein Anreiz; in der Schweiz gab es dazu noch keine Abstimmung."
+},
+"K6": {
+"id": "K6",
+"title": "Flugticketabgabe mit Rückverteilung",
+"head": " · ein Zehntel weniger Flugemissionen für alle, im Schnitt −0.14 t · Chance 18 % · Suffizienz",
+"front": "Auf jedes Flugticket kommt eine Abgabe. Mehr als die Hälfte des Geldes geht an die ganze Bevölkerung zurück, jede Person bekommt gleich viel.",
+"back": "Genau so eine Abgabe war Teil des CO₂-Gesetzes. Die Stimmberechtigten haben es am 13. Juni 2021 mit 51.6 % Nein abgelehnt. Wer wenig fliegt, hätte mehr zurückbekommen, als er bezahlt. Eine Abgabe von 30 bis 120 Franken hätte aber nur wenig weniger Flüge gebracht, Schätzungen lagen bei einigen Prozent. Das Spiel rechnet mit 10 %.",
+"game": "Ab der nächsten Runde zahlt jede Figur, die noch fliegt, 1 Geld pro Runde. Jede Figur, die nicht mehr fliegt, bekommt 1 Geld pro Runde zurück. I1a und I1b kosten danach 1 Herz weniger.",
+"why": "Warum 18 %? Das Ergebnis von 2021 war knapp."
+},
+"K9": {
+"id": "K9",
+"title": "Weniger Autokilometer",
+"head": " · −0.5 t für alle · Chance 18 % · Suffizienz",
+"front": "Kurze Wege durch Raumplanung, dichtere Takte im ÖV, sichere Velowege.",
+"back": "Die ZHAW rechnet bis 2030 mit 1.8 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Bis 2050 nimmt das Spiel 40 % weniger Auto-Emissionen an; das ist eine Modellannahme.",
+"game": "I2 (Auto abgeben) und I4 (Fahrgemeinschaft) kosten danach 1 Herz weniger.",
+"why": "Warum 18 %? Einzelne Projekte wie Velowege oder ÖV-Ausbau finden oft Mehrheiten, als Gesamtpaket ist es offen."
+},
+"E1": {
+"id": "E1",
+"title": "Rebound",
+"head": " · Krise · wenn du ein E-Auto fährst · +0.1 t pro Jahr (ein Viertel mehr Kilometer auf die verbleibenden 0.4 t)",
+"front": "Mit dem E-Auto ist jeder Kilometer billig. Du fährst öfter, auch kurze Strecken, die du früher zu Fuss oder mit dem Velo gemacht hast.",
+"back": "Wenn etwas effizienter und billiger wird, braucht man oft mehr davon. Das heisst Rebound-Effekt. Ein Teil der Einsparung geht so wieder verloren.",
+"game": "",
+"why": ""
+},
+"W1": {
+"id": "W1",
+"title": "Zwei Grad weniger heizen",
+"head": " · −0.1 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Ab jetzt heizt du auf 20 statt auf 22 Grad. Im Schlafzimmer reichen 18.",
+"back": "Jedes Grad weniger spart rund 6 % Heizenergie (EnergieSchweiz). Das tönt nach wenig, kostet aber nichts und spart sofort Geld. Fehlvorstellung: «Wenn alle die Heizung runterdrehen, ist das Problem gelöst.» Die Heizung selbst ist der viel grössere Hebel.",
+"game": "",
+"why": ""
+},
+"W2": {
+"id": "W2",
+"title": "Heizung auf Wärmepumpe umstellen",
+"head": " · −0.8 t pro Jahr · 0 Herzen · Geld 4 (3, wenn K3 angenommen ist) · Konsistenz · nur Daniel und Ruth",
+"front": "Die Öl- oder Gasheizung fliegt raus, eine Wärmepumpe holt die Wärme aus Luft oder Boden.",
+"back": "Ein Liter Heizöl gibt beim Verbrennen 2.65 kg CO₂ (BAFU). Ein älteres Einfamilienhaus braucht schnell 2 000 Liter im Jahr, das sind über 5 t CO₂. Wohnen dort vier Personen, sind es pro Person gut 1.3 t; im Schweizer Schnitt sind es 0.9 t, weil viele in Wohnungen leben oder schon erneuerbar heizen. Die Wärmepumpe braucht Strom, darum fallen nicht 100 %, sondern rund 90 % weg. 2025 heizten in der Schweiz noch 58 % der Haushalte mit Öl oder Gas (BFS).",
+"game": "",
+"why": ""
+},
+"W2b": {
+"id": "W2b",
+"title": "Eltern oder Vermieterin überzeugen",
+"head": " · −0.8 t pro Jahr · 3 Herzen · Geld 0 · Konsistenz · nur Lia, Noah, Elif",
+"front": "Du zahlst die Heizung nicht und entscheidest nicht allein. Aber du kannst Gespräche führen, Offerten zeigen und Förderbeiträge heraussuchen.",
+"back": "Mehr als die Hälfte der Menschen in der Schweiz wohnt zur Miete. Über die Heizung entscheidet, wem das Haus gehört. Darum kostet diese Karte so viele Herzen.",
+"game": "",
+"why": ""
+},
+"W3": {
+"id": "W3",
+"title": "Haus dämmen",
+"head": " · −0.3 t pro Jahr (nach W2 nur noch −0.03 t) · 1 Herz · Geld 4 · Effizienz · nur Daniel und Ruth",
+"front": "Dach, Fassade und Fenster werden neu gedämmt. Es zieht nicht mehr, und die Heizung muss weniger leisten.",
+"back": "Eine neue Fassadendämmung spart in Beispielrechnungen 14 bis 26 % Heizenergie, neue Fenster 13 bis 23 % (co2online); im Spiel rechnen wir für alles zusammen mit 30 %. Wer schon eine Wärmepumpe hat, spart damit vor allem Strom, kaum noch CO₂.",
+"game": "",
+"why": ""
+},
+"W4": {
+"id": "W4",
+"title": "Kleiner wohnen",
+"head": " · −0.5 t pro Jahr · 2 Herzen (Ruth 3) · Geld +2 ab nächster Runde · Suffizienz · nicht für Elif und Noah",
+"front": "Du ziehst in eine kleinere Wohnung, in eine WG oder vermietest ein Zimmer unter. Ein Viertel weniger Fläche pro Person.",
+"back": "In der Schweiz hat jede Person im Schnitt 46.6 m² Wohnfläche (BFS 2024). Weniger Fläche heisst weniger heizen, weniger bauen, weniger einrichten.",
+"game": "",
+"why": ""
+},
+"W5": {
+"id": "W5",
+"title": "Ökostrom wählen",
+"head": " · −0.2 t pro Jahr · 0 Herzen · Geld 1 · Konsistenz",
+"front": "Du wechselst beim Elektrizitätswerk auf ein Stromprodukt aus Sonne, Wind oder Wasser. Wer bei den Eltern wohnt, überzeugt sie davon.",
+"back": "Ökostrom verursacht rund 93 % weniger Treibhausgase als der durchschnittliche Schweizer Strommix (ESU-services). Weil Schweizer Strom schon recht sauber ist, bringt die Karte weniger, als viele denken.",
+"game": "",
+"why": ""
+},
+"W6": {
+"id": "W6",
+"title": "Möbel und Geräte länger nutzen",
+"head": " · −0.1 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Du reparierst, kaufst Secondhand und ersetzt erst, wenn etwas wirklich kaputt ist.",
+"back": "Möbel und Haushaltgeräte machen im Schnitt 0.4 t pro Person aus (BAFU/EBP 2025), fast alles davon entsteht bei der Herstellung im Ausland.",
+"game": "",
+"why": ""
+},
+"K3": {
+"id": "K3",
+"title": "Keine neuen Öl- und Gasheizungen, mit Förderbeitrag",
+"head": " · bis 2050 −0.8 t für alle mit Öl oder Gas, schrittweise · Chance 22 % · Konsistenz",
+"front": "Was im Kanton Zürich seit 2022 gilt, gilt neu in der ganzen Schweiz: Wer eine Öl- oder Gasheizung ersetzen muss, baut eine erneuerbare ein. Der Bund zahlt einen Teil.",
+"back": "Eine Heizung hält 20 bis 25 Jahre. Wenn ab jetzt nur noch erneuerbar ersetzt wird, verschwinden die Öl- und Gasheizungen schrittweise, im Spiel über 15 Jahre; das Spiel rechnet mit 90 % weniger Heiz-Emissionen (Modellannahme). Die ZHAW rechnet schon bis 2030 mit 3.1 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Das Klima- und Innovationsgesetz mit Geld für den Heizungsersatz wurde 2023 mit 59.1 % Ja angenommen. Wer schon eine Wärmepumpe hat, spart durch die Vorlage nichts mehr.",
+"game": "W2 kostet ab der nächsten Runde 1 Geld weniger, W2b 1 Herz weniger. Geht deine Heizung kaputt, kommt sicher eine Wärmepumpe.",
+"why": "Warum 22 %? Förderung kommt an der Urne gut an, ein Verbot weniger."
+},
+"K4": {
+"id": "K4",
+"title": "Solaroffensive",
+"head": " · −0.1 t für alle · Chance 24 % · Konsistenz",
+"front": "Auf geeignete Dächer und Fassaden kommen Solaranlagen, der Bund erleichtert Bewilligungen und zahlt Beiträge.",
+"back": "Die ZHAW rechnet mit 1 Mio. t weniger pro Jahr (Siegwart u. a. 2020). Die Wirkung ist klein, weil der Schweizer Strom schon wenig CO₂ enthält.",
+"game": "",
+"why": "Warum 24 %? Der Ausbau erneuerbarer Energie findet an der Urne meistens eine Mehrheit."
+},
+"K8": {
+"id": "K8",
+"title": "Weniger Wohnfläche fördern",
+"head": " · −0.2 t für alle · Chance 12 % · Suffizienz",
+"front": "Gemeinden fördern Wohnungstausch und gemeinschaftliches Wohnen, neue Wohnungen dürfen pro Person weniger Fläche haben.",
+"back": "Die ZHAW rechnet mit 1.9 Mio. t weniger pro Jahr, zusammen mit tieferen Raumtemperaturen (Siegwart u. a. 2020).",
+"game": "",
+"why": "Warum 12 %? Vorschriften zur Wohnfläche greifen ins Private ein und haben es schwer."
+},
+"E2": {
+"id": "E2",
+"title": "Die Heizung ist kaputt",
+"head": " · Krise · wenn dir das Haus gehört",
+"front": "Mitten im Winter fällt die Ölheizung aus. Wählst du in dieser Runde nicht W2, wird sie notdürftig ersetzt, wieder mit Öl.",
+"back": "Eine Heizung hält 20 bis 25 Jahre. Wer heute wieder fossil einbaut, legt sich bis weit über 2040 fest. Das nennt man Lock-in.",
+"game": "Die Heizung wird notdürftig repariert, es kommt wieder Öl. Nächste Runde hast du eine letzte Chance, danach ist die Karte gesperrt. W2 kostet dann 1 Geld weniger und liegt sicher in deiner Auswahl.",
+"why": ""
+},
+"N1": {
+"id": "N1",
+"title": "Fleisch nur noch zwei- bis dreimal pro Woche",
+"head": " · −0.3 t pro Jahr · 1 Herz (Noah 2) · Geld 0 · Suffizienz",
+"front": "Fleisch gibt es noch an zwei, drei Tagen pro Woche. An den anderen Tagen isst du vegetarisch.",
+"back": "Heute essen wir in der Schweiz etwa dreimal so viel Fleisch, wie die Ernährungsempfehlungen raten (zwei- bis dreimal pro Woche je 100 bis 120 g). Wer auf die Empfehlung zurückgeht, spart rund zwei Drittel der Wirkung einer vegetarischen Ernährung (ZHAW 2021).",
+"game": "",
+"why": ""
+},
+"N2": {
+"id": "N2",
+"title": "Vegetarisch essen",
+"head": " · −0.4 t pro Jahr (−0.1 t, wenn N1 schon gilt) · 2 Herzen (Noah 3) · Geld 0 · Suffizienz",
+"front": "Ab jetzt isst du kein Fleisch und keinen Fisch mehr. Milchprodukte und Eier bleiben.",
+"back": "Die ZHAW rechnet für eine Durchschnittsperson mit 0.43 t weniger pro Jahr (Rohrer 2021). Fleisch ist pro Kilo am klimaschädlichsten, weil Tiere ein Vielfaches ihres Gewichts an Futter brauchen und Rinder beim Verdauen Methan ausstossen.",
+"game": "",
+"why": ""
+},
+"N3": {
+"id": "N3",
+"title": "Vegan essen",
+"head": " · −0.7 t pro Jahr gegenüber dem Durchschnitt (−0.3 t, wenn N2 schon gilt) · 3 Herzen · Geld 0 · Suffizienz · nicht für Noah",
+"front": "Ab jetzt isst du keine tierischen Produkte mehr, auch keinen Käse und keine Milch.",
+"back": "Die ZHAW rechnet mit 0.69 t weniger pro Jahr (Rohrer 2021). Käse braucht viel Milch: Für ein Kilo Hartkäse rechnet man rund zehn Liter. Fehlvorstellung: «Vegetarisch ist schon das Maximum.» Milchprodukte machen einen grossen Teil aus.",
+"game": "",
+"why": ""
+},
+"N4": {
+"id": "N4",
+"title": "Kein Food Waste mehr zu Hause",
+"head": " · −0.2 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Du planst den Einkauf, verwertest Reste und schaust und riechst, bevor du etwas nach dem Datum wegwirfst.",
+"back": "Ein Viertel der Umweltbelastung unserer Ernährung geht auf vermeidbare Lebensmittelverluste zurück (BAFU). Pro Person landen im Haushalt Lebensmittel für rund 620 Franken im Jahr im Abfall (Too Good To Go 2025). Die ZHAW rechnet mit 0.19 t weniger pro Jahr.",
+"game": "",
+"why": ""
+},
+"N5": {
+"id": "N5",
+"title": "Saisonal und regional, nichts Eingeflogenes",
+"head": " · −0.1 t pro Jahr · 1 Herz · Geld 1 · Konsistenz",
+"front": "Du kaufst Gemüse und Obst, wenn sie hier Saison haben, und lässt eingeflogene Ware wie Spargeln im Januar oder Beeren aus Übersee liegen.",
+"back": "Fehlvorstellung: «Regional ist das Wichtigste.» Der Transport macht bei den meisten Lebensmitteln nur einen kleinen Teil aus; wichtiger ist, was man isst. Ausnahmen sind eingeflogene Produkte und Gemüse aus dem beheizten Gewächshaus.",
+"game": "",
+"why": ""
+},
+"K7": {
+"id": "K7",
+"title": "Lebensmittelverluste halbieren",
+"head": " · −0.2 t für alle · Chance 26 % · Suffizienz",
+"front": "Handel und Industrie müssen ihre Verluste halbieren. Was nicht verkauft wird, geht an Hilfswerke oder wird weiterverarbeitet.",
+"back": "Die ZHAW rechnet mit 2.0 Mio. t weniger pro Jahr (Siegwart u. a. 2020). In der Schweiz gehen pro Jahr rund 2.8 Mio. t Lebensmittel verloren, rund 310 kg pro Person, vom Feld bis zum Teller (BAFU).",
+"game": "",
+"why": "Warum 26 %? Gegen Verschwendung sind fast alle."
+},
+"K10": {
+"id": "K10",
+"title": "Vegetarisch als Standard in Mensen, Spitälern und Armee",
+"head": " · −0.06 t für alle · Chance 18 % · Suffizienz",
+"front": "In öffentlichen Kantinen ist das vegetarische Menü der Normalfall. Wer Fleisch will, bestellt es ausdrücklich.",
+"back": "In der Schweizer Gemeinschaftsgastronomie werden jährlich etwa 500 Mio. Mahlzeiten serviert (ZHAW 2026). Die Wirkung pro Person ist klein, aber die Vorlage erreicht auch Menschen, die selbst nie eine Ernährungskarte wählen würden.",
+"game": "N2 (vegetarisch) kostet danach 1 Herz weniger.",
+"why": "Warum 18 %? Vorgaben beim Essen lösen viel Widerstand aus."
+},
+"E3": {
+"id": "E3",
+"title": "Neue Rezepte",
+"head": " · Gelegenheit · wenn du noch Fleisch isst",
+"front": "Eine Freundin kocht für dich und zeigt dir drei vegetarische Gerichte, die dir wirklich schmecken.",
+"back": "Gewohnheiten ändern sich leichter, wenn andere mitmachen und man es selbst ausprobiert hat.",
+"game": "N2 kostet in der nächsten Runde 1 Herz weniger und liegt sicher in deiner Auswahl.",
+"why": ""
+},
+"C1": {
+"id": "C1",
+"title": "Halb so viele neue Kleider",
+"head": " · −0.15 t pro Jahr · 2 Herzen (Elif 1) · Geld 0 · Suffizienz",
+"front": "Du kaufst nur noch halb so viele neue Kleider. Den Rest holst du Secondhand, tauschst oder flickst.",
+"back": "Kleider machen im Schnitt 0.3 t pro Person und Jahr aus (BAFU/EBP 2025), fast alles davon entsteht bei der Herstellung im Ausland.",
+"game": "",
+"why": ""
+},
+"C2": {
+"id": "C2",
+"title": "Handy und Laptop zwei Jahre länger nutzen",
+"head": " · −0.02 t pro Jahr · 2 Herzen (Elif 1) · Geld 0 · Suffizienz",
+"front": "Du wechselst Handy und Laptop erst, wenn sie wirklich nicht mehr gehen. Ein neuer Akku ist billiger als ein neues Gerät.",
+"back": "70 bis 90 % der Emissionen eines Smartphones entstehen bei der Herstellung. Wer ein Handy fünf statt drei Jahre nutzt, senkt dessen Bilanz pro Jahr um rund ein Drittel (Fraunhofer IZM).",
+"game": "",
+"why": ""
+},
+"C3": {
+"id": "C3",
+"title": "Weniger streamen",
+"head": " · −0.015 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Du schaust weniger Serien und Videos, und wenn, dann in tieferer Auflösung.",
+"back": "Fehlvorstellung: «Streaming ist ein grosses Klimaproblem.» Pro Person geht es um wenige Kilo im Jahr (Nos Gestes Climat); die Karte halbiert sie. Das Gerät selbst herzustellen ist viel wichtiger als das Streamen darauf.",
+"game": "",
+"why": ""
+},
+"C4": {
+"id": "C4",
+"title": "Allgemein weniger kaufen",
+"head": " · −0.4 t pro Jahr · 3 Herzen (Elif 2) · Geld +2 ab nächster Runde · Suffizienz",
+"front": "Bevor du etwas kaufst, wartest du eine Woche. Was du dann nicht mehr willst, brauchst du nicht.",
+"back": "Geräte, Haushaltsartikel, Freizeit und der Transport und die Herstellung dieser Waren machen zusammen 1.3 t pro Person aus. Die Karte rechnet mit 30 % weniger; das ist eine Annahme. Die ZHAW rechnet für eine Reduktion auf einen Viertel mit 2.85 t weniger (Rohrer 2021, dort weiter gefasst).",
+"game": "",
+"why": ""
+},
+"C5": {
+"id": "C5",
+"title": "Teilen, leihen, mieten",
+"head": " · −0.13 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Bohrmaschine, Zelt oder Skis leihst oder mietest du, statt sie zu kaufen. Bücher holst du in der Bibliothek.",
+"back": "Die meisten Werkzeuge werden nur wenige Minuten im Jahr gebraucht. Die Karte rechnet mit 10 % weniger Neukauf in diesem Bereich; das ist eine Annahme.",
+"game": "",
+"why": ""
+},
+"C6": {
+"id": "C6",
+"title": "Konsequent recyceln und Plastik meiden",
+"head": " · −0.02 t pro Jahr · 1 Herz · Geld 0 · Effizienz",
+"front": "Du trennst alles sauber und kaufst wenig Verpackung.",
+"back": "Fehlvorstellung: «Recycling rettet das Klima.» Das ganze heutige Recycling in der Schweiz spart rund 0.06 t pro Person und Jahr (Swiss Recycling). Das ist schon im Durchschnitt enthalten; noch konsequenter bringt nur wenige Kilo. Recycling ist sinnvoll, aber ein kleiner Hebel.",
+"game": "",
+"why": ""
+},
+"K2": {
+"id": "K2",
+"title": "Liefer- und Lastwagen elektrisch",
+"head": " · bis 2050 −0.4 t für alle, schrittweise · Chance 20 % · Konsistenz",
+"front": "Neue Lieferwagen und Lastwagen fahren ab 2035 elektrisch oder mit Wasserstoff.",
+"back": "Die ZHAW rechnet bis 2030 mit 2.1 Mio. t weniger pro Jahr (Siegwart u. a. 2020); die Lastwagen werden schrittweise ersetzt, im Spiel über 15 Jahre; das Spiel rechnet mit 0.4 t pro Person (Modellannahme). Die Waren, die du kaufst, werden dann sauberer zu dir gebracht.",
+"game": "",
+"why": "Warum 20 %? Die Kosten tragen zuerst die Transportfirmen, das ist umstritten."
+},
+"K5": {
+"id": "K5",
+"title": "Industrie ohne Erdgas und Kohle",
+"head": " · bis 2050 −0.2 t für alle, schrittweise über 10 Jahre · Chance 22 % · Konsistenz",
+"front": "Zementwerke und Fabriken stellen ihre Prozesswärme auf Biogas, Abfälle oder Strom um.",
+"back": "Die ZHAW rechnet bis 2030 mit 0.6 Mio. t weniger pro Jahr (Siegwart u. a. 2020); bis 2050 rechnet das Spiel mit 0.2 t pro Person (Modellannahme). Klein, weil vieles, was wir kaufen, im Ausland hergestellt wird. Die Fabriken stellen schrittweise um, im Spiel über 10 Jahre.",
+"game": "",
+"why": "Warum 22 %? Viele Firmen wollen das selbst, wenn sie Planungssicherheit bekommen."
+},
+"K15": {
+"id": "K15",
+"title": "Recht auf Reparatur",
+"head": " · −0.05 t für alle · Chance 24 % · Suffizienz",
+"front": "Hersteller müssen Geräte reparieren und Ersatzteile anbieten. Wer reparieren lässt statt ersetzt, bekommt ein Jahr mehr Garantie.",
+"back": "Die EU hat so eine Regel 2024 beschlossen (Richtlinie 2024/1799); die Mitgliedstaaten mussten sie bis Juli 2026 umsetzen. Die Wirkung im Spiel (5 % weniger neue Geräte) ist eine Annahme.",
+"game": "C2 (Geräte länger nutzen) kostet danach 1 Herz weniger.",
+"why": "Warum 24 %? Reparieren ist populär, nur die Hersteller wehren sich."
+},
+"K11": {
+"id": "K11",
+"title": "Öffentliche Hand baut und kauft klimafreundlich",
+"head": " · bis 2050 −0.8 t für alle, schrittweise über 15 Jahre · Chance 20 % · Konsistenz",
+"front": "Schulen, Spitäler, Verwaltung und Armee bauen klimafreundlich, fahren elektrisch und kaufen klimafreundlich ein.",
+"back": "Die öffentliche Beschaffung verursacht weltweit rund 15 % aller Emissionen; rund 40 % davon lassen sich günstig vermeiden (WEF/BCG 2022). In der Schweiz macht der Block «Öffentliche Leistungen» 2.1 t pro Person aus. Diesen Teil kannst du allein nicht ändern, nur über die Politik. Gebäude und Fahrzeuge werden erst ersetzt, wenn sie alt sind; im Spiel wirkt die Vorlage schrittweise über 15 Jahre.",
+"game": "",
+"why": "Warum 20 %? Es kostet am Anfang Steuergeld."
+},
+"K12": {
+"id": "K12",
+"title": "Moorböden wiedervernässen",
+"head": " · bis 2050 −0.03 t für alle, schrittweise · Chance 20 % · Konsistenz",
+"front": "Die Hälfte der entwässerten Moorböden im Landwirtschaftsland wird wieder nass gemacht, damit der Torf kein CO₂ mehr abgibt. Bäuerinnen und Bauern werden entschädigt oder stellen auf nasse Kulturen um.",
+"back": "Landwirtschaftlich genutzte Moorböden verlieren in der Schweiz rund 600 000 t CO₂-Äquivalente pro Jahr (Agroscope), rund 0.07 t pro Person. Die meisten liegen im Seeland, in der Orbe-Ebene und im St. Galler Rheintal, rund 9900 ha, oft mit Gemüsebau (BAFU). Die Vorlage vernässt die Hälfte davon über 15 Jahre; das ist eine Modellannahme. Zielkonflikt: Wo es wieder nass ist, wächst kein Gemüse mehr. Es müsste anderswo angebaut oder importiert werden. Moore und Moorlandschaften von nationaler Bedeutung stehen seit der Rothenthurm-Initiative von 1987 unter Schutz.",
+"game": "",
+"why": "Warum 20 %? Moorschutz ist beliebt, die Rothenthurm-Initiative wurde 1987 angenommen. Hier geht es aber um Ackerland und Gemüsebau, das gibt Widerstand."
+},
+"K16": {
+"id": "K16",
+"title": "CO₂-Preis auf allen Gütern, mit Grenzausgleich",
+"head": " · bis 2050 −1.4 t für alle, schrittweise über 10 Jahre · Chance 16 % · Konsistenz",
+"front": "Alles, was bei der Herstellung Treibhausgase verursacht, wird teurer, im Inland und beim Import. Das Geld geht pro Kopf an die Bevölkerung zurück.",
+"back": "69 % des Schweizer Fussabdrucks entstehen im Ausland (BAFU/EBP 2025). Ein CO₂-Preis mit Grenzausgleich setzt dort an; das Spiel rechnet mit einem Viertel weniger Emissionen in Konsum, Ernährung und Wohnen bis 2050. Gemeint sind alle Treibhausgase, also auch Methan aus der Tierhaltung. Das ist eine Modellannahme. Studien zum EU-Grenzausgleich finden kurzfristig nur eine bescheidene Wirkung; die grösste Wirkung ist indirekt, weil andere Länder selbst CO₂-Preise einführen. Ein solcher Preis wird schrittweise erhöht, im Spiel über 10 Jahre.",
+"game": "",
+"why": "Warum 16 %? Neue Abgaben haben es an der Urne schwer; das CO₂-Gesetz scheiterte 2021 knapp."
+},
+"E4": {
+"id": "E4",
+"title": "Schnäppchen",
+"head": " · Krise · solange du nicht bewusst weniger kaufst",
+"front": "Black Friday, «3 für 2», Ausverkauf: Bei sehr günstigen Aktionen schlägst du immer wieder zu, auch bei Dingen, die du nicht geplant hattest.",
+"back": "Aktionen sind so gemacht, dass man mehr kauft, als man geplant hat. Alles, was du zusätzlich kaufst, muss zuerst hergestellt und transportiert werden, meist im Ausland.",
+"game": "Nach dieser Runde verlierst du einmalig 2 Geld; sie sind schon jetzt gesperrt. Solange du C4 nicht gewählt hast, steigt dein Fussabdruck um 0.1 t pro Jahr.",
+"why": ""
+},
+"I5": {
+"id": "I5",
+"title": "Zug statt Flug in Europa",
+"head": " · −0.4 t pro Jahr · 0 Herzen · Geld 2 · Konsistenz",
+"front": "Für Reisen innerhalb Europas nimmst du ab jetzt den Zug, auch wenn er teurer ist und länger dauert.",
+"back": "Von den Treibhausgasen der Flüge aus Europa stammt knapp die Hälfte von Langstreckenflügen, obwohl sie nur 6 % der Flüge sind; Flüge unter 500 km machen nur rund 4 % aus (Eurocontrol 2019). Das Spiel rechnet damit, dass du mit dem Zug 30 % deiner Flugemissionen ersetzt. Das ist eine Annahme. Fehlvorstellung: «Kurzstrecken sind das grosse Problem.» Pro Kilometer sind sie schlecht, in der Summe zählen die langen Reisen.",
+"game": "",
+"why": ""
+},
+"I6": {
+"id": "I6",
+"title": "E-Bike für Alltagswege",
+"head": " · −0.2 t pro Jahr · 1 Herz (Noah 2) · Geld 1 · Konsistenz · nicht für Elif",
+"front": "Für den Einkauf, den Arbeitsweg und kurze Fahrten nimmst du das E-Bike statt das Auto.",
+"back": "Im Schnitt legt eine Person in der Schweiz 30 km pro Tag im Inland zurück (Mikrozensus Mobilität 2021). Viele Autofahrten sind nur wenige Kilometer lang. Das Spiel rechnet damit, dass das E-Bike 15 % deiner Autokilometer ersetzt. Das ist eine Annahme.",
+"game": "",
+"why": ""
+},
+"W7": {
+"id": "W7",
+"title": "Sparsame Geräte und LED",
+"head": " · −0.04 t pro Jahr · 0 Herzen · Geld 1 · Effizienz",
+"front": "Wenn ein Gerät kaputtgeht, kaufst du das sparsamste. Alle Lampen werden LED.",
+"back": "Strom in der Schweiz kommt grösstenteils aus Wasserkraft und Kernenergie und verursacht wenig CO₂. Darum bringen sparsame Geräte fürs Klima hier wenig, für den Strombedarf aber viel. Das Spiel rechnet mit 20 % weniger Emissionen beim Strom. Das ist eine Annahme. Fehlvorstellung: «Licht ausschalten rettet das Klima.»",
+"game": "",
+"why": ""
+},
+"N6": {
+"id": "N6",
+"title": "Bio kaufen",
+"head": " · −0.1 t pro Jahr · 0 Herzen · Geld 2 · Konsistenz",
+"front": "Bei Gemüse, Obst, Brot und Eiern greifst du zu Bio, auch wenn es mehr kostet.",
+"back": "Ob Bio pro Kilo weniger Treibhausgase verursacht, ist umstritten. Im Schweizer Langzeitversuch von FiBL und Agroscope sind die Emissionen pro Tonne Ertrag tiefer oder gleich hoch (DOK-Langzeitversuch, Scientific Reports). Das Spiel rechnet vorsichtig mit 7 % weniger beim übrigen Essen. Bio hilft vor allem Boden, Wasser und Artenvielfalt. Fehlvorstellung: «Bio ist das Wichtigste fürs Klima.» Weniger Fleisch bringt viel mehr.",
+"game": "",
+"why": ""
+},
+"I7": {
+"id": "I7",
+"title": "Eltern vom E-Auto überzeugen",
+"head": " · −0.9 t pro Jahr · 3 Herzen · Geld 0 · Konsistenz · nur Elif",
+"front": "Das Familienauto gehört deinen Eltern. Aber du kannst mitreden: eine Probefahrt organisieren, Kosten vergleichen, Ladestationen in der Nähe zeigen.",
+"back": "Bei grossen Anschaffungen reden Jugendliche oft mit, entscheiden tun am Ende die Eltern. Darum kostet diese Karte so viele Herzen. Ein E-Auto kommt mit Schweizer Strom auf rund einen Drittel der Emissionen eines Benzinautos.",
+"game": "",
+"why": ""
+},
+"N7": {
+"id": "N7",
+"title": "Milchprodukte halbieren",
+"head": " · −0.13 t pro Jahr · 1 Herz · Geld 0 · Suffizienz",
+"front": "Käse, Rahm, Butter und Milch gibt es nur noch halb so oft. Im Kaffee nimmst du Haferdrink, auf dem Brot öfter Aufstrich.",
+"back": "Milchprodukte machen im Spiel 0.26 t pro Jahr aus; die Hälfte davon spart rund 0.13 t. Käse braucht viel Milch: Für ein Kilo Hartkäse rechnet man rund zehn Liter. Fehlvorstellung: «Wer kein Fleisch isst, isst schon klimafreundlich.» Auch Kühe für Milch und Käse stossen Methan aus.",
+"game": "",
+"why": ""
+},
+"N8": {
+"id": "N8",
+"title": "Kaffee, Wein und Schokolade halbieren",
+"head": " · −0.15 t pro Jahr · 1 Herz · Geld +1 ab nächster Runde · Suffizienz",
+"front": "Kaffee, Wein und Schokolade gönnst du dir noch halb so oft, dafür bewusst. Zum Trinken gibt es Hahnenwasser.",
+"back": "Genussmittel werden oft unterschätzt. Der Weg des Kaffees bis in unsere Tassen verursacht in der Schweiz rund 1 Mio. t CO₂-Äquivalente pro Jahr, gut 0.1 t pro Person (ESU-services, SRF). Dazu kommen Wein und Schokolade; nach der Tierhaltung sind sie der grösste Brocken in der Ernährung (Stadt Zürich). Das Spiel rechnet mit 0.15 t weniger; das ist eine Schätzung. Fehlvorstellung: «Wasser ist Wasser.» Mineralwasser aus der Flasche belastet das Klima um ein Vielfaches mehr als Hahnenwasser (ESU-services, WWF).",
+"game": "",
+"why": ""
+},
+"K17": {
+"id": "K17",
+"title": "Netto-Null 2040 verbindlich für Kantone, Gemeinden und Armee",
+"head": " · bis 2050 −0.2 t für alle, schrittweise · Chance 18 % · Konsistenz",
+"front": "Kantone, Gemeinden und die Armee müssen ihre eigenen Gebäude, Fahrzeuge und Anlagen bis 2040 klimaneutral betreiben, so wie die Bundesverwaltung.",
+"back": "Das Klimagesetz verpflichtet nur die zentrale Bundesverwaltung auf Netto-Null bis 2040. Die Kantone sollen dies bloss «anstreben», die Armee erst ab 2050 (KlG Art. 10, Klimaschutzverordnung). Die Vorlage macht 2040 für alle verbindlich. Das Spiel rechnet mit 15 % weniger Emissionen im Betrieb der öffentlichen Hand bis 2050; das ist eine Modellannahme. Wie die öffentliche Hand baut und einkauft, regelt die Vorlage «Öffentliche Hand baut und kauft klimafreundlich».",
+"game": "",
+"why": "Warum 18 %? Kantone und Gemeinden wehren sich gegen Vorgaben vom Bund, und es kostet sie Geld."
+},
+"E5": {
+"id": "E5",
+"title": "Hitzesommer",
+"head": " · Klima-Ereignis · +0.1 t pro Jahr für drei Jahre",
+"front": "Wochenlang über 30 Grad. Du kaufst ein Klimagerät, in Büros und Läden laufen die Kühlungen. Auf den Feldern vertrocknet ein Teil der Ernte, mehr Futter und Gemüse wird importiert.",
+"back": "Die Schweiz erwärmt sich besonders stark; die Klimaszenarien 2025 rechnen mit mehr Hitze und trockeneren Sommern (MeteoSchweiz und ETH). Der Strombedarf für Kühlung steigt, während Heizen weniger braucht (BFE). Wie viel die Hitze ausmacht, ist im Spiel eine Annahme.",
+"game": "Dein Fussabdruck steigt drei Jahre lang um 0.1 t pro Jahr.",
+"why": ""
+},
+"E6": {
+"id": "E6",
+"title": "Unwetter",
+"head": " · Klima-Ereignis · 1 Geld · einmalig +0.3 t",
+"front": "Hagel und Starkregen beschädigen Dächer, Keller und Autos im Quartier. Vieles muss repariert oder neu gekauft werden.",
+"back": "Heftige Niederschläge nehmen mit der Erwärmung zu (Klimaszenarien 2025). Reparieren und Neubauen braucht Zement, Stahl und neue Geräte, und auch das verursacht Treibhausgase. Wie viel, ist im Spiel eine Annahme.",
+"game": "Nach dieser Runde zahlst du 1 Geld selbst: Die Versicherung bezahlt den Schaden, aber einen Teil muss man selbst übernehmen. Das nennt man Selbstbehalt. Das Geld ist schon jetzt gesperrt. Im nächsten Jahr steigt dein Fussabdruck einmalig um 0.3 t.",
+"why": ""
+},
+"E7": {
+"id": "E7",
+"title": "Niedrigwasser im Rhein",
+"head": " · Klima-Ereignis · 1 Geld, wenn du mit Öl heizt · +0.05 t für drei Jahre",
+"front": "Nach einem trockenen Sommer führt der Rhein so wenig Wasser, dass die Schiffe nach Basel nur noch mit Teilladung fahren. Heizöl wird knapp und teurer, Waren kommen mehr per Lastwagen.",
+"back": "2018 war ein heisses und trockenes Jahr; das Niedrigwasser am Rhein dauerte von August bis Dezember (IKSR). Güter- und Personenschifffahrt waren weitgehend eingestellt (Schweizerische Vereinigung für Schifffahrt 2018). Firmen wichen auf Strasse und Schiene aus. Weniger Gletscher heisst im Sommer weniger Schmelzwasser im Rhein.",
+"game": "Heizt du noch mit Öl, zahlst du nach dieser Runde 1 Geld mehr; es ist schon jetzt gesperrt. Dein Fussabdruck steigt drei Jahre lang um 0.05 t.",
+"why": ""
+},
+"E8": {
+"id": "E8",
+"title": "Milder Winter",
+"head": " · Klima-Ereignis · drei Jahre 10 % weniger Heizen",
+"front": "Der Winter ist so warm, dass die Heizung viel weniger läuft. Schnee gibt es kaum, die Skilifte im Tal bleiben zu.",
+"back": "Die Heizgradtage sind in der Schweiz in den letzten Jahrzehnten zurückgegangen, als Folge der Erwärmung (MeteoSchweiz). 2022 gab es 17 % weniger Heizgradtage als im Vorjahr, der Energieverbrauch sank (BFE). Fehlvorstellung: «Dann ist die Erwärmung ja gut.» Das gesparte Heizöl ist klein gegen Hitze, Dürre und Unwetter.",
+"game": "Drei Jahre lang heizt du 10 % weniger.",
+"why": ""
+},
+"E2m": {
+"id": "E2m",
+"title": "Die Heizung ist kaputt",
+"head": " · Krise · wenn du mietest oder bei den Eltern wohnst",
+"front": "Mitten im Winter fällt die Ölheizung im Haus aus. Ob wieder eine Ölheizung oder eine Wärmepumpe eingebaut wird, entscheidest nicht du, sondern wer das Haus besitzt.",
+"back": "Beim Heizungsersatz wird je nach Kanton nur in 16 bis 58 % der Fälle erneuerbar eingebaut (EBP 2024, WWF-Rating 2024). Im Kanton Zürich, wo seit 2022 die strengere Regel gilt, waren es im ersten Jahr über 98 % (Stichprobe der Baudirektion in zehn Gemeinden). Viele Besitzer:innen ersetzen eine alte Ölheizung lieber durch die gleiche Art. Wer mietet, kann nur mitreden: nachfragen, Argumente bringen, auf Förderbeiträge hinweisen. Eine neue Ölheizung läuft 20 bis 25 Jahre, das ist ein Lock-in.",
+"game": "Das Spiel würfelt, etwa 50 zu 50. Kommt wieder Öl, ist W2b bis 2050 gesperrt. Kommt eine Wärmepumpe, heizt du ab dann 90 % klimafreundlicher.",
+"why": ""
+}
+}
