@@ -708,6 +708,27 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
 /* Mehr Platz fuer Karten (23.11.2026): Kartenfuss in einer Zeile (unter 1000 px), iPad zwei Spalten, «!» am Herz-Chip */
 .card .fz{margin-top:auto}
 .cost .cns{display:none}
+.stag{border-bottom:1px dotted currentColor;cursor:help}
+/* Auswertung: Zahlen und Stufen in einem Kasten (23.11.2026) */
+.endsum{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px 28px;margin-top:18px;align-items:start}
+.endnums{display:flex;flex-direction:column;gap:12px}
+.endsum+.callout{margin-top:14px}
+/* Bilanz: Bereichsbalken schmaler */
+.crow .ctr{height:12px!important}.cats{gap:6px!important}
+.endnums .v{font-size:30px}.endnums .en1 .v{font-size:44px}
+@media(max-width:900px){.endsum{grid-template-columns:1fr}.endnums{flex-direction:row;flex-wrap:wrap;gap:10px 22px}.endnums .en1{flex:1 1 100%}}
+/* Engagement kompakt: Balken mit Zahl in einer Zeile */
+.chrow{display:flex;align-items:center;gap:10px;margin:6px 0 4px}
+.chrow .cbar{flex:1 1 auto;margin:0 2px!important}
+.chrow .chance{font-size:24px;min-width:2.6em;text-align:right}
+.ctl .meta2{display:inline-flex}
+h3.vrule{display:inline-block;border-bottom:1px dotted currentColor}
+h3.vrule.tip::after{right:auto;left:0}
+@media(max-width:700px){.ctl button.small{min-width:36px!important;min-height:32px!important;font-size:18px!important;position:relative}.ctl button.small::after{content:"";position:absolute;left:-4px;right:-4px;top:-6px;bottom:-6px}}
+.stag.tip::after{right:auto;left:0}
+.card:has(.stag:hover),.card:has(.stag:focus),.vote:has(.stag:hover),.vote:has(.stag:focus){position:relative;z-index:30}
+/* Unter 1000 px: neue Tooltips wie auf dem Handy oben ueber die ganze Breite, sonst ragen sie (auch unsichtbar) rechts hinaus und das iPad verkleinert die Seite */
+@media(max-width:999px){.stag.tip::after,h3.vrule.tip::after,.colhd.tip::after{position:fixed!important;left:12px!important;right:12px!important;top:calc(var(--hdh,64px) + 8px)!important;width:auto!important}}
 .card .fz>.ft{margin-top:0}
 .chip .cbadge{position:absolute;top:-7px;right:-7px;width:14px;height:14px;background:var(--ink);color:#fff;font:400 11px/14px var(--mono);text-align:center;pointer-events:none;z-index:3}
 .top-in .chip{position:relative}
@@ -716,12 +737,15 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
  .card .fz>details{flex:1 1 auto;min-width:0;margin:0}
  .card .fz>details[open]{flex-basis:100%}
  .card .fz>.ft{margin-left:auto;padding-top:0;flex-wrap:nowrap;gap:10px}
- /* Kosten auf zwei Zeilen (Herzen, darunter Geld), damit «Woher die Zahl?», Kosten und Knopf nebeneinander passen */
+ /* Kosten auf zwei Zeilen (Herzen, darunter Geld), damit «Mehr dazu», Kosten und Knopf nebeneinander passen */
  .card .ft .cost{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;text-align:right}
  .card .ft .cost .csep{display:none}
  .card .ft .cost .cnx{display:none}
  .card .ft .cost .cns{display:inline;font-family:var(--pix);font-size:13px}
 }
+/* Abstimmungssonntag: Popup scrollt, wenn es hoeher ist als das Fenster (Laptop 1280 x 720 erreichte «Weiter» nicht) */
+.vov{display:flex!important;overflow-y:auto;overscroll-behavior:contain}
+.vov>.vbox{margin:auto;flex:0 0 auto}
 @media(min-width:701px) and (max-width:999px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 /* Handy: «Wählen» sichtbar 32 px hoch, die Tippflaeche bleibt mit ::after etwa 44 px */
 @media(max-width:700px){.card .ft button.small{min-height:32px;padding:3px 12px;position:relative}.card .ft button.small::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}}
@@ -1305,6 +1329,11 @@ const REASON={
 const fmt=(x,d=1)=>(Math.abs(x)<0.05&&d==1?0:x).toFixed(d);
 const sgn=(x,d=1)=>{const v=+x.toFixed(d);return (v>0?"+":v<0?"−":"±")+Math.abs(v).toFixed(d)};
 const strat=id=>{const h=T[id].head;return ["Suffizienz","Effizienz","Konsistenz"].find(s=>h.includes(s))||""};
+// Strategie-Etikett mit Erklaerung beim Darueberfahren oder Antippen
+const STRATTIP={Suffizienz:"Suffizienz: weniger brauchen. Du verzichtest auf etwas oder brauchst weniger davon, zum Beispiel weniger fliegen oder kleiner wohnen.",
+ Effizienz:"Effizienz: gleich viel mit weniger Energie. Du brauchst gleich viel, aber es braucht weniger Energie dafür, zum Beispiel sparsame Geräte oder ein gedämmtes Haus.",
+ Konsistenz:"Konsistenz: anders herstellen. Du brauchst gleich viel, aber aus sauberen Quellen, zum Beispiel Strom aus Sonne und Wind statt Heizöl und Benzin."};
+const stratTag=id=>{const s=strat(id);return s?`<span class="stag tip" tabindex="0" data-tip="${STRATTIP[s]}">${s}</span>`:""};
 const NAMES=s=>String(s).replace(/«?\b(I1a|I1b|W2b|[IWNCKE]\d+)\b»?/g,(m,id)=>T[id]?"«"+T[id].title+"»":m);
 const esc0=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const esc=s=>esc0(NAMES(s));
@@ -1483,10 +1512,10 @@ function projHTML(){
  let h=`<div class="lbl">Projekt im Quartier · Runde ${S.r-s.first+1} von ${s.last-s.first+1}</div><h3 style="margin:2px 0 6px">${esc0(p.t)}</h3><p class="tx" style="font-size:14px;margin:0 0 6px">${esc0(p.d)}</p>`;
  if(s.done){h+=`<div class="callout"><span class="ic">✓</span><span>Steht. Wirkt sicher ab ${S.pdone[s.pid]}, für alle${G?" in der Gruppe":""}.</span></div>`;return h+`<hr>`;}
  const pct=Math.min(100,tot/need*100);
- h+=`<div class="row" style="justify-content:space-between"><span class="lbl">Herzen ${G?"der Gruppe":""}</span><span class="chance">${tot} / ${need}</span></div>
- <div class="cbar"><i style="width:${pct}%"></i></div>
- <div class="meta2"><span>bringt dir <b>${sgn(-vProj(s.pid),2)} t</b>/Jahr</span></div>`;
- if(!S.results)h+=`<div class="ctl"><button class="small" onclick="palloc(-1)">−</button><span class="mono">${HZ(S.palloc||0)}</span><button class="small" onclick="palloc(1)">+</button>${G?`<span class="hint" style="margin-left:auto">davon du</span>`:""}</div>`;
+ // kompakt (23.11.2026): Balken mit Zahl in einer Zeile, Bedienung und Wirkung in der naechsten
+ const pm=`<span class="meta2"><span>bringt dir <b>${sgn(-vProj(s.pid),2)} t</b>/Jahr</span></span>`;
+ h+=`<div class="chrow"><span class="lbl">Herzen${G?" der Gruppe":""}</span><div class="cbar"><i style="width:${pct}%"></i></div><span class="chance">${tot} / ${need}</span></div>`;
+ h+=S.results?`<div class="ctl">${pm}</div>`:`<div class="ctl"><button class="small" onclick="palloc(-1)">−</button><span class="mono">${HZ(S.palloc||0)}</span><button class="small" onclick="palloc(1)">+</button>${G?`<span class="hint">davon du</span>`:""}<span style="margin-left:auto">${pm}</span></div>`;
  h+=`<details><summary>Mehr dazu</summary><p>Kein Würfel: Kommen bis Ende ${rleft>0?"nächster Runde":"dieser Runde"} ${need} Herzen zusammen, wird es gebaut. ${G?`Das sind 2 pro Person, wer wie viel gibt, ist eure Sache.`:`Den Rest übernimmt die Nachbarschaft.`} Sonst scheitert es, und die Herzen sind weg.</p><p>${esc0(p.back)}</p></details>`;
  return h+`<hr>`;}
 function projResultHTML(){const s=projState(S.r);if(!s)return"";const p=PROJ[s.pid];
@@ -1832,7 +1861,7 @@ function header(){
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"${hn&&S.hnSeen!==S.r?` onmouseenter="hnSeen()" onfocus="hnSeen()"`:""}><span class="cv">${freeH()}</span>${IC("herz",18)}${hn&&S.hnSeen!==S.r?`<span class="cbadge" aria-hidden="true">!</span>`:""}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${moneyFree()}</span>${IC("geld",18)}${moneyLock()?`<span class="csub">+${moneyLock()} gesperrt</span>`:""}${S.moneyNext?`<span class="csub">+${S.moneyNext} nächste Runde</span>`:""}</div>
-  <div class="chip tip warm" tabindex="0" data-tip="${`Erwärmung der Schweiz ${y}: rund +${f1(warmCH(y))} °C gegenüber 1871 bis 1900, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt (MeteoSchweiz, Klima CH2025: heute rund +3.0 °C, um 2050 in einer 2-Grad-Welt +3.6 °C). Dein Fussabdruck allein ändert daran nichts, es zählt, was alle tun.`}"><span class="cv">+${f1(warmCH(y))}</span><span class="csub">°C Schweiz</span></div>
+  <div class="chip tip warm" tabindex="0" data-tip="${y<=2026?`Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025). Bis 2050 kommen rund ${f1(warmToday(2050))} °C dazu, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt.`:`Bis ${y} wird es in der Schweiz rund ${f1(warmToday(y))} °C wärmer als heute, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt. Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025).`}"><span class="cv">+${f1(warmToday(y))}</span><span class="csub">°C ab heute</span></div>
   ${wishChip()}
  </div><button class="hdtog" type="button" onclick="hdToggle()" aria-expanded="false" aria-label="Mehr anzeigen: Wunsch, Geld und Bereiche"><i aria-hidden="true"></i></button></div><div class="barbox">${barHTML(v)}</div></div></div>`;
 }
@@ -1860,7 +1889,7 @@ function wishIcon(){const w=wish();if(!w)return"";const b=wishBroken();
 const IC=(k,s=14,dim)=>`<img class="px icn${dim?" dim":""}" src="${(dim?SPR.ico:SPR.icoc)[k]}" width="${s}" height="${s}" alt="${k=="herz"?"Herz":"Geld"}">`;
 const HZ=n=>`<span class="amt">${n}${IC("herz")}</span>`;
 const GD=n=>`<span class="amt">${n}${IC("geld")}</span>`;
-function details(t){return `<details><summary>Woher die Zahl?</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details>`}
+function details(t){return `<details><summary>Mehr dazu</summary><p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details>`}
 function cardHTML(id){
  const t=T[id],b=blocked(id),on=S.chosen[id]!==undefined,mine=S.thisRound.includes(id);
  const e=effOwn(id),h=costH(id),g=costG(id);
@@ -1868,7 +1897,7 @@ function cardHTML(id){
  const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
   :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
  return `<div class="card ${on?"on":""} ${b&&!on?"off":""}">
- <div class="hd"><span class="lbl">${CATIC(AREAC[id[0]])}${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
+ <div class="hd"><span class="lbl">${CATIC(AREAC[id[0]])}${AREAN[id[0]]} · ${stratTag(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
  ${!on&&wish()&&!wishBroken()&&wish().breaks.includes(id)?`<div class="cwhy">Damit gibst du deinen Wunsch «${esc0(wish().t)}» auf: kein Extraherz mehr.</div>`:""}
@@ -1881,14 +1910,15 @@ function chCH(k){if(M.VORL[k]&&M.VORL[k].ch!=null)return M.VORL[k].ch;const yn=S
 function sameTxt(k){const y=S.r<LAST?PER[S.r+1].a:2050;return SAME[k]&&SAME[k].some(c=>ownActive(c,y))?"Für dich ändert sich nichts mehr, du hast das schon selbst umgesetzt.":"";}
 function vEff(k){const y=RAMP[k]?2050:vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
 function ballotHTML(){
- let h=`<div class="lbl">Abstimmungssonntag</div><h3 style="margin:2px 0 6px">Zwei Vorlagen</h3>
- <p class="hint">${G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`} Wirkt ab ${vorlFrom(S.r)}.</p>`;
+ const rg=G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`;
+ // Regel nur in Runde 1 als Satz, danach im Tooltip des Titels
+ let h=`<div class="lbl">Abstimmungssonntag</div><h3 style="margin:2px 0 6px"${S.r>0?` class="tip vrule" tabindex="0" data-tip="${rg}"`:""}>Zwei Vorlagen, wirken ab ${vorlFrom(S.r)}</h3>
+ ${S.r===0?`<p class="hint">${rg}</p>`:""}`;
  for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k),c=chance(k);
   const ve=vEff(k),nopers=Math.abs(ve)<0.0005,chv=chCH(k);
-  h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${strat(k)} · ${nopers?"wirkt auf die Schweiz":(RAMP[k]?"bis 2050 ":"")+sgn(-ve,Math.abs(ve)<0.01?3:2)+" t pro Jahr für dich"}</span></div>
+  h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${stratTag(k)} · ${nopers?"wirkt auf die Schweiz":(RAMP[k]?"bis 2050 ":"")+sgn(-ve,Math.abs(ve)<0.01?3:2)+" t pro Jahr für dich"}</span></div>
   <div class="ti">${esc(t.title)}</div><div class="hint">${typTxt(k)}</div><div class="tx" style="font-size:14px">${esc(t.front)}</div>
-  <div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl">Chance</span><span class="chance">${c} %</span></div>
-  <div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div>
+  <div class="chrow"><span class="lbl">Chance</span><div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div><span class="chance">${c} %</span></div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
   <div class="meta2">${nopers?`<span>${sameTxt(k)||"Wirkt kaum auf deinen Fussabdruck."} Für die Schweiz: <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b>/Jahr weniger${RAMP[k]?" bis 2050":""}.</span>`:""}</div>
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
@@ -1991,12 +2021,14 @@ function viewEnd(){
  const parts=[["Wandel",no-START],["Vorlagen",vo-no+ovE],["Du",a-vo-ovE]];
  const more=(t,h)=>`<details class="endmore"><summary>${t}</summary><div class="endin">${h}</div></details>`;
  return `<div class="wrap"><div class="who">${figAnim(S.fig,4)}<div><div class="lbl">Auswertung</div><h1>${S.fig} im Jahr 2050</h1>${S.chal&&S.chal!="keine"?`<div class="lbl">Herausforderung: ${CHAL[S.chal].t}</div>`:""}</div></div>
- <div class="endtop">
-  <div class="ibox hi"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div><div class="stufen mini">${st.map(([t,ok],i)=>`<div class="stufe ${ok?"ok":""}"><span class="n">${i+1}</span><span>${t}</span></div>`).join("")}</div></div>
-  <div class="ibox"><div class="lbl">Punkte</div><div class="v">${sc?sc.tot:"–"}</div><div class="hint">${top} von 4 Stufen erreicht</div></div>
-  <div class="ibox"><div class="lbl">Schweiz dank Vorlagen</div><div class="v">${ch<0.05?"0":"−"+fmt(ch)} Mio. t</div><div class="hint">pro Jahr weniger, für alle 9 Mio.</div></div>
+ <div class="ibox hi endsum">
+  <div class="endnums">
+   <div class="en1"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div></div>
+   <div><div class="lbl">Punkte</div><div class="v">${sc?sc.tot:"–"}</div></div>
+   <div><div class="lbl">Schweiz dank Vorlagen</div><div class="v">${ch<0.05?"0":"−"+fmt(ch)} Mio. t</div><div class="hint">pro Jahr weniger, für alle 9 Mio.</div></div>
+  </div>
+  <div class="stufenx"><div class="lbl">Stufen</div>${STUFEN.map(([t,d],i)=>`<div class="sx ${st[i][1]?"ok":""}"><span class="n">${st[i][1]?"✓":i+1}</span><span><b>${t}.</b> ${d}</span></div>`).join("")}<p class="hint" style="margin:6px 0 0">Gemessen wird dein Fussabdruck im Jahr 2050. ${top==0?"Du hast noch keine Stufe erreicht.":top==4?"Du hast alle Stufen erreicht.":`Du hast ${top} von 4 Stufen erreicht. Nächste Stufe: «${STUFEN[top][0]}».`}</p></div>
  </div>
- <div class="ibox stufenx"><div class="lbl">Was die Stufen bedeuten</div>${STUFEN.map(([t,d],i)=>`<div class="sx ${st[i][1]?"ok":""}"><span class="n">${st[i][1]?"✓":i+1}</span><span><b>${t}.</b> ${d}</span></div>`).join("")}<p class="hint" style="margin:6px 0 0">Gemessen wird dein Fussabdruck im Jahr 2050. ${top==0?"Du hast noch keine Stufe erreicht.":top==4?"Du hast alle Stufen erreicht.":`Du hast ${top} von 4 Stufen erreicht. Nächste Stufe: «${STUFEN[top][0]}».`}</p></div>
  ${wish()?`<div class="callout"><span class="ic">${wishBroken()?"✗":"✓"}</span><span>Wunsch «${esc0(wish().t)}» ${wishBroken()?"aufgegeben.":"bis 2050 gelebt."}</span></div>`:""}
  <div class="layout half" style="margin-top:22px"><div>
   <div class="ibox"><div class="lbl">Von ${fmt(START)} t auf ${fmt(a)} t</div>${waterfallSVG(parts,a-START)}</div>
@@ -2243,6 +2275,8 @@ const OST=[{x:1550},{x:1730},{x:1905}];
 const STUFEN=[["Besser als nichts tun","Dein Fussabdruck 2050 ist tiefer als bei jemandem, der selbst nichts ändert."],["Unter 6 t","So weit kommt man etwa mit eigenen Entscheiden allein (ZHAW 2021)."],["Unter 4 t","Das geht nur, wenn auch Vorlagen angenommen werden."],["0.6 t","Verträglich. Das schafft im Spiel niemand allein."]];
 function stufenTop(){const a=val(2050,ACT),vo=val(2050,VO);return [a<vo-0.05,a<6,a<4,a<=0.6].filter(Boolean).length;}
 function warmCH(y){return 3.0+0.6*Math.max(0,Math.min(1,(y-2025)/25));}
+// Header: Erwaermung der Schweiz gegenueber heute (2026: 0.0, 2050: 0.6 °C)
+function warmToday(y){return warmCH(y)-warmCH(2025);}
 function outroTexts(){const a=val(2050,ACT),own=val(2050,VO)-a,pol=val(2050,NO)-val(2050,VO),top=stufenTop();
  const RT=["Ehrlich: Das ist nicht besser, als wenn ich gar nichts geändert hätte.","Immerhin besser als nichts tun. Bis zum Ziel ist es aber noch weit.","Gut gemacht: unter 6 t. Viel mehr schafft man allein kaum.","Stark: unter 4 t! Das geht nur, wenn auch die Politik mitzieht.","Unglaublich: verträglich!"];
  return [`2050! Ich stosse noch ${fmt(a)} t pro Jahr aus, ${fmt(START-a)} t weniger als 2026. ${RT[top]}`,
@@ -2296,6 +2330,7 @@ function viewSummary(){
   <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt, pro Jahr, ${a0} bis ${nx}</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}${ovOn?`<p class="hint">Ohne deine Karten brächten die Vorlagen diese Runde ${fmt(-dv)} t, bei dir sind es ${fmt(-dvA)} t: ${fmt(ov)} t hattest du schon mit eigenen Karten umgesetzt. Das zählt nur einmal.</p>`:""}</div>
   ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
  </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
+function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerdown="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
 /* Bilanz: Fussabdruck nach Bereichen, vorher und nachher */
 function catHTML(c0,c1,y0,y1){const mx=Math.max(...CATS.map(x=>Math.max(c0[x],c1[x])))*1.04,pc=v=>(v/mx*100).toFixed(2);
  return `<div class="cats">${CATS.map((x,i)=>{const a=c0[x],b=c1[x],d=b-a,lo=Math.min(a,b);
@@ -2304,7 +2339,6 @@ function catHTML(c0,c1,y0,y1){const mx=Math.max(...CATS.map(x=>Math.max(c0[x],c1
   <span class="cval"><b>${fmt(b)} t</b><em class="${d<-0.05?"dn":d>0.05?"up":""}">${Math.abs(d)<0.05?"±0":sgn(d)}</em></span></div>`;}).join("")}</div>
  <div class="ckey"><span><i class="k1"></i>${y1}</span><span><i class="k2"></i>eingespart seit ${y0}</span></div>`;}
 /* Hover fuer Diagramme: Jahr mit Fadenkreuz oder Erklaerung an Balken */
-function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerdown="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
 function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".xh"),r=w.getBoundingClientRect(),q=UQ(),px=(e.clientX-r.left)/q,py=(e.clientY-r.top)/q;
  const t=e.target.closest("[data-ht]");let html="";xh.style.display="none";
  if(t)html=t.getAttribute("data-ht");
