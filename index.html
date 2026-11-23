@@ -108,7 +108,7 @@ h3.bud{font-size:22px;margin:2px 0 12px}
 @media(max-width:700px){.ebt{font-size:12px}.ebt td,.ebt th{padding:3px}}
 .callout .ic{width:20px;flex:0 0 20px;height:20px;background:#e7e1db;color:#62584f;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
-.panel{position:sticky;top:150px;max-height:calc(100vh - 160px);overflow:auto;border:1px solid var(--edge);padding:16px 18px;background:#fff}
+.panel{position:sticky;top:calc(var(--hdh,72px) + 4px);max-height:calc(100vh - var(--hdh,72px) - 14px);overflow:auto;border:1px solid var(--edge);padding:16px 18px;background:#fff}
 .panel hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .card{position:relative;border:1px solid var(--edge);padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:6px;min-height:170px}
@@ -220,7 +220,6 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .bdots{display:inline-flex;gap:2px;font-style:normal}.bdots b{width:3px;height:3px;background:var(--ink);animation:bdot 1.2s steps(1) infinite}
 .bdots b:nth-child(2){animation-delay:.2s}.bdots b:nth-child(3){animation-delay:.4s}@keyframes bdot{0%,60%,100%{opacity:.25}20%,40%{opacity:1}}
 .bank .wait .fa{filter:none}
-@media(max-width:700px){.bankrow,.top-in .bankrow.multi{flex:0 0 auto;order:2;margin:0 0 0 auto;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:58%}.top-in .who{order:1;flex:1 1 auto;min-width:0}.top-in .chips{order:3}.bank{zoom:.72}.top-in .bankrow.multi{flex-wrap:nowrap;max-width:64%;gap:2px}.bankrow.multi .bank{zoom:.52;padding-left:6px;padding-right:6px}.bank{padding:24px 10px 0}.bank .bsit{min-width:32px}}
 .mates{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 4px}.mate{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px}
 .mate .mb{background:#fff;padding:3px 5px;box-shadow:0 -2px 0 0 var(--ink),0 2px 0 0 var(--ink),-2px 0 0 0 var(--ink),2px 0 0 0 var(--ink);margin-bottom:4px;line-height:0}
 .mate .mb img{image-rendering:pixelated;transform:scale(.6)}
@@ -295,8 +294,8 @@ input.codein{font:400 16px var(--mono);width:7em;text-transform:uppercase;paddin
 .colhd .s{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:#e7e2dd;text-align:right}
 .colhd.grp{background:#fff;color:var(--ink);box-shadow:0 calc(-1*var(--p)) 0 0 var(--ink),0 var(--p) 0 0 var(--ink),calc(-1*var(--p)) 0 0 0 var(--ink),var(--p) 0 0 0 var(--ink);background:var(--g5)}
 .colhd.grp .s{color:var(--ink)}
-.side{position:sticky;top:150px;align-self:start}
-.side .panel{position:static;max-height:calc(100vh - 230px)}
+.side{position:sticky;top:calc(var(--hdh,72px) + 4px);align-self:start}
+.side .panel{position:static;max-height:calc(100vh - var(--hdh,72px) - 84px)}
 @media(max-width:1000px){.side{position:static}.side .panel{max-height:none}.colhd .t{font-size:20px}}
 .bar{--sh:transparent;--fc:var(--ink);height:22px}
 .card:hover,.fig:hover{--fc:var(--ink);transform:translate(-1px,-1px)}
@@ -363,7 +362,7 @@ details.rules>summary{font-size:13px}
 /* Geführte Runde */
 .coach{position:fixed;left:24px;bottom:24px;z-index:50;background:#fff;max-width:380px;padding:14px 16px;margin:3px;
  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
-.coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite;scroll-margin-top:190px}
+.coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite;scroll-margin-top:calc(var(--hdh,72px) + 40px)}
 .coachov{position:fixed;inset:0;z-index:90}
 .coachhole{position:fixed;pointer-events:none;box-shadow:0 0 0 200vmax rgba(255,255,255,.66);transition:left .2s,top .2s,width .2s,height .2s}
 .coachov .coach{position:fixed!important;right:auto!important;bottom:auto!important;max-width:380px;width:calc(100vw - 32px);margin:0;left:50%;top:50%;transform:translate(-50%,-50%)}
@@ -421,14 +420,11 @@ details.rules>summary{font-size:13px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* Handy */
 @media(max-width:700px){
- .top-in{padding:8px 14px 4px;gap:8px}
- .barbox{padding:0 14px 8px}
- .who h1{font-size:30px}.who .px{width:51px;height:66px}
  .stats{gap:8px;flex-wrap:nowrap;overflow-x:auto}
  .st{min-width:auto;padding:4px 8px}.st .s,.st .pips{display:none}.st .lbl{font-size:10px;white-space:nowrap}.stats .st:nth-child(2){display:none}.st .v{font-size:20px}.st.big .v{font-size:30px}.st.big{min-width:auto}
  .legend{font-size:10px;gap:2px 10px}
  .wrap{padding:16px 14px 150px}
- .colhd.mstp{cursor:pointer;scroll-margin-top:150px}.colhd.mstp .s{display:none}.colhd .mst{display:inline-flex!important;align-items:center;gap:4px;font:400 11px var(--mono);text-transform:uppercase}
+ .colhd.mstp{cursor:pointer;scroll-margin-top:calc(var(--hdh,64px) + 12px)}.colhd.mstp .s{display:none}.colhd .mst{display:inline-flex!important;align-items:center;gap:4px;font:400 11px var(--mono);text-transform:uppercase}
  .mstep.c2 aside.side .panel{display:none}
  .mstep.c1>div:first-child>:not(.colhd){display:none}
  .mstep.c1 .mnext,.mstep.o2 .mnext{display:none!important}
@@ -445,14 +441,7 @@ details.rules>summary{font-size:13px}
  .fig .im{grid-row:1/span 2;width:84px!important;height:96px!important;overflow:hidden}
  .fig h3{grid-column:2;margin:0!important}.fig .life{grid-column:2;margin:0!important}
  .fig .fmeta,.fig .fwish,.fig .fgo{grid-column:1/-1}.fig .fwish{min-height:0!important}
- /* Kopf kompakt */
- .top-in{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px 10px!important;padding:6px 12px 4px!important}
- .who{gap:8px}.who .fa{zoom:.5}.who h1{font-size:22px!important;line-height:1}.who .kick{font-size:9px}
- .chips{display:flex;flex-wrap:nowrap!important;gap:6px!important;width:100%}
- .chip{padding:3px 7px!important;flex:0 0 auto}.chip .cv{font-size:16px!important}.chip .cl{font-size:9px}
- .chip.wish{flex:1 1 auto;min-width:0}.chip.wish .cw{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
- .barbox{padding:0 12px 8px!important}.bar{height:18px}.seg .sic{width:12px;left:2px}.seg .sic img{width:12px;height:12px}
- .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:150px!important;width:auto!important}
+ .tip::after{position:fixed!important;left:12px!important;right:12px!important;top:calc(var(--hdh,64px) + 8px)!important;width:auto!important}
  .tabs{gap:6px;flex-wrap:wrap}.tabs .period{display:none}.tabs .tab{font-size:11px!important;padding:6px 8px!important}
  .actbar .in>span{flex:1 1 100%;min-width:0;white-space:normal;font-size:12px}
  .btitle{font-size:19px}
@@ -619,7 +608,6 @@ html{scroll-padding-bottom:120px}
 }
 @media(max-width:700px){
  .mhide{display:none}
- body.scr .top .chip.wish,body.scr .top .chip.warm,body.scr .top .barbox{display:none}
 }
 /* Ueberarbeitung 21.11.2026 nach Testbericht */
 button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--ink)}
@@ -628,13 +616,94 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
 @media(max-width:999px){.tapo{display:block}}
 @media(max-width:700px){
  .ctl button.small{min-width:44px;min-height:44px;font-size:20px;padding:0 10px}
- .chips{flex-wrap:wrap!important}
- .chip.wish{flex:1 1 100%}.chip.wish .cw{white-space:normal;overflow:visible;text-overflow:clip}
- .chip.big{position:relative}.fdelta{top:-11px!important;bottom:auto;right:6px!important;font-size:15px!important;z-index:5;background:#fff;padding:0 4px;line-height:1.2}
  .vnews{height:auto!important;display:flex;flex-direction:column}.vsay{position:relative!important;left:auto!important;top:auto!important;margin-top:18px}.vsay::before{display:none}
  .vov{height:100vh;height:100dvh;padding:10px}.vbox.urne{max-height:calc(100vh - 140px);max-height:calc(100dvh - 20px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
  .vbox.urne>.row:last-child{padding-bottom:max(14px,env(safe-area-inset-bottom))}
  .vsay p{min-height:6.5em}.anchor{width:96px!important;height:64px!important;background-size:576px 64px!important}.anchor.talk{animation-name:anc3!important}@keyframes anc3{to{background-position:-576px 0}}
+}
+/* Kopfzeile kompakt (23.11.2026): eine Zeile plus duenner Balken. Unter 1000 px Pfeil zum Aufklappen (hdApply), aufgeklappt legt sich .hdbox ueber die Seite. */
+.top{background:none!important;border-bottom:0!important}
+.hdbox{position:relative;background-color:#fff;background-image:linear-gradient(90deg,var(--ink) 50%,transparent 50%);background-size:6px 3px;background-repeat:repeat-x;background-position:bottom;padding-bottom:3px}
+.top-in{display:flex!important;flex-wrap:nowrap;align-items:center;gap:14px!important;padding:5px 32px 4px!important}
+.top-in .who{order:0;gap:10px;flex:0 0 auto;min-width:0}
+.top-in .who .fa{zoom:.42}
+.who .wn{display:flex;flex-direction:column;gap:3px;min-width:0}
+.top-in .who h1{font-size:24px!important;line-height:1;margin:0}
+.wnl{display:flex;align-items:center;gap:6px}
+.top-in .who .kick{font-size:11px;white-space:nowrap}
+.kready{display:none}
+.top-in .bankrow,.top-in .bankrow.multi{order:1;flex:0 0 auto;align-self:center;flex-wrap:nowrap;gap:6px;justify-content:flex-start;margin:0;max-width:none}
+.top-in .bank{zoom:.6}
+.top-in .chips{order:2;flex:1 1 auto;min-width:0;flex-wrap:nowrap!important;justify-content:flex-end;gap:10px!important}
+.top-in .chip{flex:0 0 auto;height:34px}
+.top-in .chip .cv{font-size:22px}
+.top-in .chip.wish{flex:0 1 auto;min-width:70px}
+.top-in .chip.wish .cw{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wishi,.hdtog{display:none}
+.wishi{line-height:0;cursor:help}
+@media(min-width:1000px) and (max-width:1199px){.top-in .chip.wish{display:none}.top-in .wishi{display:inline-block}}
+.top .barbox{padding:0 32px 6px!important}
+.top .bar{height:12px}
+.top .seg .sic{width:12px;left:2px}.top .seg .sic img{width:12px;height:12px}
+.hdtog{order:3;position:relative;flex:0 0 auto;width:32px;height:32px;min-height:0;min-width:0;padding:0;margin:var(--p);background:#fff;border:0;cursor:pointer;place-items:center;--fc:var(--edge);box-shadow:0 calc(-1*var(--p)) 0 0 var(--fc),0 var(--p) 0 0 var(--fc),calc(-1*var(--p)) 0 0 0 var(--fc),var(--p) 0 0 0 var(--fc)}
+.hdtog::after{content:"";position:absolute;inset:-7px}
+.hdtog i{display:block;width:12px;height:8px;background:var(--ink);clip-path:polygon(0 0,100% 0,50% 100%)}
+.top.open .hdtog i{transform:rotate(180deg)}
+.hdtog:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+@media(max-width:999px){
+ .top-in{padding:6px 12px 4px!important;gap:8px!important}
+ .top .barbox{padding:0 12px 6px!important}
+ .top-in .who{gap:8px}
+ .top-in .who .fa{zoom:.42}
+ .top-in .who h1{font-size:22px!important}
+ .top-in .who .kick{font-size:9px}
+ .top-in .bank{zoom:.5}
+ .top-in .chips{gap:8px!important}
+ .top-in .chip{padding:3px 7px!important;height:32px}
+ .top-in .chip .cv{font-size:18px!important}
+ .top-in .chip.wish,.top-in .chip .csub{display:none}
+ .top-in .wishi{display:inline-block}
+ .hdtog{display:inline-grid}
+ .top .bar{height:8px}.top .seg .sic{display:none}
+ .chip.big{position:relative}.fdelta{top:calc(100% + 5px)!important;right:-2px!important;font-size:15px!important;z-index:5;background:#fff;padding:0 4px;line-height:1.2}
+ .top.open .top-in{flex-wrap:wrap}
+ .top.open .hdtog{margin-left:auto}
+ .top.open .chips{order:4;flex:1 1 100%;flex-wrap:wrap!important;justify-content:flex-start;padding:4px 0 2px}
+ .top.open .chip.wish{display:inline-flex;flex:1 1 100%;height:auto;min-height:32px}
+ .top.open .chip.wish .cw{white-space:normal;overflow:visible}
+ .top.open .chip .csub{display:inline}
+ .top.open .wishi{display:none}
+ .top.open .bar{height:18px}.top.open .seg .sic{display:grid}
+}
+@media(max-width:700px){
+ .top-in{gap:6px!important;padding:6px 10px 4px!important}
+ .top .barbox{padding:0 10px 6px!important}
+ .top-in .who{gap:6px;flex:1 1 auto}
+ .top-in .who .fa{zoom:.38}
+ .top-in .who h1{font-size:19px!important}
+ .top-in .who .kick{overflow:hidden;text-overflow:ellipsis}
+ .top-in .kcode{display:none}
+ .kready{display:block}.kready .ksep{display:none}
+ .top-in .bankrow{display:none!important}
+ .top-in .chips{flex:0 0 auto;gap:6px!important}
+ .top-in .chip{padding:2px 6px!important;height:28px}
+ .top-in .chip .cv{font-size:16px!important}
+ .top-in .chip .cl,.top-in .chip.warm{display:none}
+ .top.open .chip .cl,.top.open .kcode{display:inline}
+ .top.open .chip.warm{display:inline-flex}
+ .top.open .bankrow{display:flex!important;order:5;flex:1 1 100%;justify-content:flex-start;flex-wrap:wrap;padding-top:4px}
+}
+/* Fusszeile kompakt (23.11.2026): Text und Knopf in einer Zeile, auf dem Handy kurzer Text; Rueckfrage: Knoepfe nebeneinander */
+.actbar .in{padding:6px 32px!important;gap:16px}
+.actbar .in>span{min-width:0}
+@media(max-width:700px){
+ .actbar .in{flex-wrap:nowrap!important;gap:10px!important;padding:6px 12px!important}
+ .actbar .in>span{flex:1 1 auto!important;font-size:12px;line-height:1.35}
+ .actbar button{width:auto!important;min-height:44px;padding:6px 12px;flex:0 0 auto}
+ .actbar .in:has(>.row){flex-wrap:wrap!important;gap:6px!important}
+ .actbar .in>.row{flex:1 1 100%!important;display:flex;gap:8px!important}
+ .actbar .in>.row button{flex:1 1 0}
+ .wrap{padding-bottom:100px!important}
 }
 </style>
 </head>
@@ -1228,7 +1297,6 @@ function uiZoom(){if(typeof document==="undefined"||!document.documentElement||t
  const zr=Math.round(z*100)/100;if(window.UIZ===zr)return;window.UIZ=zr;document.documentElement.style.zoom=zr===1?"":String(zr);document.documentElement.style.setProperty("--uiz",String(zr));
  try{const t=document.createElement("div");t.style.cssText="position:fixed;left:100px;top:0;width:1px;height:1px";document.body.appendChild(t);window.UZF=t.getBoundingClientRect().left/100||1;t.remove();}catch(e){window.UZF=1;}}
 const UQ=()=>(typeof window!=="undefined"&&window.UZF)||1;
-if(typeof addEventListener!=="undefined"){addEventListener("scroll",()=>{try{const c=document.body.classList,on=c.contains("scr");if(!on&&scrollY>200)c.add("scr");else if(on&&scrollY<10)c.remove("scr");}catch(e){}},{passive:true});}
 if(typeof addEventListener!=="undefined"){addEventListener("resize",()=>{const o=window.UIZ;uiZoom();if(o!==window.UIZ&&typeof render==="function")try{render()}catch(e){}});}
 let S, G=null;
 function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
@@ -1733,20 +1801,38 @@ function header(){
  const tb=used?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
  const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?` ${moneyLock()} Geld sind gesperrt: «${T[S.nextEvent].title}» nach dieser Runde kostet dich so viel.${S.nextEvent=="E4"?" Ausser du wählst noch «"+T.C4.title+"».":""}`:""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
- return `<div class="top"><div class="top-in">
- <div class="who">${figAnim(S.fig,4)}<div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?" · Raum "+G.code:""}</div><h1>${S.fig}</h1></div></div>
- ${G&&S.screen==="round"?`<div class="bankrow${G.players().filter(p=>p.fig).length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
+ // Kopfzeile kompakt (23.11.2026): eine Zeile plus Balken; unter 1000 px klappt der Pfeil Wunsch, Geld-Zusaetze und den Balken mit Icons auf (siehe hdApply)
+ const bnk=G&&S.screen==="round"?G.players().filter(p=>p.fig):[],nrd=bnk.filter(p=>p.uid===NET.uid?(S.results||S.waiting):(S.results||(p.ready&&p.ready[S.r]))).length;
+ return `<div class="top" id="top"><div class="hdbox"><div class="top-in">
+ <div class="who">${figAnim(S.fig,4)}<div class="wn"><div class="wnl"><h1>${S.fig}</h1>${wishIcon()}</div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?`<span class="kcode"> · <span title="Raumcode">${G.code}</span></span>`:""}${bnk.length?`<span class="kready"><span class="ksep"> · </span>${nrd}/${bnk.length} fertig</span>`:""}</div></div></div>
+ ${bnk.length?`<div class="bankrow${bnk.length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${moneyFree()}</span>${IC("geld",18)}${moneyLock()?`<span class="csub">+${moneyLock()} gesperrt</span>`:""}${S.moneyNext?`<span class="csub">+${S.moneyNext} nächste Runde</span>`:""}</div>
   <div class="chip tip warm" tabindex="0" data-tip="${`Erwärmung der Schweiz ${y}: rund +${f1(warmCH(y))} °C gegenüber 1871 bis 1900, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt (MeteoSchweiz, Klima CH2025: heute rund +3.0 °C, um 2050 in einer 2-Grad-Welt +3.6 °C). Dein Fussabdruck allein ändert daran nichts, es zählt, was alle tun.`}"><span class="cv">+${f1(warmCH(y))}</span><span class="csub">°C Schweiz</span></div>
   ${wishChip()}
- </div></div><div class="barbox">${barHTML(v)}</div></div>`;
+ </div><button class="hdtog" type="button" onclick="hdToggle()" aria-expanded="false" aria-label="Mehr anzeigen: Wunsch, Geld und Bereiche"><i aria-hidden="true"></i></button></div><div class="barbox">${barHTML(v)}</div></div></div>`;
 }
+/* Aufklappen unter 1000 px: Die Kopfzeile behaelt ihre Hoehe (.top), der aufgeklappte Teil (.hdbox) legt sich ueber die Seite. So verschiebt sich beim Auf- und Zuklappen nichts. */
+const HDNARROW=()=>typeof innerWidth!=="undefined"&&innerWidth<1000;
+function hdApply(){if(typeof document==="undefined"||!document.getElementById)return;const t=document.getElementById("top");if(!t)return;
+ const o=!!S.hdOpen&&HDNARROW();t.classList.remove("open");t.style.height="";
+ if(o){t.style.height=t.getBoundingClientRect().height/UQ()+"px";t.classList.add("open");}
+ const b=t.querySelector(".hdtog");if(b){b.setAttribute("aria-expanded",String(o));b.setAttribute("aria-label",o?"Weniger anzeigen":"Mehr anzeigen: Wunsch, Geld und Bereiche");}
+ const hb=t.querySelector(".hdbox");if(hb&&document.documentElement)document.documentElement.style.setProperty("--hdh",hb.offsetHeight+"px");}
+function hdToggle(f){S.hdOpen=f!=null?!!f:!S.hdOpen;S.hdY=typeof scrollY!=="undefined"?scrollY:0;hdApply();}
+if(typeof addEventListener!=="undefined"){addEventListener("scroll",()=>{try{if(S&&S.hdOpen&&S.coach==null&&scrollY-(S.hdY||0)>40)hdToggle(false);}catch(e){}},{passive:true});
+ addEventListener("resize",()=>{try{hdApply()}catch(e){}});}
 function wishChip(){const w=wish();if(!w)return"";const b=wishBroken();
  const nx=b?"Aufgegeben, kein Extraherz mehr.":S.r<LAST?"Solange du ihn lebst, bekommst du jede 2. Runde 1 Herz extra.":"Bis 2050 gelebt.";
  const tip=`Dein Wunsch: ${w.t}. ${nx}${b?"":" Aufgeben würdest du ihn mit "+w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")+"."}`;
- return `<div class="chip wish tip ${b?"gone":""}" tabindex="0" data-tip="${esc0(tip).replace(/"/g,"&quot;")}">${IC("herz",16,b)}<span class="cw">${esc0(w.t)}</span></div>`;}
+ return `<div class="chip wish tip ${b?"gone":""}" tabindex="0" data-tip="${wishTip()}">${IC("herz",16,b)}<span class="cw">${esc0(w.t)}</span></div>`;}
+function wishTip(){const w=wish();if(!w)return"";const b=wishBroken();
+ const nx=b?"Aufgegeben, kein Extraherz mehr.":S.r<LAST?"Solange du ihn lebst, bekommst du jede 2. Runde 1 Herz extra.":"Bis 2050 gelebt.";
+ return esc0(`Dein Wunsch: ${w.t}. ${nx}${b?"":" Aufgeben würdest du ihn mit "+w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")+"."}`).replace(/"/g,"&quot;");}
+// Wunsch-Herz neben dem Namen: steht unter 1000 px in der zugeklappten Zeile und erinnert an den Wunsch (Text im Tooltip)
+function wishIcon(){const w=wish();if(!w)return"";const b=wishBroken();
+ return `<span class="wishi tip${b?" gone":""}" tabindex="0" role="img" aria-label="Dein Wunsch: ${esc0(w.t).replace(/"/g,"&quot;")}${b?", aufgegeben":""}" data-tip="${wishTip()}">${IC("herz",14,b)}</span>`;}
 function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis und Bilanz"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<span class="period">${PER[S.r].l}</span></div>`}
 const IC=(k,s=14,dim)=>`<img class="px icn${dim?" dim":""}" src="${(dim?SPR.ico:SPR.icoc)[k]}" width="${s}" height="${s}" alt="${k=="herz"?"Herz":"Geld"}">`;
 const HZ=n=>`<span class="amt">${n}${IC("herz")}</span>`;
@@ -1809,8 +1895,8 @@ function viewRound(){
  if(S.results){P+=`<hr>${stc?`<div class="lbl">Engagement der Gruppe</div><table style="margin:4px 0 10px">${Object.values(stc).map(c=>`<tr><td>${c.fig}</td><td class="n">${HZ(c.h)}${c.d?", "+c.d+" Kampagnen":""}${c.p?", "+c.p+" fürs Projekt":""}</td></tr>`).join("")}</table>`:""}<p>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen. Deine Entscheide stehen fest.</p>${projResultHTML()}${S.results.filter(x=>x.ok&&cheaperBy(x.k).length).map(x=>`<div class="callout"><span class="ic">↓</span><span>Dank «${esc(T[x.k].title)}» wird billiger: ${cheaperBy(x.k).map(c=>"«"+esc(T[c].title)+"»").join(", ")}</span></div>`).join("")}`;
   B=`<span>${S.results.filter(x=>x.ok).length} von ${S.results.length} Vorlagen angenommen.</span><button class="primary" onclick="toEvent()">Weiter ins Dorf</button>`;}
  else if(S.waiting)B=`<span>Du bist fertig. Warten auf: ${G.missing().join(", ")||"…"}</span><button onclick="G.unready()">Doch noch ändern</button>`;
- else if(S.askVote===S.r&&lostH()>0)B=`<span><b>Noch ${HZ(freeH())} übrig.</b> ${lostH()} ${lostH()==1?"verfällt":"verfallen"}, nur 1 Herz kannst du mitnehmen.</span><span class="row" style="gap:8px"><button onclick="S.askVote=null;render()">Zurück</button><button id="finish2" class="primary" onclick="vote(true)">Trotzdem abstimmen</button></span>`;
- else B=`<span class="hint">Übrig: ${HZ(freeH())} und ${GD(moneyFree())}${moneyLock()?` (${moneyLock()} gesperrt)`:""}.<span class="mhide"> ${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span></span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen und Runde abschliessen"}</button>`;
+ else if(S.askVote===S.r&&lostH()>0)B=`<span><b>Noch ${HZ(freeH())} übrig.</b> ${lostH()} ${lostH()==1?"verfällt":"verfallen"}<span class="mhide">, nur 1 Herz kannst du mitnehmen</span>.</span><span class="row" style="gap:8px"><button onclick="S.askVote=null;render()">Zurück</button><button id="finish2" class="primary" onclick="vote(true)">Trotzdem abstimmen</button></span>`;
+ else B=`<span class="hint"><span class="mhide">Übrig: ${HZ(freeH())} und ${GD(moneyFree())}${moneyLock()?` (${moneyLock()} gesperrt)`:""}. </span>${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen<span class=\"mhide\"> und Runde abschliessen</span>"}</button>`;
  const gh=`<div class="colhd grp mstp" onclick="mStep(2)"><span class="t"><b class="stepn">2</b>${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span><span class="mst">${freeH()} ${IC("herz",12)} übrig <i>${m2?"▾":"▸"}</i></span></div>`;
  
  return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half mstep ${m1?"o1":"c1"} ${m2?"o2":"c2"}"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
@@ -2293,7 +2379,7 @@ const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Mens
 const COACH=[["stats|.barbox","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der rote Strich das Ziel 0.6 t."],
  ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
  ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
- ["finish","Unten siehst du, was dir übrig bleibt. Wenn du fertig bist, stimmst du ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
+ ["finish","Oben siehst du, wie viele Herzen und wie viel Geld dir übrig bleiben. Wenn du fertig bist, stimmst du hier unten ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
 function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt0]=COACH[S.coach];const touch=typeof matchMedia!=="undefined"&&matchMedia("(hover:none)").matches,nar=typeof innerWidth!=="undefined"&&innerWidth<1000;
  const txt=txt0.replace("{HOVER}",touch?"Tippe darauf, dann erscheint eine Erklärung.":"Fahre mit der Maus darüber, dann erscheint eine Erklärung.").replace("{RECHTS}",nar?"Weiter unten":"Rechts");
  return `<div class="coachov"><div class="coachhole" id="coachhole"></div><div class="coach" id="coachbox" role="dialog" aria-modal="true"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
@@ -2385,6 +2471,10 @@ function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()))
  // Tastatur: Fokus nach dem Neuzeichnen wieder auf das gleiche Element setzen (UX-Test 21.11.)
  let fk=null;try{const ae=document.activeElement;if(ae&&ae!==document.body&&ae.getAttribute){const oc=ae.getAttribute("onclick")||"";const m=oc.match(/'([A-Za-z0-9]+)'/);fk={oc,id:m?m[1]:null,tag:ae.tagName};}}catch(e){}
  document.getElementById("app").innerHTML=v()+crisisBigHTML()+coachHTML();
+ // Kopfzeile: neue Runde oder neuer Bildschirm klappt zu; die Anleitung klappt sie fuer Schritt 1 auf
+ if(newScr)S.hdOpen=false;
+ if(S.coach===0&&S.screen==="round"&&HDNARROW()){if(!S.hdOpen)S.hdCoach=1;S.hdOpen=true;}else if(S.hdCoach){S.hdCoach=0;S.hdOpen=false;}
+ hdApply();
  if(fk&&!newScr)try{const all=[...document.querySelectorAll("#app [onclick]")];const t=all.find(e=>e.getAttribute("onclick")===fk.oc)||(fk.id&&all.find(e=>e.tagName===fk.tag&&(e.getAttribute("onclick")||"").includes("'"+fk.id+"'")));if(t&&t.focus)t.focus({preventScroll:true});}catch(e){}
  if(newScr&&S.coach==null&&typeof window!=="undefined"&&window.scrollTo)window.scrollTo(0,0);
  if(S.coach!=null&&S.screen==="round"&&document.getElementById){coachTgs().forEach(t=>t.classList&&t.classList.add("coachme"));const tg=coachTgs()[0];if(tg&&tg.classList){if(tg.scrollIntoView&&S.coachScrolled!==S.coach){S.coachScrolled=S.coach;if(!(tg.closest&&tg.closest(".actbar,.top")))tg.scrollIntoView({block:"start",behavior:"smooth"});}}coachFollow();}
