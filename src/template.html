@@ -698,6 +698,27 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
  .actbar .in>.row button{flex:1 1 0}
  .wrap{padding-bottom:100px!important}
 }
+/* Mehr Platz fuer Karten (23.11.2026): Kartenfuss in einer Zeile (unter 1000 px), iPad zwei Spalten, «!» am Herz-Chip */
+.card .fz{margin-top:auto}
+.cost .cns{display:none}
+.card .fz>.ft{margin-top:0}
+.chip .cbadge{position:absolute;top:-7px;right:-7px;width:14px;height:14px;background:var(--ink);color:#fff;font:400 11px/14px var(--mono);text-align:center;pointer-events:none;z-index:3}
+.top-in .chip{position:relative}
+@media(max-width:999px){
+ .card .fz{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+ .card .fz>details{flex:1 1 auto;min-width:0;margin:0}
+ .card .fz>details[open]{flex-basis:100%}
+ .card .fz>.ft{margin-left:auto;padding-top:0;flex-wrap:nowrap;gap:10px}
+ /* Kosten auf zwei Zeilen (Herzen, darunter Geld), damit «Woher die Zahl?», Kosten und Knopf nebeneinander passen */
+ .card .ft .cost{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;text-align:right}
+ .card .ft .cost .csep{display:none}
+ .card .ft .cost .cnx{display:none}
+ .card .ft .cost .cns{display:inline;font-family:var(--pix);font-size:13px}
+}
+@media(min-width:701px) and (max-width:999px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* Handy: «Wählen» sichtbar 32 px hoch, die Tippflaeche bleibt mit ::after etwa 44 px */
+@media(max-width:700px){.card .ft button.small{min-height:32px;padding:3px 12px;position:relative}.card .ft button.small::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}}
+@media(max-width:1000px){.toprow>.topstack:empty,.toprow>div:empty{display:none}.toprow:not(:has(>div:not(:empty))){display:none}}
 </style>
 </head>
 <body>
@@ -1145,7 +1166,8 @@ function beginRound(){
   else{const d=Math.min(1,S.money);S.money-=d;note.push("Flugticketabgabe: Du fliegst noch und zahlst 1 Geld.");}
  }
  if(S.freeNote){note.push(S.freeNote);S.freeNote=null;}
- if(S.carry||S.wishH)note.push("Diese Runde hast du "+S.hearts+" Herzen: 3"+(S.carry?", 1 mitgenommen":"")+(S.wishH?", 1 von deinem Wunsch":"")+".");
+ // Herkunft der Herzen steht im Tooltip des Herz-Chips (mit «!», bis man ihn ansieht), nicht mehr als Hinweis ueber den Karten
+ S.heartNote=(S.carry||S.wishH)?"Diese Runde hast du "+S.hearts+" Herzen: 3"+(S.carry?", 1 mitgenommen":"")+(S.wishH?", 1 von deinem Wunsch":"")+".":null;
  S.carry=0;
  S.roundNote=note;
  S.snap[S.r]={y:PER[S.r].a,act:val(PER[S.r].a,ACT),c:bycat(subs(PER[S.r].a,ACT))};
@@ -1305,7 +1327,8 @@ function header(){
  const atEnd=S.screen==='summary'||S.screen==='dorf',p=PER[S.r],y=atEnd?(S.r<LAST?PER[S.r+1].a:2050):p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),used=y>2026,so=used?sum(2026,y-1,ACT):0;
  const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her. Wie viel du heizt, fährst, fliegst, isst und kaufst, ändert sich nicht von selbst. Ziel bis 2050: 0.6 t.`;
  const tb=used?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
- const th=`Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
+ const hn=S.screen==="round"&&!S.results&&S.heartNote?S.heartNote:"";
+ const th=`${hn?hn+" ":""}Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?` ${moneyLock()} Geld sind gesperrt: «${T[S.nextEvent].title}» nach dieser Runde kostet dich so viel.${S.nextEvent=="E4"?" Ausser du wählst noch «"+T.C4.title+"».":""}`:""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
  // Kopfzeile kompakt (23.11.2026): eine Zeile plus Balken; unter 1000 px klappt der Pfeil Wunsch, Geld-Zusaetze und den Balken mit Icons auf (siehe hdApply)
  const bnk=G&&S.screen==="round"?G.players().filter(p=>p.fig):[],nrd=bnk.filter(p=>p.uid===NET.uid?(S.results||S.waiting):(S.results||(p.ready&&p.ready[S.r]))).length;
@@ -1313,7 +1336,7 @@ function header(){
  <div class="who">${figAnim(S.fig,4)}<div class="wn"><div class="wnl"><h1>${S.fig}</h1>${wishIcon()}</div><div class="kick">Runde ${S.r+1} von ${PER.length}${G?`<span class="kcode"> · <span title="Raumcode">${G.code}</span></span>`:""}${bnk.length?`<span class="kready"><span class="ksep"> · </span>${nrd}/${bnk.length} fertig</span>`:""}</div></div></div>
  ${bnk.length?`<div class="bankrow${bnk.length>4?" multi":""}">${benchRound()}</div>`:""}<div class="chips" id="stats">
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
-  <div class="chip tip" tabindex="0" data-tip="${th}"><span class="cv">${freeH()}</span>${IC("herz",18)}</div>
+  <div class="chip tip" tabindex="0" data-tip="${th}"${hn&&S.hnSeen!==S.r?` onmouseenter="hnSeen()" onfocus="hnSeen()"`:""}><span class="cv">${freeH()}</span>${IC("herz",18)}${hn&&S.hnSeen!==S.r?`<span class="cbadge" aria-hidden="true">!</span>`:""}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${moneyFree()}</span>${IC("geld",18)}${moneyLock()?`<span class="csub">+${moneyLock()} gesperrt</span>`:""}${S.moneyNext?`<span class="csub">+${S.moneyNext} nächste Runde</span>`:""}</div>
   <div class="chip tip warm" tabindex="0" data-tip="${`Erwärmung der Schweiz ${y}: rund +${f1(warmCH(y))} °C gegenüber 1871 bis 1900, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt (MeteoSchweiz, Klima CH2025: heute rund +3.0 °C, um 2050 in einer 2-Grad-Welt +3.6 °C). Dein Fussabdruck allein ändert daran nichts, es zählt, was alle tun.`}"><span class="cv">+${f1(warmCH(y))}</span><span class="csub">°C Schweiz</span></div>
   ${wishChip()}
@@ -1329,6 +1352,7 @@ function hdApply(){if(typeof document==="undefined"||!document.getElementById)re
 function hdToggle(f){S.hdOpen=f!=null?!!f:!S.hdOpen;S.hdY=typeof scrollY!=="undefined"?scrollY:0;hdApply();}
 if(typeof addEventListener!=="undefined"){addEventListener("scroll",()=>{try{if(S&&S.hdOpen&&S.coach==null&&scrollY-(S.hdY||0)>40)hdToggle(false);}catch(e){}},{passive:true});
  addEventListener("resize",()=>{try{hdApply()}catch(e){}});}
+function hnSeen(){S.hnSeen=S.r;try{document.querySelectorAll(".top .cbadge").forEach(e=>e.remove())}catch(e){}}
 function wishChip(){const w=wish();if(!w)return"";const b=wishBroken();
  const nx=b?"Aufgegeben, kein Extraherz mehr.":S.r<LAST?"Solange du ihn lebst, bekommst du jede 2. Runde 1 Herz extra.":"Bis 2050 gelebt.";
  const tip=`Dein Wunsch: ${w.t}. ${nx}${b?"":" Aufgeben würdest du ihn mit "+w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")+"."}`;
@@ -1339,7 +1363,6 @@ function wishTip(){const w=wish();if(!w)return"";const b=wishBroken();
 // Wunsch-Herz neben dem Namen: steht unter 1000 px in der zugeklappten Zeile und erinnert an den Wunsch (Text im Tooltip)
 function wishIcon(){const w=wish();if(!w)return"";const b=wishBroken();
  return `<span class="wishi tip${b?" gone":""}" tabindex="0" role="img" aria-label="Dein Wunsch: ${esc0(w.t).replace(/"/g,"&quot;")}${b?", aufgegeben":""}" data-tip="${wishTip()}">${IC("herz",14,b)}</span>`;}
-function tabs(on){return `<div class="tabs">${["Entscheide und Abstimmung","Ereignis und Bilanz"].map((s,i)=>`<div class="tab ${i==on?"on":""}"><span class="n">${i+1}</span>${s}</div>`).join("")}<span class="period">${PER[S.r].l}</span></div>`}
 const IC=(k,s=14,dim)=>`<img class="px icn${dim?" dim":""}" src="${(dim?SPR.ico:SPR.icoc)[k]}" width="${s}" height="${s}" alt="${k=="herz"?"Herz":"Geld"}">`;
 const HZ=n=>`<span class="amt">${n}${IC("herz")}</span>`;
 const GD=n=>`<span class="amt">${n}${IC("geld")}</span>`;
@@ -1347,17 +1370,16 @@ function details(t){return `<details><summary>Woher die Zahl?</summary><p>${esc(
 function cardHTML(id){
  const t=T[id],b=blocked(id),on=S.chosen[id]!==undefined,mine=S.thisRound.includes(id);
  const e=effOwn(id),h=costH(id),g=costG(id);
- const gtxt=g<0?GD("+"+(-g))+" nächste Runde":GD(g);
+ const gtxt=g<0?GD("+"+(-g))+`<span class="cnx"> nächste Runde</span><span class="cns" title="nächste Runde" aria-label="nächste Runde"> n. R.</span>`:GD(g);
  const btn=on?(mine?`<button class="small" onclick="choose('${id}')">Zurücknehmen</button>`:`<span class="lbl">seit ${S.chosen[id]}</span>`)
   :`<button class="small ${b?"":"primary"}" ${b?"disabled":""} onclick="choose('${id}')">Wählen</button>`;
  return `<div class="card ${on?"on":""} ${b&&!on?"off":""}">
  <div class="hd"><span class="lbl">${CATIC(AREAC[id[0]])}${AREAN[id[0]]} · ${strat(id)}</span><span class="pts">${sgn(-e,Math.abs(e)<0.095?2:1)} t</span></div>
  <div class="ti">${esc(t.title)}</div><div class="tx">${esc(t.front)}</div>
  ${b&&!on?`<div class="why">${esc(b)}</div>`:""}
- ${details(t)}
  ${!on&&wish()&&!wishBroken()&&wish().breaks.includes(id)?`<div class="cwhy">Damit gibst du deinen Wunsch «${esc0(wish().t)}» auf: kein Extraherz mehr.</div>`:""}
  ${costWhy(id).length?`<div class="cwhy">${costWhy(id).map(esc).join("<br>")}</div>`:""}
- <div class="ft"><span class="cost">${HZ(h)} · ${gtxt}</span>${btn}</div></div>`;
+ <div class="fz">${details(t)}<div class="ft"><span class="cost"><span>${HZ(h)}</span><span class="csep"> · </span><span>${gtxt}</span></span>${btn}</div></div></div>`;
 }
 function chCH(k){if(M.VORL[k]&&M.VORL[k].ch!=null)return M.VORL[k].ch;const yn=S.r<LAST?PER[S.r+1].a:2050;
  if(S.adopted[k]!==undefined){const yy=RAMP[k]?2050:Math.max(yn,S.adopted[k]);return (val(yy,{...VO,without:k})-val(yy,VO))*9;}
@@ -1391,7 +1413,7 @@ function viewRound(){
  const TOP=L;L="";
  const MO=S.mopen||(S.mopen={1:true,2:true});if(S.coach===2){MO[2]=true;}else if(S.coach===1){MO[1]=true;}
  const m1=!!MO[1],m2=!!MO[2];
- L+=`<div class="colhd grp mstp" onclick="mStep(1)"><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div><div class="sec" style="margin-top:0"><p class="sub">Jede gewählte Karte gilt bis 2050.</p></div>
+ L+=`<div class="colhd grp mstp${S.r>0?" tip":""}" onclick="mStep(1)"${S.r>0?` tabindex="0" data-tip="Jede gewählte Karte gilt bis 2050."`:""}><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div>${S.r===0?`<div class="sec" style="margin-top:0"><p class="sub">Jede gewählte Karte gilt bis 2050.</p></div>`:""}
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t${coveredBy(k)>=0.05?`<br><span class="hint">${fmt(coveredBy(k))} t schon durch Vorlage abgedeckt</span>`:""}</td></tr>`).join("")}</table>`;
@@ -1405,7 +1427,7 @@ function viewRound(){
  else B=`<span class="hint"><span class="mhide">Übrig: ${HZ(freeH())} und ${GD(moneyFree())}${moneyLock()?` (${moneyLock()} gesperrt)`:""}. </span>${freeH()>0?"1 Herz kannst du mitnehmen.":""}</span><button id="finish" class="primary" onclick="vote()">${G?"Fertig, abstimmen":"Abstimmen<span class=\"mhide\"> und Runde abschliessen</span>"}</button>`;
  const gh=`<div class="colhd grp mstp" onclick="mStep(2)"><span class="t"><b class="stepn">2</b>${G?"Euer Engagement":"Dein Engagement"}</span><span class="s">${G?"Mit allen":"Quartier und Schweiz"}</span><span class="mst">${freeH()} ${IC("herz",12)} übrig <i>${m2?"▾":"▸"}</i></span></div>`;
  
- return header()+`<div class="wrap">${tabs(0)}<div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half mstep ${m1?"o1":"c1"} ${m2?"o2":"c2"}"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
+ return header()+`<div class="wrap"><div class="layout half toprow"><div class="topstack">${TOP}</div><div>${S.r>0?crisisHTML():""}</div></div><div class="layout half mstep ${m1?"o1":"c1"} ${m2?"o2":"c2"}"><div>${L}</div><aside class="side">${gh}<div class="panel" id="panel">${P}</div></aside></div></div><div class="actbar"><div class="in">${B}</div></div>`;
 }
 function eventBox(){
  let h="";
@@ -1771,7 +1793,7 @@ function viewSummary(){
  const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht "+(big[1]==="Vorlagen"?"haben":"hat"):"Am meisten dazu beigetragen "+(big[1]==="Vorlagen"?"haben":"hat")} ${big[0]}.${big[1]==="Wandel"&&Math.abs(dme)>=0.05?` Dein Alltag: ${sgn(dme)} t.`:""}`;
  const used=sum(2026,nx-1,ACT),pf=pfadBis(nx-1),over=used>pf+0.5;
  const B=`<span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" onclick="nextRound()">${S.r<LAST?"Weiter zur nächsten Runde":"Zur Auswertung"}</button>`;
- return header()+`<div class="wrap">${tabs(1)}
+ return header()+`<div class="wrap">
  <div class="layout half"><div>
   <div class="lbl">Bilanz ${p.l}</div><h2 class="btitle">${title}</h2>
   <div class="ibox"><div class="lbl">Wo sich etwas verändert hat</div>${catHTML(S.snap[S.r]&&S.snap[S.r].c?S.snap[S.r].c:bycat(subs(a0,ACT)),bycat(subs(nx,ACT)),a0,nx)}</div>
