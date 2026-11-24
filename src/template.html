@@ -706,6 +706,20 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
 .endsum{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:14px 28px;margin-top:18px;align-items:start}
 .endnums{display:flex;flex-direction:column;gap:12px}
 .endsum+.callout{margin-top:14px}
+/* Ziel, Kurs, Rest (24.11.2026) */
+.zstat{font-weight:700;margin:0 0 10px;padding:6px 10px;border:2px solid var(--ink)}
+.zstat.ok{background:var(--ink);color:#fff}
+.sx.zg{outline:2px dashed var(--ink);outline-offset:3px}
+.kurs{margin:0 0 18px}
+.kurs.ok .cbar i{background:var(--ink)}
+.vpers{font-size:13px;margin:4px 0 2px;color:var(--muted)}
+.vpers b{color:var(--ink)}
+.rest{margin-top:18px}
+.rrow{display:grid;grid-template-columns:170px minmax(0,1fr);gap:4px 14px;padding:7px 0;border-top:1px dotted var(--edge)}
+.rrow:first-of-type{border-top:0}
+.rrow .rk{font:400 11px var(--mono);text-transform:uppercase;color:var(--muted);padding-top:3px}
+.rrow.nx{background:transparent}
+@media(max-width:700px){.rrow{grid-template-columns:1fr;gap:2px}}
 /* Bilanz: Bereichsbalken schmaler */
 .crow .ctr{height:12px!important}.cats{gap:6px!important}
 .endnums .v{font-size:30px}.endnums .en1 .v{font-size:44px}
@@ -814,7 +828,7 @@ function wanderTick(ts){if(typeof requestAnimationFrame!=="undefined")requestAni
    else s.next=now+2000+Math.random()*3000;});});}
 function figImg(f,sc=4){return `<img class="px" src="${(FARBE?SPR.figc:SPR.fig)[f]}" width="${17*sc}" height="${22*sc}" alt="${f}">`}
 
-const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
+const MODES={kurz:[[2026,2029],[2030,2034],[2035,2039],[2040,2044],[2045,2050]],lang:[[2026,2028],[2029,2031],[2032,2034],[2035,2037],[2038,2040],[2041,2043],[2044,2046],[2047,2050]]};
 let PER=[],LAST=3;
 function setMode(m){PER=MODES[m].map(([a,b])=>({a,b,l:a+" bis "+b}));LAST=PER.length-1;}
 setMode("kurz");
@@ -911,6 +925,7 @@ function subs(y,opt){
  for(const k in a)v[k]+=a[k];
  const f=Math.pow(1-TREND,y-2026),ff=Math.pow(1-TRENDF,y-2026);
  for(const k in v)if(!OWNFIX.has(k))v[k]*=FOODSLOW.has(k)?ff:f;
+ if(S.cop&&y>=S.cop){const fc=Math.pow(1-(COPRM[S.mode]||0),y-S.cop+1);for(const k in v)if(!COPEX.has(k))v[k]*=fc;}
  // Moorboeden: Torfverlust sinkt nicht mit dem Wandel, darum nach dem Trend abziehen.
  if(opt.vorl&&opt.without!=="K12"){const fr=S.adopted.K12!==undefined?S.adopted.K12:opt.extraVorl==="K12"?vorlFrom(S.r):null;if(fr!==null&&fr<=y)v.oeff-=MOOR*rampQ("K12",fr,y);}
  return v;
@@ -1033,8 +1048,15 @@ function shuffle(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).ma
 function pickProj(){return shuffle(Object.keys(PROJ));}
 
 /* ---------- Krisen offen ---------- */
-const EVKIND={E1:"Krise",E2:"Krise",E2m:"Krise",E3:"Gelegenheit",E4:"Krise",E5:"Klima",E6:"Klima",E7:"Klima",E8:"Klima"};
+const EVKIND={E1:"Krise",E2:"Krise",E2m:"Krise",E3:"Gelegenheit",E4:"Krise",E5:"Klima",E6:"Klima",E7:"Klima",E8:"Klima",E9:"Weltweit"};
 const KLIMA=["E5","E6","E7","E8"];
+/* Klimakonferenz (E9, 24.11.2026): kommt in jeder kurzen Partie nach der Runde, die 2035 beginnt (Runde 3).
+   Ab dem Folgejahr wird alles, was im Ausland hergestellt wird, zusaetzlich um COPRM pro Jahr sauberer.
+   Nur in der kurzen Version (5 Runden), als Ausgleich zur langen (8 Runden). sim3.js, 600 Partien, Ziel halbieren:
+   Konferenz kurz 2.5 %, lang keine. Entscheid Thierry 24.11.2026. Erreichungsquoten fuer das Ziel 6 t: siehe Commit-Nachricht und memory.md.
+   Betrifft nicht, was in der Schweiz direkt verbrannt oder erzeugt wird (COPEX). Gilt fuer alle, auch «weiter wie bisher». */
+function copOn(){return S.mode==="kurz";}
+const COPY=2035, COPRM={kurz:0.025,lang:0}, COPEX=new Set(["heiz","auto","flug","strom","oev","oeff","oeffbesch"]);
 // Klima-Ereignisse werden haeufiger, je naeher 2050 (Klimaszenarien 2025): von 12 % in Runde 2 bis 50 % in der letzten Runde.
 function klimaP(){return LAST?0.12+0.38*Math.max(0,S.r-1)/Math.max(1,LAST-1):0;}
 function evHow(e){
@@ -1046,6 +1068,7 @@ function evHow(e){
  if(e=="E4")return avertTxt("C4",`Abwenden: Wähle in dieser Runde «${T.C4.title}». Die Karte liegt in deiner Auswahl.`);
  if(e=="E7"){const can=(S.hand||[]).some(id=>(id=="W2"||id=="W2b")&&S.chosen[id]===undefined&&(!blocked(id)||costG(id)<=S.money&&costH(id)<=freeH()));return "Abwenden kannst du das Niedrigwasser nicht."+(oilHeat()&&can?" Die Geldkosten fallen weg, wenn du in dieser Runde die Heizung ersetzt.":"");}
  if(KLIMA.includes(e))return "Klima-Ereignisse kannst du nicht abwenden. Sie werden häufiger, je wärmer es wird.";
+ if(e=="E9")return "Du musst nichts tun. Das passiert in jeder kurzen Partie, ob du etwas änderst oder nicht.";
  return "";}
 // Zeigt, ob die Karte zum Abwenden gerade bezahlbar ist (UX-Test 21.11.)
 function avertGap(id){if(S.chosen[id]!==undefined||!M.CARDS[id])return "";const g=Math.max(0,costG(id))-moneyFree(),h=costH(id)-freeH(),L=[];
@@ -1054,9 +1077,9 @@ function avertGap(id){if(S.chosen[id]!==undefined||!M.CARDS[id])return "";const 
  return `, aber dir fehlen dafür ${L.join(" und ")}${lk}.`+(nie?" Diese Runde kannst du die Krise nicht abwenden.":h>0?" Gib dafür Herzen von anderen Karten oder Vorlagen frei.":"");}
 function avertTxt(id,txt){const g=avertGap(id);return g?`Abwenden ginge mit «${T[id].title}»${g}`:txt;}
 function evStatus(e){if(S.happened.includes(e))return "schon passiert";if(e===S.nextEvent)return "droht jetzt";if(eventCands().includes(e))return "kann noch kommen";return "betrifft dich nicht";}
-function evGame(e){if((e=="E2"||e=="E2m")&&k3())return "Weil K3 angenommen ist, kommt sicher eine Wärmepumpe. Dank dem Verbot heizt du jetzt erneuerbar.";return T[e].game||"";}
+function evGame(e){if(e=="E9")return `Ab dem nächsten Jahr wird alles, was im Ausland für dich hergestellt wird, jedes Jahr zusätzlich ${fmt((COPRM[S.mode]||0)*100,1).replace(/\.0$/,"")} % sauberer. Heizen, Autofahren, Fliegen und Strom in der Schweiz betrifft das nicht.`;if((e=="E2"||e=="E2m")&&k3())return "Weil K3 angenommen ist, kommt sicher eine Wärmepumpe. Dank dem Verbot heizt du jetzt erneuerbar.";return T[e].game||"";}
 function crisisBody(ne){const t=T[ne],g=evGame(ne);return `<p class="tx">${esc(t.front||t.back)}</p>${g?`<p class="tx"><i>Folge:</i> ${esc(g)}</p>`:""}<p class="how">${esc(evHow(ne))}</p>`;}
-function crisisAll(){return `<details><summary>Alle Ereignisse im Spiel</summary><table>${[fig()&&fig().ban.includes("W2")?"E2m":"E2","E4","E1","E3",...KLIMA].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table><p class="hint">Klima-Ereignisse werden häufiger: In dieser Runde kommt mit ${Math.round(klimaP()*100)} % Wahrscheinlichkeit eines.</p></details>`;}
+function crisisAll(){return `<details><summary>Alle Ereignisse im Spiel</summary><table>${[fig()&&fig().ban.includes("W2")?"E2m":"E2","E4","E1","E3",...KLIMA,...(copOn()?["E9"]:[])].map(e=>`<tr><td>${esc(T[e].title)}</td><td class="hint">${EVKIND[e]}</td><td class="n">${evStatus(e)}</td></tr>`).join("")}</table><p class="hint">Klima-Ereignisse werden häufiger: In dieser Runde kommt mit ${Math.round(klimaP()*100)} % Wahrscheinlichkeit eines.</p></details>`;}
 function crisisBigOpen(){return S.screen==="round"&&!S.results&&!S.waiting&&S.nextEvent&&S.nextEvent!=="ruhig"&&S.crisisSeen!==S.r;}
 function crisisBigHTML(){if(!crisisBigOpen())return"";const ne=S.nextEvent;
  return `<div class="ovl" onclick="if(event.target===this)crisisAway()"><div class="crisis big" id="crisisBig"><div class="lbl">${EVKIND[ne]} nach dieser Runde</div><h3>${esc(T[ne].title)}</h3>${crisisBody(ne)}<div class="row" style="margin-top:12px"><button class="primary" onclick="crisisAway()">Verstanden</button><span class="hint">${typeof innerWidth!=="undefined"&&innerWidth<1000?"Du findest sie oben in der Runde wieder.":"Du findest sie rechts wieder."}</span></div></div></div>`;}
@@ -1085,7 +1108,7 @@ function wishHTML(){const w=wish();if(!w)return"";const b=wishBroken();
  return `<div class="callout"><span class="ic">${b?"✗":IC("herz")}</span><span><b>Dein Wunsch: ${esc0(w.t)}.</b> ${b?`Aufgegeben. Ab jetzt kein Extraherz mehr.`:`Solange du ihn lebst, bekommst du jede zweite Runde 1 Herz extra${wishBonusRound(S.r)?", auch diese Runde":wishBonusRound(S.r+1)&&S.r<LAST?", das nächste Mal in der nächsten Runde":""}. Aufgeben würdest du ihn mit ${w.breaks.map(id=>"«"+T[id].title+"»").join(" oder ")}.`}</span></div>`;}
 
 
-/* ---------- Punkte und Bestenliste ---------- */
+/* ---------- Punkte (Bestenliste am 24.11.2026 entfernt, Eintraege bleiben in Firebase) ---------- */
 const PTS={B:5,E:100,V:25,P:40,ZIEL:100};
 function myParts(){const a=val(2050,ACT),no=val(2050,NO);
  return {b:+(sum(2026,2050,NO)-sum(2026,2050,ACT)).toFixed(1),e:+(no-a).toFixed(2),m:S.money+(S.moneyNext||0)};}
@@ -1098,40 +1121,10 @@ function scoreNow(){ // null, wenn in der Gruppe noch nicht alle fertig sind
  const ps=G.players().filter(q=>q.fig);if(ps.some(q=>!q.end||q.end.b==null))return null;
  const av=k=>ps.reduce((s,q)=>s+q.end[k],0)/ps.length;
  const ga=groupAvg("end"),gb=groupAvg("endsum");
- return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,ziel:ga!=null&&gb!=null&&ga<GOAL&&gb<GOALB};}
-let BOARD={key:null,rows:null,err:null};
-// Bestenliste neu ab 21.11.2026 08:00: Seit Wandel und Klima-Ereignissen sind die Punkte nicht mehr mit frueheren Spielen vergleichbar. Alte Eintraege bleiben gespeichert, werden aber ausgeblendet.
-// 21.11.2026 Ueberarbeitung: Geld zaehlt nicht mehr, Vorlagen wirken schrittweise. Datum = Push-Zeitpunkt (UTC).
-const BOARDSINCE=Date.UTC(2026,10,21,16,17);
-function boardKey(n,mode){return "scores/"+(mode||S.mode||"kurz")+"/"+n;}
-async function loadBoard(n,mode){const k=boardKey(n,mode);BOARD={key:k,rows:null,err:null};render();
- try{await netInit();const v=(await NET.top(k,300)).filter(x=>(x.at||0)>=BOARDSINCE).slice(0,10);BOARD={key:k,rows:v,err:null};}
- catch(e){BOARD={key:k,rows:[],err:"Bestenliste nicht erreichbar"+(e&&e.code?" ("+e.code+")":"")+"."};}
- render();}
-async function submitScore(){
- if(ROOM&&ROOM.test){S.scoreMsg="Testspiel: kommt nicht in die Bestenliste.";render();return;}
- const o=scoreNow();if(!o||S.scored)return;const sc=scoreOf(o);
- const kzEl=document.getElementById&&document.getElementById("kz");
- const kz=((kzEl&&kzEl.value)||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,3);
- const figs=G?G.players().filter(q=>q.fig).map(q=>q.fig).join(","):S.fig;
- const kl=G&&ROOM&&ROOM.klasse?ROOM.klasse:"";
- const row={s:sc.tot,b:sc.B,e:sc.E,g:sc.V+sc.P+sc.Z,kz,kl,figs,ch:S.chal||"keine",at:NET&&NET.now||Date.now()};
- S.scored="sending";render();
- try{await netInit();
-  if(G){const ok=await NET.txn("rooms/"+G.code+"/scored",cur=>cur?undefined:NET.uid);
-   if(!ok){S.scored="done";S.scoreMsg="Eure Gruppe ist schon eingetragen.";await loadBoard(o.n);return;}}
-  S.scoreId=await NET.push(boardKey(o.n),row);S.scored="done";S.scoreMsg=null;await loadBoard(o.n);}
- catch(e){S.scored=null;S.scoreMsg="Eintragen nicht möglich"+(e&&e.code?" ("+e.code+")":"")+". Die Lehrperson muss die Regeln in Firebase ergänzen.";render();}}
-function boardTable(n){const myId=S.scoreId;
- if(BOARD.key!==boardKey(n))return `<p class="hint">Lade …</p>`;
- if(BOARD.err)return `<p class="hint">${esc0(BOARD.err)}</p>`;
- if(!BOARD.rows)return `<p class="hint">Lade …</p>`;
- if(!BOARD.rows.length)return `<p class="hint">Noch keine Einträge. Ihr könnt die ersten sein.</p>`;
- return `<table class="board"><tr><th>#</th><th>Kürzel</th><th>${n>1?"Figuren":"Figur"}</th><th>Klasse</th><th class="n">Gespart</th><th class="n">2050</th><th class="n">Politik</th><th class="n">Punkte</th></tr>
- ${BOARD.rows.map((r,i)=>`<tr class="${r.id===myId?"me":""}"><td class="mono">${i+1}</td><td class="mono">${esc0(r.kz||"–")}</td><td>${esc0(r.figs||"")}${r.ch&&r.ch!="keine"?` <span class="hint">· ${esc0((CHAL[r.ch]||{}).t||"")}</span>`:""}</td><td class="mono">${esc0(r.kl||"")}</td><td class="n">${Math.round(+r.b||0)}</td><td class="n">${Math.round(+r.e||0)}</td><td class="n">${Math.round(+r.g||0)}</td><td class="n"><b>${Math.round(+r.s||0)}</b></td></tr>`).join("")}</table>`;}
+ return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,ziel:ga!=null&&ga<zielT()};}
 function scoreHTML(){const o=scoreNow();
  if(!o)return `<div class="sec"><h2>Punkte</h2></div><p class="hint">Sobald alle fertig sind, rechnet das Spiel eure Punkte.</p>`;
- const sc=scoreOf(o),n=o.n;if(BOARD.key!==boardKey(n)&&!BOARD.loading){BOARD.loading=true;setTimeout(()=>{BOARD.loading=false;loadBoard(n)},0);}
+ const sc=scoreOf(o),n=o.n;
  const per=n>1?" im Schnitt pro Person":"";
  return `<div class="sec"><h2>Punkte</h2><p class="sub">${n>1?`Eure Gruppe zu ${n}: Gezählt wird der Schnitt pro Person und die gemeinsame Leistung.`:"Gezählt wird, was du gespart hast, wo du 2050 stehst und was politisch durchkam."}</p></div>
  <table class="pts"><tr><td>Treibhausgase gespart 2026 bis 2050${per}, gegenüber «weiter wie bisher»</td><td class="n">${fmt(o.b,0)} t × ${PTS.B}</td><td class="n">${sc.B}</td></tr>
@@ -1140,20 +1133,7 @@ function scoreHTML(){const o=scoreNow();
  <tr><td>Projekte im Quartier</td><td class="n">${o.p} × ${PTS.P}</td><td class="n">${sc.P}</td></tr>
  ${n>1?`<tr><td>Gruppenziel erreicht</td><td class="n">${o.ziel?"ja":"nein"}</td><td class="n">${sc.Z}</td></tr>`:""}
  <tr class="sum"><td>Total</td><td></td><td class="n">${sc.tot}</td></tr></table>
- <div class="sec"><h2>Bestenliste: ${n==1?"allein":n+" Personen"}, ${S.mode=="lang"?"lang":"kurz"}</h2></div>
- ${S.scored=="done"?(S.scoreMsg?`<p class="hint">${esc0(S.scoreMsg)}</p>`:`<p class="hint">Eingetragen.</p>`):
-  `<div class="row"><input id="kz" class="codein" style="width:5em" maxlength="3" placeholder="ABC" title="3 Buchstaben, kein Name" aria-label="Kürzel, 3 Buchstaben"><button class="primary" ${S.scored?"disabled":""} onclick="submitScore()">${n>1?"Gruppe eintragen":"Eintragen"}</button><span class="hint">Kürzel mit 3 Buchstaben, kein Name.${n>1?" Eine Person trägt für alle ein.":""}</span></div>${S.scoreMsg?`<p class="hint">${esc0(S.scoreMsg)}</p>`:""}`}
- ${boardTable(n)}`;}
-function viewBoard(){const n=S.boardN||1,m=S.boardMode||"kurz";
- if(BOARD.key!==boardKey(n,m)&&!BOARD.loading){BOARD.loading=true;setTimeout(()=>{BOARD.loading=false;loadBoard(n,m)},0);}
- const saved=S.mode;S.mode=m;const tb=boardTable(n);S.mode=saved;
- return `<div class="wrap"><div class="lbl">13 Tonnen</div><h1 style="margin:4px 0 8px">Bestenliste</h1>
- <p class="sub">Je eine Liste pro Gruppengrösse. In der Gruppe zählt der Schnitt pro Person plus die gemeinsame Leistung.</p>
- <div class="tabs">${[1,2,3,4,5].map(k=>`<button class="tab ${k==n?"on":""}" onclick="S.boardN=${k};render()"><span class="n">${k}</span>${k==1?"allein":k+" Personen"}</button>`).join("")}</div>
- <div class="tabs">${["kurz","lang"].map(k=>`<button class="tab ${k==m?"on":""}" onclick="S.boardMode='${k}';render()">${k=="kurz"?"Kurz":"Lang"}</button>`).join("")}</div>
- ${tb}
- <details style="margin-top:14px"><summary>So werden Punkte gerechnet</summary><p>${PTS.B} Punkte pro Tonne CO₂-Äquivalente, die von 2026 bis 2050 weniger ausgestossen wird als bei «weiter wie bisher». ${PTS.E} Punkte pro Tonne, die der Fussabdruck 2050 darunter liegt. ${PTS.V} Punkte pro angenommene Vorlage, ${PTS.P} pro Projekt im Quartier, in der Gruppe ${PTS.ZIEL} fürs Gruppenziel. Übriges Geld zählt nicht. In der Gruppe zählen die gesparten Tonnen und 2050 im Schnitt pro Person.</p></details>
- <div class="row" style="margin-top:22px"><button onclick="S.screen='start';render()">Zurück</button></div></div>`;}
+`;}
 
 /* ---------- Ablauf ---------- */
 const HAND=4;
@@ -1328,6 +1308,7 @@ function toEvent(){
   if(e=="E2m"){S.e2mRes=k3()||Math.random()<E2WP?"wp":"oel";if(S.e2mRes=="wp")S.events.push({id:"E2wp",from:nextY});else S.flags.w2locked=true;}
   if(e=="E3")S.flags.e3=S.r+1;
   if(e=="E4"){S.money=Math.max(0,S.money-2);S.events.push({id:"E4",from:nextY});}
+  if(e=="E9")S.cop=nextY;
   if(KLIMA.includes(e)){const c=evCost(e);if(c)S.money=Math.max(0,S.money-c);S.events.push({id:e,from:nextY,to:nextY+(e=="E6"?0:2)});}}
  S.log[S.log.length-1].event=S.event=="abgewendet"?"abgewendet":S.event;
  if(G)try{const nx=S.r<LAST?PER[S.r+1].a:2051;NET.update(G.path(),{now:+val(Math.min(nx,2050),ACT).toFixed(3),sumnow:Math.round(sum(2026,nx-1,ACT)),sumto:nx-1});}catch(e){}
@@ -1354,7 +1335,7 @@ function barHTML(v){
 }
 function header(){
  const atEnd=S.screen==='summary'||S.screen==='dorf',p=PER[S.r],y=atEnd?(S.r<LAST?PER[S.r+1].a:2050):p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),used=y>2026,so=used?sum(2026,y-1,ACT):0;
- const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her. Wie viel du heizt, fährst, fliegst, isst und kaufst, ändert sich nicht von selbst. Ziel bis 2050: 0.6 t.`;
+ const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her. Wie viel du heizt, fährst, fliegst, isst und kaufst, ändert sich nicht von selbst. Dein Ziel 2050: unter ${fmt(zielT())} t, so viel wie ein Mensch heute im weltweiten Durchschnitt. ${ZIELVGL}`;
  const tb=used?`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Zielpfad bis ${y-1}: ${fmt(pfadBis(y-1),0)} t, also so viel, wie bei einer gleichmässigen Senkung auf 0.6 t bis 2050 erlaubt wäre.`:`Budget: So viel hat ${S.fig} seit 2026 insgesamt ausgestossen. Noch nichts verbraucht. Ab der nächsten Runde siehst du hier auch den Zielpfad.`;
  const hn=S.screen==="round"&&!S.results&&S.heartNote?S.heartNote:"";
  const th=`${hn?hn+" ":""}Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
@@ -1373,7 +1354,7 @@ function header(){
 }
 /* Aufklappen unter 1000 px: Die Kopfzeile behaelt ihre Hoehe (.top), der aufgeklappte Teil (.hdbox) legt sich ueber die Seite. So verschiebt sich beim Auf- und Zuklappen nichts. */
 const HDNARROW=()=>typeof innerWidth!=="undefined"&&innerWidth<1000;
-function hdApply(){if(typeof document==="undefined"||!document.getElementById)return;const t=document.getElementById("top");if(!t)return;
+function hdApply(){if(typeof document==="undefined"||!document.getElementById)return;const t=document.getElementById("top");if(!t||!t.classList)return;
  const o=!!S.hdOpen&&HDNARROW();t.classList.remove("open");t.style.height="";
  if(o){t.style.height=t.getBoundingClientRect().height/UQ()+"px";t.classList.add("open");}
  const b=t.querySelector(".hdtog");if(b){b.setAttribute("aria-expanded",String(o));b.setAttribute("aria-label",o?"Weniger anzeigen":"Mehr anzeigen: Wunsch, Geld und Bereiche");}
@@ -1414,6 +1395,9 @@ function chCH(k){if(M.VORL[k]&&M.VORL[k].ch!=null)return M.VORL[k].ch;const yn=S
  if(S.adopted[k]!==undefined){const yy=RAMP[k]?2050:Math.max(yn,S.adopted[k]);return (val(yy,{...VO,without:k})-val(yy,VO))*9;}
  const y=RAMP[k]?2050:vorlFrom(S.r);return (val(y,VO)-val(y,{...VO,extraVorl:k}))*9;}
 function sameTxt(k){const y=S.r<LAST?PER[S.r+1].a:2050;return SAME[k]&&SAME[k].some(c=>ownActive(c,y))?"Für dich ändert sich nichts mehr, du hast das schon selbst umgesetzt.":"";}
+// Wirkung fuer die Schweiz anschaulich: so viel, wie N Menschen heute ausstossen (12.8 t pro Person)
+function persN(mio){const n=mio*1e6/START,r=n>=100000?10000:n>=10000?1000:100;return Math.max(r,Math.round(n/r)*r);}
+function persTxt(mio){return persN(mio).toLocaleString("de-CH").replace(/[’']/g,"\u00a0");}
 function vEff(k){const y=RAMP[k]?2050:vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
 function ballotHTML(){
  const rg=G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`;
@@ -1426,7 +1410,8 @@ function ballotHTML(){
   <div class="ti">${esc(t.title)}</div><div class="hint">${typTxt(k)}</div><div class="tx" style="font-size:14px">${esc(t.front)}</div>
   <div class="chrow"><span class="lbl">Chance</span><div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div><span class="chance">${c} %</span></div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
-  <div class="meta2">${nopers?`<span>${sameTxt(k)||"Wirkt kaum auf deinen Fussabdruck."} Für die Schweiz: <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b>/Jahr weniger${RAMP[k]?" bis 2050":""}.</span>`:""}</div>
+  ${nopers?`<div class="meta2"><span>${sameTxt(k)||"Wirkt kaum auf deinen Fussabdruck."}</span></div>`:""}
+  ${chv>=0.005?`<div class="vpers">${r&&r.ok?"Spart":r?"Hätte gespart":"Spart"} in der Schweiz ${RAMP[k]?"bis 2050 ":""}jedes Jahr <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b>: so viel, wie rund <b>${persTxt(chv)} Menschen</b> heute ausstossen.</div>`:""}
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
   ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
   `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
@@ -1443,7 +1428,7 @@ function viewRound(){
  const TOP=L;L="";
  const MO=S.mopen||(S.mopen={1:true,2:true});if(S.coach===2){MO[2]=true;}else if(S.coach===1){MO[1]=true;}
  const m1=!!MO[1],m2=!!MO[2];
- L+=`<div class="colhd grp mstp${S.r>0?" tip":""}" onclick="mStep(1)"${S.r>0?` tabindex="0" data-tip="Jede gewählte Karte gilt bis 2050."`:""}><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div>${S.r===0?`<div class="sec" style="margin-top:0"><p class="sub">Jede gewählte Karte gilt bis 2050.</p></div>`:""}
+ L+=`<div class="colhd grp mstp${S.r>0?" tip":""}" onclick="mStep(1)"${S.r>0?` tabindex="0" data-tip="Jede gewählte Karte gilt bis 2050."`:""}><span class="t"><b class="stepn">1</b>Dein Alltag</span><span class="s">${S.hand.length} Karten für dich</span><span class="mst">${S.thisRound.length} gewählt <i>${m1?"▾":"▸"}</i></span></div>${S.r===0?`<div class="sec" style="margin-top:0"><p class="sub"><b>Dein Ziel:</b> bis 2050 unter ${fmt(zielT())} t, so viel wie ein Mensch heute im weltweiten Durchschnitt. Jede gewählte Karte gilt bis 2050.</p></div>`:""}
  ${CHAL[S.chal||"keine"].ban==="alle"?`<div class="callout"><span class="ic">!</span><span>Herausforderung «Nur Politik»: Du wählst keine eigenen Karten. Setze alle Herzen fürs Engagement ein.</span></div>`:`<div class="cards" id="cards">${S.hand.map(cardHTML).join("")}</div>`}`;
  const old=Object.keys(S.chosen).filter(k=>!S.thisRound.includes(k));
  if(old.length)L+=`<div class="sec"><h2>Deine Vorsätze bisher</h2></div><table><tr><th>Vorsatz</th><th>seit</th><th class="n">Wirkung pro Jahr</th></tr>${old.map(k=>`<tr><td>${esc(T[k].title)}</td><td class="mono">${S.chosen[k]}</td><td class="n">${sgn(-effOwn(k))} t${coveredBy(k)>=0.05?`<br><span class="hint">${fmt(coveredBy(k))} t schon durch Vorlage abgedeckt</span>`:""}</td></tr>`).join("")}</table>`;
@@ -1499,7 +1484,7 @@ function viewStart(){window.DORF_P=0;window.DORF_SMOKEOFF=0;window.DORF_ON={};wi
    <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render();window.scrollTo(0,0)" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${wanderFig("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein bis 2050. Kurz mit vier Runden, etwa 15 Minuten, oder lang mit acht Runden, etwa 30 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
    <div class="pick" tabindex="0" onclick="S.startMode='group';render();window.scrollTo(0,0)" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${["Noah","Ruth","Elif"].map(f=>wanderFig(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
   </div>`;
- else if(sm==="solo")body=`${back}<div class="sec" style="margin-top:6px"><h2>Version</h2></div><div class="tabs" style="margin:6px 0 4px">${[["kurz",4,"Kurz, etwa 15 Minuten"],["lang",8,"Lang, etwa 30 Minuten"]].map(([k,n,t])=>`<button class="tab ${S.mode===k?"on":""}" onclick="setMode('${k}');S.mode='${k}';render()"><span class="n">${n}</span>${t}</button>`).join("")}</div><p class="hint">${S.mode==="lang"?"Acht Runden zu je drei Jahren. Mehr Abstimmungen und Ereignisse, mehr Zeit zum Ausprobieren.":"Vier Runden bis 2050."}</p>
+ else if(sm==="solo")body=`${back}<div class="sec" style="margin-top:6px"><h2>Version</h2></div><div class="tabs" style="margin:6px 0 4px">${[["kurz",5,"Kurz, etwa 20 Minuten"],["lang",8,"Lang, etwa 30 Minuten"]].map(([k,n,t])=>`<button class="tab ${S.mode===k?"on":""}" onclick="setMode('${k}');S.mode='${k}';render()"><span class="n">${n}</span>${t}</button>`).join("")}</div><p class="hint">${S.mode==="lang"?"Acht Runden zu je drei Jahren. Mehr Abstimmungen und Ereignisse, mehr Zeit zum Ausprobieren.":"Vier Runden bis 2050."}</p>
   <div class="sec" style="margin-top:6px"><h2>Wähle deine Figur</h2><p class="sub">Nicht jeder Figur fällt jeder Schritt gleich leicht. Wähle eine Figur, dann beginnt das Spiel.</p></div>
   <div class="figs five">${Object.keys(M.FIG).map(f=>figCard(f,`S.chal='keine';startFig('${f}')`,false)).join("")}</div>`;
  else body=`${back}<div class="sec"><h2>In der Gruppe spielen</h2><p class="sub">Eine Person eröffnet den Raum und wählt dort die Version. Alle anderen treten mit dem Code bei. Niemand gibt einen Namen ein.</p></div>
@@ -1512,8 +1497,17 @@ function viewStart(){window.DORF_P=0;window.DORF_SMOKEOFF=0;window.DORF_ON={};wi
   <details class="rules"><summary>Regeln im Überblick</summary>${rulesHTML()}</details><button class="linkish" onclick="startIntro()">Intro nochmals ansehen</button></div>
   <div class="herobox"><div class="ibox"><div class="lbl">Heute</div><div class="v">13 t</div><div class="hint">pro Person und Jahr</div></div><div class="arrow">›</div><div class="ibox hi"><div class="lbl">Verträglich</div><div class="v">0.6 t</div><div class="hint">pro Person und Jahr</div></div></div></div>`}
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
- <p class="hint credits">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). Autos: «TopDown Vehicles» von MinZiin (CC BY 4.0). · <a href="#" onclick="S.screen='board';render();return false" style="color:inherit">Bestenliste</a> · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
+ <p class="hint credits">Figuren: «Cute Fantasy RPG» von Kenmi (kenmi-art.itch.io), verändert. Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0). Autos: «TopDown Vehicles» von MinZiin (CC BY 4.0). · <a href="#lehrperson" onclick="openTeacher();return false" style="color:inherit">Ansicht für Lehrpersonen</a></p></div>`;
 }
+/* Ende umdeuten (Ojala: umdeuten, anderen vertrauen, selbst wirken): Was hast du geschafft, wer macht den Rest? */
+function restHTML(a,parts,own){const get=n=>(parts.find(x=>x[0]==n)||[0,0])[1];
+ const du=Math.max(0,-get("Du")),vo=Math.max(0,-get("Vorlagen")),wa=Math.max(0,-get("Wandel")),aus=a*0.69,ch=a-aus;
+ const nx=own.length&&own[0].d>0.05?`Erzähl deinen Kolleg:innen, welche Karte bei dir am meisten gebracht hat («${esc(T[own[0].id].title)}»), und frag, was bei ihnen am meisten bringen würde.`:`Schau, worüber in der Schweiz als Nächstes abgestimmt wird, und rede mit deinen Kolleg:innen darüber.`;
+ return `<div class="ibox rest"><div class="lbl">Wer macht den Rest?</div>
+  <div class="rrow"><span class="rk">Geschafft</span><span><b>−${fmt(du+vo+wa)} t</b> seit 2026: ${fmt(du)} t mit deinen Karten, ${fmt(vo)} t mit Vorlagen, ${fmt(wa)} t durch den Wandel um dich herum.</span></div>
+  <div class="rrow"><span class="rk">Schweizer Politik</span><span>Von deinen ${fmt(a)} t entstehen rund <b>${fmt(ch)} t</b> in der Schweiz: Gebäude, Verkehr, Strom, Landwirtschaft, Schulen und Spitäler. Hier helfen weitere Vorlagen.</span></div>
+  <div class="rrow"><span class="rk">Firmen und andere Länder</span><span>Rund <b>${fmt(aus)} t</b> entstehen im Ausland, bei der Herstellung von dem, was du kaufst (BAFU/EBP 2025). Das ändern Firmen und Regierungen dort.</span></div>
+  <div class="rrow nx"><span class="rk">Dein nächster Schritt</span><span>${nx}</span></div></div>`;}
 function viewEnd(){
  if(G)G.finish();
  const Y=2050,a=val(Y,ACT),vo=val(Y,VO),no=val(Y,NO);
@@ -1521,8 +1515,8 @@ function viewEnd(){
  const mineK=new Set(Object.values(S.myHR||{}).flatMap(o=>Object.keys(o).filter(k=>o[k]>0)));
  const pol=Object.keys(S.adopted).filter(id=>mineK.has(id)).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
  const ch=(no-vo)*9,o=scoreNow(),sc=o?scoreOf(o):null;
- const st=[["Besser als nichts tun",a<vo-0.05],["Unter 6 t",a<6],["Unter 4 t",a<4],["0.6 t",a<=0.6]],top=st.filter(x=>x[1]).length;
- const sh=scoreHTML(),bi=sh.indexOf('<div class="sec"><h2>Bestenliste'),pts=bi>0?sh.slice(0,bi):"",board=bi>0?sh.slice(bi):sh;
+ const SL=stufenL(),st=stufenOk().map((ok,i)=>[SL[i][0],ok]),top=st.filter(x=>x[1]).length,zOk=a<zielT();
+ const pts=scoreHTML();
  const ovE=Math.max(0,(a-val(Y,OWNV))-(vo-no));
  const parts=[["Wandel",no-START],["Vorlagen",vo-no+ovE],["Du",a-vo-ovE]];
  const more=(t,h)=>`<details class="endmore"><summary>${t}</summary><div class="endin">${h}</div></details>`;
@@ -1531,11 +1525,12 @@ function viewEnd(){
   <div class="endnums">
    <div class="en1"><div class="lbl">Fussabdruck 2050</div><div class="v">${fmt(a)} t</div></div>
    <div><div class="lbl">Punkte</div><div class="v">${sc?sc.tot:"–"}</div></div>
-   <div><div class="lbl">Schweiz dank Vorlagen</div><div class="v">${ch<0.05?"0":"−"+fmt(ch)} Mio. t</div><div class="hint">pro Jahr weniger, für alle 9 Mio.</div></div>
+   <div><div class="lbl">Schweiz dank Vorlagen</div><div class="v">${ch<0.05?"0":"−"+fmt(ch)} Mio. t</div><div class="hint">${ch<0.05?"pro Jahr weniger, für alle 9 Mio.":`pro Jahr weniger: so viel, wie rund ${persTxt(ch)} Menschen heute ausstossen`}</div></div>
   </div>
-  <div class="stufenx"><div class="lbl">Stufen</div>${STUFEN.map(([t,d],i)=>`<div class="sx ${st[i][1]?"ok":""}"><span class="n">${st[i][1]?"✓":i+1}</span><span><b>${t}.</b> ${d}</span></div>`).join("")}<p class="hint" style="margin:6px 0 0">Gemessen wird dein Fussabdruck im Jahr 2050. ${top==0?"Du hast noch keine Stufe erreicht.":top==4?"Du hast alle Stufen erreicht.":`Du hast ${top} von 4 Stufen erreicht. Nächste Stufe: «${STUFEN[top][0]}».`}</p></div>
+  <div class="stufenx"><div class="zstat ${zOk?"ok":""}">${zOk?`✓ Ziel erreicht: ${fmt(a)} t, ${Math.round((1-a/START)*100)} % weniger als 2026.`:`Ziel ${a-zielT()<1?"knapp ":""}verfehlt: Dir fehlen ${fmt(a-zielT())} t bis unter ${fmt(zielT())} t.`}</div><div class="lbl">Stufen</div>${SL.map(([t,d],i)=>`<div class="sx ${st[i][1]?"ok":""}${i==1?" zg":""}"><span class="n">${st[i][1]?"✓":i+1}</span><span><b>${t}.</b> ${d}</span></div>`).join("")}<p class="hint" style="margin:6px 0 0">Gemessen wird dein Fussabdruck im Jahr 2050. ${ZIELVGL} ${zOk?(top>=3?"Du hast mehr als dein Ziel erreicht.":"Die Stufen 3 und 4 sind Zusatz: Dafür braucht es noch mehr Politik."):"Beim nächsten Mal: Vergleiche in der Bilanz jeder Runde, wie weit dir noch fehlt."}</p></div>
  </div>
  ${wish()?`<div class="callout"><span class="ic">${wishBroken()?"✗":"✓"}</span><span>Wunsch «${esc0(wish().t)}» ${wishBroken()?"aufgegeben.":"bis 2050 gelebt."}</span></div>`:""}
+ ${restHTML(a,parts,own)}
  <div class="layout half" style="margin-top:22px"><div>
   <div class="ibox"><div class="lbl">Von ${fmt(START)} t auf ${fmt(a)} t</div>${waterfallSVG(parts,a-START)}</div>
  </div><div>
@@ -1546,8 +1541,7 @@ function viewEnd(){
   </div>
  </div></div>
  <div class="sec"><h2>Nachdenken</h2></div><div class="refl">${reflectHTML()}</div>
- ${board}
- <div class="endmores">
+  <div class="endmores">
  ${pts?more("Wie die Punkte zustande kommen",pts):""}
  ${more("Verlauf bis 2050",`<div class="ibox">${chartSVG(2050,{vo:true})}</div>`)}
  ${more("Warum niemand auf 0.6 t kommt",`<p>Rund 69 % des Schweizer Fussabdrucks entstehen im Ausland, vor allem bei der Herstellung von Importen (BAFU/EBP 2025). Von deinen ${fmt(a)} t wären das rund <b>${fmt(a*0.69)} t</b>. Darauf haben Schweizer Entscheide nur indirekten Einfluss. Im Unterricht geht es weiter mit Industrie, Importen und negativen Emissionen.</p><div class="ibox" style="margin-top:10px"><div class="lbl">Wer sagt was zu 0.6 t?</div><ul class="vlist"><li><b>BAFU:</b> Aus der planetaren Belastbarkeitsgrenze folgt ein Schwellenwert unter 0.6 t CO₂-Äquivalenten pro Person und Jahr. Jedes Jahr darüber senkt diesen Wert weiter.</li><li><b>ZHAW (2021):</b> So viel, rund 0.6 t pro Person, kann die Natur in der Schweiz jährlich aufnehmen.</li><li><b>BAFU/EBP (2026):</b> Das Budget der Schweiz für 1.5 °C dürfte schon 2024 aufgebraucht gewesen sein. Streng gerechnet müsste die Schweiz also sogar CO₂ aus der Luft holen.</li><li><b>Andere Rechnungen</b> (zum Beispiel BOKU Wien) nennen für Industrieländer rund 1 t pro Person bis 2050.</li><li><b>Klimagesetz:</b> Die Schweiz soll bis 2050 netto null erreichen. Was noch ausgestossen wird, muss der Luft wieder entzogen werden.</li></ul><p class="hint" style="margin:6px 0 0">0.6 t ist also kein exakter Grenzwert, sondern eine Grössenordnung: Je nach Rechnung liegt das Ziel zwischen unter null und rund 1 t.</p></div>`)}
@@ -1560,6 +1554,15 @@ function viewEnd(){
 }
 /* ===== Erweiterungen nach Game-Design-Recherche ===== */
 const GOAL=6.0, GOALB=200, PFAD=Math.round((START+ZIEL)/2*25);
+/* Spielziel (24.11.2026, nach Recherche zu Hoffnung und Wirksamkeit): schwierig, aber erreichbar.
+   Simulation (sim3.js, 600 Partien pro Version): kurz −40 % erreichen starke Spiele etwa 80 %, mittlere etwa ein Drittel;
+   lang −50 % starke 96 %, mittlere 47 %. 0.6 t bleibt der Horizont, nicht die Messlatte. */
+// Ziel 2050 unter 6 t: so viel wie ein Mensch heute im weltweiten Durchschnitt (BAFU: ca. 6 t). Entscheid Thierry 24.11.2026.
+// Einordnung im Spiel: Schweiz halbiert bis 2030 (CO2-Gesetz, nur Inland), Weltdurchschnitt heute rund 6 t (BAFU), weltweites Ziel 2050 rund 1 t (−84 % ggü. 2019, BAFU nach IPCC; pro Person eigene Rechnung).
+const ZIELT=6.0;
+function zielT(){return ZIELT;}
+function zielTxt(){return "unter den heutigen Weltdurchschnitt senken";}
+const ZIELVGL="Zum Vergleich: Die Schweiz will ihren Ausstoss bis 2030 halbieren. Weltweit sollten es 2050 noch rund 1 t pro Person sein.";
 const CONTRA={
  K1:"E-Autos sind in der Anschaffung teurer, auf dem Land fehlen Ladestationen. Manche wollen selbst entscheiden, was sie fahren.",
  K2:"Elektrische Lastwagen sind teuer und fahren weniger weit. Transporte und Waren könnten teurer werden.",
@@ -1590,13 +1593,15 @@ function eventCands(){const f=fig(),c=[];
  if(!f.ban.includes("N2")&&!chalBan("N2")&&S.chosen.N2===undefined&&S.chosen.N3===undefined&&!S.happened.includes("E3")&&S.r<LAST)c.push("E3");
  if(S.chosen.C4===undefined&&!S.happened.includes("E4"))c.push("E4");
  for(const e of KLIMA)if(!S.happened.includes(e))c.push(e);
+ if(copOn()&&!S.happened.includes("E9"))c.push("E9");
  return c;}
 // Ersatzzyklus: Eine Heizung haelt 20 bis 25 Jahre. Hat sie bis zur zweitletzten Runde nicht versagt, geht sie dann sicher kaputt.
 function announceEvent(){if(S.r===0){S.nextEvent="ruhig";return;}
+ if(copOn()&&PER[S.r]&&PER[S.r].a===COPY&&!S.happened.includes("E9")){S.nextEvent="E9";return;}
  const must=["E2","E2m"].find(e=>eventCands().includes(e));if(must&&S.r>=LAST-1){S.nextEvent=must;return;}
  const k=KLIMA.filter(e=>!S.happened.includes(e));
  if(k.length&&Math.random()<klimaP()){S.nextEvent=k[Math.floor(Math.random()*k.length)];return;}
- const c=eventCands().filter(e=>!KLIMA.includes(e));c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
+ const c=eventCands().filter(e=>!KLIMA.includes(e)&&e!=="E9");c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
 const E2WP=0.5; // Anteil erneuerbar beim Heizungsersatz je nach Kanton 16 bis 58 % (EBP 2024)
 const AVERT={E2m:"Du hast schon überzeugt: Statt Öl kommt eine Wärmepumpe.",E1:"Du fährst kein E-Auto. Der Rebound trifft dich nicht.",E2:"Deine Heizung ist schon ersetzt. Der Ausfall kostet dich nichts.",E3:"Du isst schon vegetarisch.",E4:"Du kaufst bewusst weniger. Die Aktionen lassen dich kalt."};
 
@@ -1727,7 +1732,7 @@ const INTRO=[n=>`Hoi, ich bin ${n}! In unserem Dorf verursacht jede Person rund 
  n=>`Woher? Einiges verbrennen wir direkt. Das meiste steckt in dem, was für uns hergestellt wird, oft im Ausland.`,
  n=>`Verträglich wären 0.6 Tonnen. Bis 2050 müssen wir also gewaltig runter.`,
  n=>`Du spielst eine Figur. Pro Runde hast du 3 Herzen für Mühe und Verzicht: für Karten in deinem Alltag oder für Vorlagen und Projekte. Geld brauchst du für Anschaffungen.`,
- n=>`Angenommene Vorlagen und Projekte werden im Dorf gebaut, zum Beispiel Solardächer. Am Schluss zeigen vier Stufen, wie tief du bis 2050 kommst. Los geht's!`];
+ n=>`Angenommene Vorlagen und Projekte werden im Dorf gebaut, zum Beispiel Solardächer. Dein Ziel: bis 2050 unter 6 Tonnen kommen. So viel stösst ein Mensch heute im weltweiten Durchschnitt aus. Los geht's!`];
 const IST=[{x:1400},{x:1475},{x:1550},{x:1730,on:["K12","K4"],p:.25},{x:1905,on:["P4","K3"],p:.6}],IX0=1290;
 function startIntro(){S.intro=null;S.screen="intro";render();window.scrollTo(0,0);}
 function introInit(){if(S.intro)return;S.intro={n:["Lia","Noah","Ruth","Elif","Daniel"][Math.floor(Math.random()*5)],i:0,ph:"walk",typ:0};
@@ -1778,13 +1783,15 @@ function introTick(){if(S.screen!=="intro"||!S.intro)return;const I=S.intro,now=
 
 /* ---------- Outro: Popup mit Dorf, Figur springt, Sprechblase (wie Intro) ---------- */
 const OST=[{x:1550},{x:1730},{x:1905}];
-const STUFEN=[["Besser als nichts tun","Dein Fussabdruck 2050 ist tiefer als bei jemandem, der selbst nichts ändert."],["Unter 6 t","So weit kommt man etwa mit eigenen Entscheiden allein (ZHAW 2021)."],["Unter 4 t","Das geht nur, wenn auch Vorlagen angenommen werden."],["0.6 t","Verträglich. Das schafft im Spiel niemand allein."]];
-function stufenTop(){const a=val(2050,ACT),vo=val(2050,VO);return [a<vo-0.05,a<6,a<4,a<=0.6].filter(Boolean).length;}
+const STUFEN=[["Besser als nichts tun","Dein Fussabdruck 2050 ist tiefer als bei jemandem, der selbst nichts ändert."],["Ziel",""],["Unter 4 t","Das geht nur, wenn auch viele Vorlagen angenommen werden."],["0.6 t","Verträglich. Weltweit sollten es 2050 rund 1 t pro Person sein. Das schafft im Spiel niemand allein."]];
+function stufenL(){return STUFEN.map(([t,d],i)=>i==1?[`Ziel: unter ${fmt(zielT())} t`,`So viel stösst ein Mensch heute im weltweiten Durchschnitt aus (BAFU). Schwierig: Dafür musst du selbst viel ändern und Vorlagen durchbringen.`]:[t,d]);}
+function stufenOk(){const a=val(2050,ACT),vo=val(2050,VO);return [a<vo-0.05,a<zielT(),a<4,a<=0.6];}
+function stufenTop(){return stufenOk().filter(Boolean).length;}
 function warmCH(y){return 3.0+0.6*Math.max(0,Math.min(1,(y-2025)/25));}
 // Header: Erwaermung der Schweiz gegenueber heute (2026: 0.0, 2050: 0.6 °C)
 function warmToday(y){return warmCH(y)-warmCH(2025);}
 function outroTexts(){const a=val(2050,ACT),own=val(2050,VO)-a,pol=val(2050,NO)-val(2050,VO),top=stufenTop();
- const RT=["Ehrlich: Das ist nicht besser, als wenn ich gar nichts geändert hätte.","Immerhin besser als nichts tun. Bis zum Ziel ist es aber noch weit.","Gut gemacht: unter 6 t. Viel mehr schafft man allein kaum.","Stark: unter 4 t! Das geht nur, wenn auch die Politik mitzieht.","Unglaublich: verträglich!"];
+ const RT=["Ehrlich: Das ist nicht besser, als wenn ich gar nichts geändert hätte.",`Immerhin besser als nichts tun. Zum Ziel fehlen mir noch ${fmt(a-zielT())} t.`,`Geschafft: Ziel erreicht, ${Math.round((1-a/START)*100)} % weniger als 2026!`,"Stark: unter 4 t! Das geht nur, wenn auch die Politik mitzieht.","Unglaublich: verträglich!"];
  return [`2050! Ich stosse noch ${fmt(a)} t pro Jahr aus, ${fmt(START-a)} t weniger als 2026. ${RT[top]}`,
   `Warum nicht 0.6 t? Gut zwei Drittel entstehen im Ausland, in allem, was für mich hergestellt wird. Schulen, Spitäler und Strassen ändert niemand allein. Meine Karten brachten ${fmt(Math.max(0,own))} t, die Vorlagen ${fmt(Math.max(0,pol))} t.`,
   `Und die Schweiz ist 2050 rund ${f1(warmCH(2050))} °C wärmer als vor 150 Jahren. Wie es weitergeht, entscheidet die ganze Welt. Schau dir jetzt die Auswertung an!`];}
@@ -1817,6 +1824,13 @@ function outroTick(){const O=S.outro;if(!O)return;const now=performance.now();
  requestAnimationFrame(outroTick);}
 /* Bilanz nach jeder Runde */
 function toSummary(){S.screen="summary";render();window.scrollTo(0,0);}
+/* Kurs zum Ziel: Wo landest du 2050, wenn alles so bleibt? Kleine Erfolge pro Runde sichtbar machen */
+function kursHTML(){const pr=val(2050,ACT),no=val(2050,NO),zt=zielT(),ok=pr<zt;
+ const prog=Math.max(0,Math.min(100,Math.round((START-pr)/(START-zt)*100)));
+ return `<div class="ibox kurs ${ok?"ok":""}"><div class="lbl">Dein Kurs bis 2050</div>
+  <p style="margin:2px 0 6px">Wenn alles so bleibt, liegst du 2050 bei <b>${fmt(pr)} t</b>. ${ok?`<b>Damit erreichst du dein Ziel</b> (unter ${fmt(zt)} t).`:`Bis zum Ziel unter ${fmt(zt)} t fehlen dir noch <b>${fmt(pr-zt)} t</b>.`}</p>
+  <div class="chrow"><span class="lbl">Weg zum Ziel</span><div class="cbar"><i style="width:${prog}%"></i></div><span class="chance">${prog} %</span></div>
+  <p class="hint" style="margin:4px 0 0">Ohne deine Karten und ohne Vorlagen wären es 2050 ${fmt(no)} t. Du sparst also schon ${fmt(Math.max(0,no-pr))} t pro Jahr.</p></div>`;}
 function viewSummary(){
  const p=PER[S.r],a0=p.a,nx=S.r<LAST?PER[S.r+1].a:2050;
  const before=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT);
@@ -1830,6 +1844,7 @@ function viewSummary(){
  return header()+`<div class="wrap">
  <div class="layout half"><div>
   <div class="lbl">Bilanz ${p.l}</div><h2 class="btitle">${title}</h2>
+  ${kursHTML()}
   <div class="ibox"><div class="lbl">Wo sich etwas verändert hat</div>${catHTML(S.snap[S.r]&&S.snap[S.r].c?S.snap[S.r].c:bycat(subs(a0,ACT)),bycat(subs(nx,ACT)),a0,nx)}</div>
  </div><div>
   <div class="ibox evbox" style="padding:14px 18px">${eventBox()}</div>
@@ -1904,7 +1919,7 @@ function budgetHTML(used,pf,yEnd){
 function groupAvg(key){const ps=G.players().filter(p=>p.fig);const v=ps.map(p=>key=="end"?(p.end&&p.end.v):key=="endsum"?(p.end&&p.end.sum):key=="sumnow"?p.sumnow:p.now).filter(x=>typeof x=="number");return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
 function groupPanel(){const av=groupAvg("now");
  const sb=groupAvg("sumnow");
- return `<div class="lbl">Gruppenziel</div><h3 style="margin:2px 0 4px">Im Schnitt 2050 unter ${fmt(GOAL)} t und Budget unter ${GOALB} t</h3><p class="hint">Gruppe heute: ${av==null?"–":fmt(av)+" t pro Jahr"}${sb?`, Budget 2026 bis ${S.screen==="round"?PER[S.r].a-1:S.r<LAST?PER[S.r+1].a-1:2050}: ${fmt(sb,0)} t (wächst nach jeder Runde)`:""} im Schnitt. Beides zählt, ihr schafft es nur gemeinsam.</p><hr>`;}
+ return `<div class="lbl">Gruppenziel</div><h3 style="margin:2px 0 4px">Im Schnitt 2050 unter ${fmt(zielT())} t</h3><p class="hint">Gruppe heute: ${av==null?"–":fmt(av)+" t pro Jahr"}${sb?`, Budget 2026 bis ${S.screen==="round"?PER[S.r].a-1:S.r<LAST?PER[S.r+1].a-1:2050}: ${fmt(sb,0)} t (wächst nach jeder Runde)`:""} im Schnitt. Ihr schafft es nur gemeinsam.</p><hr>`;}
 /* Bank oben: alle Mitspielenden sitzen darauf, die Sprechblase zeigt, ob sie fertig sind */
 function benchHTML(ps,stateOf){const B=SPR.bench;if(!B||!ps.length)return"";
  // bis 4 Personen pro Bank, sonst gleichmaessig auf mehrere Baenke verteilen
@@ -2027,7 +2042,7 @@ function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.
 
 function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()));
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
- const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,intro:viewIntro,end:viewEnd,teacher:viewTeacher,board:viewBoard}[S.screen];
+ const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewEvent,summary:viewSummary,dorf:viewDorf,intro:viewIntro,end:viewEnd,teacher:viewTeacher}[S.screen];
  if(S.screen!=="round"&&document.querySelector){const ov=document.querySelector(".vov");if(ov)ov.remove();}
  const newScr=S.lastScr!==S.screen+"|"+S.r;S.lastScr=S.screen+"|"+S.r;
  // Tastatur: Fokus nach dem Neuzeichnen wieder auf das gleiche Element setzen (UX-Test 21.11.)
@@ -2135,11 +2150,11 @@ const Group={
   <div class="ibox"><div class="lbl">Version</div>${host?`<div class="tabs" style="margin:8px 0 0">
    <label class="tab ${ROOM.mode=="kurz"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('kurz')"><span class="n">4</span>Kurz</label>
    <label class="tab ${ROOM.mode=="lang"?"on":""}" style="cursor:pointer"><input type="radio" style="display:none" onchange="Group.setMode('lang')"><span class="n">8</span>Lang</label></div>`:`<div class="v" style="font-family:var(--titel);font-weight:800;font-size:28px">${ROOM.mode=="lang"?"Lang":"Kurz"}</div><div class="hint">wählt, wer den Raum eröffnet hat</div>`}</div></div>
-  <div class="callout"><span class="ic">!</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t pro Jahr und ein Budget 2026 bis 2050 unter ${GOALB} t. Ihr gewinnt oder verliert gemeinsam.</span></div>${ROOM.klasse?`<div class="lbl">Klasse ${esc0(ROOM.klasse)}</div>`:""}<div class="sec"><h2>Mitspielende</h2></div><div class="bankrow lobby">${benchHTML(ps.filter(p=>p.fig),p=>["ok","bereit"])}</div><table><tr><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.fig?`<span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}${p.uid===NET.uid?" (du)":""}${p.bot?' <span class="hint">Testfigur</span>':""}</span>`:`<span class='hint'>${p.uid===NET.uid?"du, ":""}wählt noch</span>`}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
+  <div class="callout"><span class="ic">!</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(zielT())} t pro Jahr, so viel wie ein Mensch heute im weltweiten Durchschnitt. Ihr gewinnt oder verliert gemeinsam.</span></div>${ROOM.klasse?`<div class="lbl">Klasse ${esc0(ROOM.klasse)}</div>`:""}<div class="sec"><h2>Mitspielende</h2></div><div class="bankrow lobby">${benchHTML(ps.filter(p=>p.fig),p=>["ok","bereit"])}</div><table><tr><th>Figur</th><th></th></tr>${ps.map(p=>`<tr><td>${p.fig?`<span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}${p.uid===NET.uid?" (du)":""}${p.bot?' <span class="hint">Testfigur</span>':""}</span>`:`<span class='hint'>${p.uid===NET.uid?"du, ":""}wählt noch</span>`}</td><td class="hint">${p.online===false?"offline":""}</td></tr>`).join("")}</table>
   <div class="sec"><h2>Deine Figur</h2></div><div class="figs">${Object.keys(M.FIG).map(f=>{const by=ps.find(p=>p.fig===f&&p.uid!==NET.uid&&p.online!==false);return by?figCard(f,"",false).replace('class="fig ','class="fig taken ').replace(/<div class="fgo">[^<]*<\/div>/,`<div class="fgo">vergeben${by.bot?" (Testfigur)":""}</div>`):figCard(f,`Group.pickFig('${f}')`,me.fig==f);}).join("")}</div>${ps.filter(p=>p.online!==false).length>Object.keys(M.FIG).length?`<p class="hint">Mehr Personen als Figuren: Wer keine Figur mehr bekommt, schaut zu oder eröffnet einen zweiten Raum.</p>`:""}${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
   <div class="row" style="margin-top:18px">${host?`<button class="primary" ${ready?"":"disabled"} onclick="Group.start()">Spiel starten (${ps.length} ${ps.length==1?"Person":"Personen"})</button><span class="hint">Starten geht, sobald alle eine Figur gewählt haben.</span>`:`<span class="hint">Warten, bis das Spiel gestartet wird …</span>`}
   <button onclick="G.leave();fresh();render()">Raum verlassen</button></div>
-  ${host?`<details class="rules" style="margin-top:22px"${ROOM.test?" open":""}><summary>Testmodus</summary><p class="hint">Zum Ausprobieren allein oder zu zweit. Testfiguren setzen sich auf die Bank, entscheiden zufällig und sind jede Runde nach ein paar Sekunden fertig. Sie spielen nur, solange dieses Gerät offen ist. Ein Testspiel kommt nicht in die Bestenliste.</p><div class="row"><button onclick="Bots.add(1)">1 Testfigur dazu</button><button onclick="Bots.add(3)">3 Testfiguren dazu</button></div></details>`:""}</div>`;
+  ${host?`<details class="rules" style="margin-top:22px"${ROOM.test?" open":""}><summary>Testmodus</summary><p class="hint">Zum Ausprobieren allein oder zu zweit. Testfiguren setzen sich auf die Bank, entscheiden zufällig und sind jede Runde nach ein paar Sekunden fertig. Sie spielen nur, solange dieses Gerät offen ist.</p><div class="row"><button onclick="Bots.add(1)">1 Testfigur dazu</button><button onclick="Bots.add(3)">3 Testfiguren dazu</button></div></details>`:""}</div>`;
  }
 };
 
@@ -2178,8 +2193,8 @@ function makeG(code){
    const Y=2050;NET.update(this.path(),{end:{v:+val(Y,ACT).toFixed(2),sum:Math.round(sum(2026,Y,ACT)),
     own:+(val(Y,ACT)-val(Y,VO)).toFixed(2),cards:Object.keys(S.chosen).length,...myParts()}});},
   endTable(){const ps=this.players();const vo=val(2050,VO);
-   const ga=groupAvg("end");const gb=groupAvg("endsum");const okA=ga!=null&&ga<GOAL,okB=gb!=null&&gb<GOALB;
-   return `<h2>Eure Gruppe</h2><div class="callout"><span class="ic">${okA&&okB?"✓":"!"}</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(GOAL)} t und Budget unter ${GOALB} t. Ihr liegt bei <b>${ga==null?"–":fmt(ga)+" t"}</b> ${okA?"✓":"✗"} und <b>${gb==null?"–":fmt(gb,0)+" t"}</b> ${okB?"✓":"✗"}. ${okA&&okB?"Geschafft.":okA||okB?"Nur halb geschafft: Beides zählt.":"Nicht geschafft oder noch nicht fertig."}</span></div><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
+   const ga=groupAvg("end");const gb=groupAvg("endsum");const okA=ga!=null&&ga<zielT();
+   return `<h2>Eure Gruppe</h2><div class="callout"><span class="ic">${okA?"✓":"!"}</span><span>Gruppenziel: im Schnitt 2050 unter ${fmt(zielT())} t. Ihr liegt bei <b>${ga==null?"–":fmt(ga)+" t"}</b>${gb!=null?`, Budget 2026 bis 2050 im Schnitt ${fmt(gb,0)} t`:""}. ${okA?"Geschafft.":ga==null?"Noch nicht alle fertig.":`Nicht geschafft: Euch fehlen im Schnitt ${fmt(ga-zielT())} t.`}</span></div><p class="hint">Alle in der Gruppe profitieren gleich von den angenommenen Vorlagen. Ohne eigene Karten stünde jede Figur 2050 bei ${fmt(vo)} t.</p>
    <table><tr><th>Figur</th><th class="n">2050 pro Jahr</th><th class="n">davon eigene Entscheide</th><th class="n">Budget bis 2050</th><th class="n">Karten</th></tr>
    ${ps.map(p=>`<tr><td><span class="row" style="gap:8px">${figImg(p.fig,1)}${p.fig}</span>${p.uid===NET.uid?" · du":""}</td>${p.end?`<td class="n">${fmt(p.end.v)}</td><td class="n">${sgn(p.end.own)}</td><td class="n">${p.end.sum}</td><td class="n">${p.end.cards}</td>`:`<td colspan="4" class="hint">spielt noch</td>`}</tr>`).join("")}</table>`;},
   leave(){if(UNWATCH)UNWATCH();UNWATCH=null;NET.update(this.path(),{online:false});try{localStorage.removeItem("13t_g_"+code);localStorage.removeItem("13t_lastroom")}catch(e){}G=null;ROOM=null;}

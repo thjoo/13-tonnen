@@ -1,7 +1,7 @@
 """Gemeinsame Hilfen fuer die Tests von «13 Tonnen».
 
 Getestet wird die gebaute Datei index.html im Hauptordner des Repos (oder die Adresse in GAME_URL).
-Firebase wird in allen automatischen Tests blockiert: Es entstehen keine Raeume und keine Eintraege in der Bestenliste.
+Firebase wird in allen automatischen Tests blockiert: Es entstehen keine Raeume.
 """
 import os, pathlib, pytest
 from playwright.sync_api import sync_playwright

@@ -484,5 +484,14 @@
 "back": "Beim Heizungsersatz wird je nach Kanton nur in 16 bis 58 % der Fälle erneuerbar eingebaut (EBP 2024, WWF-Rating 2024). Im Kanton Zürich, wo seit 2022 die strengere Regel gilt, waren es im ersten Jahr über 98 % (Stichprobe der Baudirektion in zehn Gemeinden). Viele Besitzer:innen ersetzen eine alte Ölheizung lieber durch die gleiche Art. Wer mietet, kann nur mitreden: nachfragen, Argumente bringen, auf Förderbeiträge hinweisen. Eine neue Ölheizung läuft 20 bis 25 Jahre, das ist ein Lock-in.",
 "game": "Das Spiel würfelt, etwa 50 zu 50. Kommt wieder Öl, ist W2b bis 2050 gesperrt. Kommt eine Wärmepumpe, heizt du ab dann 90 % klimafreundlicher.",
 "why": ""
+},
+"E9": {
+"id": "E9",
+"title": "Durchbruch an der Klimakonferenz",
+"head": " · Weltweit · Ausland stellt sauberer her",
+"front": "An der Klimakonferenz einigen sich fast alle Länder: Kohlekraftwerke gehen schneller vom Netz, Fabriken und Bauernhöfe stellen um. Vieles, was du kaufst, wird dadurch sauberer hergestellt.",
+"back": "An der Klimakonferenz 2023 in Dubai (COP28) einigten sich die Länder erstmals darauf, sich von fossilen Energien abzuwenden und die erneuerbaren Energien bis 2030 zu verdreifachen. Ob und wie schnell das umgesetzt wird, ist offen. Im Spiel ist der Durchbruch eine Annahme. Rund zwei Drittel des Schweizer Fussabdrucks entstehen im Ausland (BAFU/EBP 2025). Darauf wirken Abkommen zwischen Ländern stärker als Schweizer Gesetze.",
+"game": "Ab dem nächsten Jahr wird alles, was im Ausland für dich hergestellt wird, jedes Jahr zusätzlich sauberer. Heizen, Autofahren, Fliegen und Strom in der Schweiz betrifft das nicht.",
+"why": ""
 }
 }

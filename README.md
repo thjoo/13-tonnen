@@ -38,7 +38,7 @@ Bei jedem Push prüft GitHub das Spiel automatisch (Reiter «Actions»). Geteste
 - `tests/test_zugang.py`: Barrierefreiheit nach WCAG 2.1 AA (axe-core) und Bedienung mit der Tastatur.
 - `tests/manuell/gruppe_testmodus.py`: Gruppenspiel mit Testfiguren gegen die echte Datenbank, nur von Hand starten.
 
-In den automatischen Tests ist Firebase blockiert: Es entstehen keine Räume und keine Einträge in der Bestenliste.
+In den automatischen Tests ist Firebase blockiert: Es entstehen keine Räume.
 
 Lokal ausführen:
 
