@@ -43,9 +43,14 @@ def test_fehlerkarte_statt_stillstand(browser):
     page.wait_for_timeout(200)
     assert page.is_visible("#crash")
     assert "Test-Fehler" in page.text_content("#crash pre")
-    page.click("#crash >> text=Neu laden")
-    page.wait_for_timeout(500)
-    page.click("text=Weiterspielen")
+    with page.expect_navigation(wait_until="load"):
+        page.get_by_role("button", name="Neu laden", exact=True).click()
+    zustand = "()=>({screen:S.screen,save:!!localStorage.getItem('13t_solo'),knoepfe:[...document.querySelectorAll('button')].map(b=>b.textContent.trim()).slice(0,8)})"
+    try:
+        page.wait_for_function("typeof S!=='undefined'&&S.screen==='start'", timeout=10000)
+        page.get_by_role("button", name="Weiterspielen", exact=True).click(timeout=10000)
+    except Exception as e:
+        raise AssertionError(f"nach dem Neuladen: {page.evaluate(zustand)}") from e
     assert page.evaluate("S.r") == 2
     ctx.close()
 
