@@ -26,14 +26,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Pruefen, ob index.html zum Quellcode passt
-        run: |
-          if [ -f grafik/sprites.json ]; then python src/build.py --check; else echo "uebersprungen (keine Grafiken)"; fi
       - name: Werkzeuge installieren
         run: |
           pip install -r tests/requirements.txt
           python -m playwright install --with-deps chromium
           npm install axe-core@4 --prefix tests --no-save --silent
+      - name: Pruefen, ob index.html zum Quellcode passt
+        run: |
+          if [ -f grafik/sprites.json ]; then python src/build.py --check; else echo "uebersprungen (keine Grafiken)"; fi
       - name: Tests
         run: python -m pytest tests -q -p no:cacheprovider
 

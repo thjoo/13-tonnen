@@ -17,7 +17,7 @@ function grayOf(src,lo){const k=src+(lo?'#lo':'');if(GR[k])return GR[k];const i=
   a[j]=Math.min(255,v+4);a[j+1]=v;a[j+2]=Math.max(0,v-3);}
  x.putImageData(d,0,0);GR[k]=c;return c;}
 function pic(src,lo){if(MODE==='f'||NOG.has(src)){const i=im(MODE==='f'&&FCOL[src]?FCOL[src]:src);return i.complete&&i.naturalWidth?i:null;}return grayOf(src,lo);}
-let K=1,SNAP=false,camFr=0,camX=0,cv=null,ctx=null,S=.75,VW=0,vx0=0,ents=[],last=0,raf=0,wt=0,clouds=[];
+let K=1,OY=0,SNAP=false,camFr=0,camX=0,cv=null,ctx=null,S=.75,VW=0,vx0=0,ents=[],last=0,raf=0,wt=0,clouds=[];
 // Wolkenschatten: schwarze Silhouetten vorbereiten
 function shadowOf(src){const c=document.createElement('canvas'),i=im(src);const mkS=()=>{c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);};if(i.complete)mkS();else i.addEventListener('load',mkS);return c;}
 function lane(){return rnd(D.band[0],D.band[1]);}
@@ -151,13 +151,21 @@ function render(){if(!ctx)return;
  for(const c of clouds){if(!c.c.width)continue;const w=Math.round(c.c.width*c.sc),h=Math.round(c.c.height*c.sc);let x=Math.round(c.x-vx0);x=((x%D.W)+D.W)%D.W;
   for(const xx of [x,x-D.W])if(xx<VW&&xx+w>0)ctx.drawImage(c.c,xx,Math.round(c.y),w,h);}
  ctx.globalAlpha=1;}
-function layout(){const d=document.getElementById('dorf');if(!d)return false;
+function layout(){const d=document.getElementById('dorf');if(!d)return false;OY=0;
  if(!cv||!d.contains(cv)){d.innerHTML='';cv=document.createElement('canvas');d.appendChild(cv);ctx=cv.getContext('2d');}
  S=+getComputedStyle(d).getPropertyValue('--ds')||.75;SNAP=!!(d.closest&&d.closest('.szene')&&!d.closest('.nosnap'));
  const cw=d.clientWidth;
  if(SNAP){// Pixeldichte begrenzen: Bei 3x zeichnet ein Handy 9-mal so viele Pixel, die Ueberblendung grau zu farbig sogar doppelt.
   // Das Bild wird danach vom Browser pixelgenau hochskaliert (image-rendering: pixelated).
-  const dpr=Math.min(matchMedia('(pointer: coarse)').matches?1.5:2,window.devicePixelRatio||1)*(window.UIZ||1);K=Math.max(1,Math.round(S*dpr));S=K/dpr;VW=Math.ceil(cw/S)+2;cv.width=Math.ceil(VW*K);cv.height=D.H*K;cv.style.width=(cv.width/dpr)+'px';cv.style.height=(D.H*S)+'px';d.style.height=(D.H*S)+'px';}
+  const dpr=Math.min(matchMedia('(pointer: coarse)').matches?1.5:2,window.devicePixelRatio||1)*(window.UIZ||1);
+  const set=(k,crop=0)=>{K=k;S=K/dpr;VW=Math.ceil(cw/S)+2;cv.width=Math.ceil(VW*K);cv.height=D.H*K;cv.style.width=(cv.width/dpr)+'px';cv.style.height=(D.H*S)+'px';
+   OY=Math.round(crop/2);cv.style.marginTop=OY?(-OY)+'px':'';d.style.height=(D.H*S-crop)+'px';};
+  set(Math.max(1,Math.round(S*dpr)));
+  // Dorf nach der Abstimmung (window.DORF_FIT): Alles soll ohne Scrollen sichtbar sein (Spieltest 26.11.2026). Ganze Bildpunkte machen die Stufen grob
+  // (Retina 1.5 statt 1.25, Windows 125 % 1.6 statt 1.25). Fehlt wenig, wird oben und unten je ein Rand abgeschnitten (hoechstens 20 % des Bildes),
+  // fehlt mehr, kommt die naechstkleinere scharfe Stufe.
+  if(window.DORF_FIT){const de=document.documentElement,over=()=>(de.scrollHeight-innerHeight)/(window.UZF||1);
+   for(let i=0;i<4;i++){const o=over();if(o<=1)break;const h=D.H*S;if(o+4<=h*0.2){set(K,o+4);break;}if(K>1&&(K-1)/dpr>=0.75)set(K-1);else{set(K,h*0.2);break;}}}}
  else{K=1;VW=Math.ceil(cw/S)+1;cv.width=VW;cv.height=D.H;cv.style.width=(VW*S)+'px';cv.style.height=(D.H*S)+'px';d.style.height='';}
  ctx.imageSmoothingEnabled=false;if(!camX)camX=D.W/2;vx0=Math.round(camX-VW/2);return true;}
 // Kamera: auf schmalen Bildschirmen zum Element fahren, das gerade neu erscheint (window.DORF_FOCUS)
@@ -165,14 +173,14 @@ const CX={};for(const e of (D.ext||[])){const c=e[5]+e[3]/2;if(CX[e[0]]===undefi
 function camTarget(){if(window.DORF_FOLLOW){const o=folEnt();if(o)return o.x;}const F=window.DORF_FOCUS;if(!F||!F.length||VW>=1000)return D.W/2;const now=performance.now();let k=null;for(const f of F)if(f.t<=now)k=f.k;
  if(k===null||CX[k]===undefined)return D.W/2;return Math.max(VW/2,Math.min(D.W-VW/2,CX[k]));}
 window.dorfBox=k=>{if(!cv||CX[k]===undefined)return null;let best=null;for(const e of D.ext){if(e[0]!==k)continue;if(!best||Math.abs(e[5]+e[3]/2-CX[k])<Math.abs(best[5]+best[3]/2-CX[k]))best=e;}
- let x=((Math.round(best[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;return {x:(x-camFr)*S,y:best[6]*S,w:best[3]*S,h:best[4]*S};};
-window.dorfHit=(px,py)=>{if(!cv)return null;const ON=window.DORF_ON||{},now=performance.now();let hit=null;
+ let x=((Math.round(best[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;return {x:(x-camFr)*S,y:best[6]*S-OY,w:best[3]*S,h:best[4]*S};};
+window.dorfHit=(px,py)=>{if(!cv)return null;py+=OY;const ON=window.DORF_ON||{},now=performance.now();let hit=null;
  for(const e of D.ext){const t=ON[e[0]];if(t===undefined||t>now)continue;let x=((Math.round(e[5]-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;
   const X=px/S+camFr,Y=py/S;if(X>=x-2&&X<=x+e[3]+2&&Y>=e[6]-2&&Y<=e[6]+e[4]+2)hit={k:e[0],x:(x-camFr)*S,y:e[6]*S,w:e[3]*S,h:e[4]*S};}return hit;};
 function camStep(dt){const t=camTarget(),d=wdx(camX,t);if(window.DORF_FOLLOW&&folEnt()&&Math.abs(d)<40)camX=t;else camX+=d*Math.min(1,dt*3.5);camX=((camX%D.W)+D.W)%D.W;if(Math.abs(d)<0.05)camX=t;const fx=camX-VW/2;vx0=Math.floor(fx);camFr=SNAP?Math.round((fx-vx0)*K)/K:0;}
 window.dorfSkipWalk=()=>{const o=folEnt();if(!o||window.DORF_WALK==null)return;if(RM){o.x=window.DORF_WALK;o.y=(D.band[0]+D.band[1])/2;o.q=[];o.wait=0;return;}if(o.wt!==window.DORF_WALK){o.wt=window.DORF_WALK;o.boost=1;}o.boost=Math.min(6,(o.boost||1)*2.5);o.v=52*o.boost;};
 window.dorfArrived=()=>{const o=folEnt();return !!o&&window.DORF_WALK!=null&&Math.abs(wdx(o.x,window.DORF_WALK))<=1.5;};
-window.dorfEnt=()=>{const o=folEnt();if(!o||!cv)return null;let x=((Math.round(o.x-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;x+=Math.round((o.x-vx0)*K)/K-Math.round(o.x-vx0);return {x:(x-camFr)*S,y:(o.y-(o.set.side.h||o.st.h))*S};};
+window.dorfEnt=()=>{const o=folEnt();if(!o||!cv)return null;let x=((Math.round(o.x-vx0)%D.W)+D.W)%D.W;if(x>VW)x-=D.W;x+=Math.round((o.x-vx0)*K)/K-Math.round(o.x-vx0);return {x:(x-camFr)*S,y:(o.y-(o.set.side.h||o.st.h))*S-OY};};
 function loop(ts){const dt=Math.min(.1,(ts-(last||ts))/1000);last=ts;
  if(document.getElementById('dorf')&&cv&&document.getElementById('dorf').contains(cv)){camStep(dt);update(dt);render();}
  raf=requestAnimationFrame(loop);}

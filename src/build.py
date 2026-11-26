@@ -5,7 +5,7 @@
 
 Der Ordner mit den Grafiken kann mit der Umgebungsvariable GRAFIK_DIR ueberschrieben werden.
 """
-import base64, json, os, pathlib, subprocess, sys
+import base64, io, json, os, pathlib, re, subprocess, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
@@ -30,15 +30,30 @@ def dorf_snippet():
     js = lies(SRC / "dorf_anim.js").replace("__DATA__", json.dumps(DATA))
     return "<style>\n" + css + "\n</style>\n<script>\n" + js + "\n</script>\n"
 
+def webp(html):
+    """Eingebettete PNG als verlustfreies WebP: gleiche Pixel, rund ein Drittel der Bytes (26.11.2026: 1.11 MB -> 0.36 MB).
+    Nur wenn kleiner. Pillow ist in tests/requirements.txt fest auf eine Version gesetzt, damit --check ueberall gleich baut."""
+    from PIL import Image
+    def neu(m):
+        raw = base64.b64decode(m.group(1))
+        o = io.BytesIO(); Image.open(io.BytesIO(raw)).save(o, "WEBP", lossless=True, exact=True, method=6)
+        w = o.getvalue()
+        return "data:image/webp;base64," + base64.b64encode(w).decode() if len(w) < len(raw) else m.group(0)
+    return re.sub(r"data:image/png;base64,([A-Za-z0-9+/=]+)", neu, html)
+
+def toene():
+    """Kurze Toene (src/ton/*.mp3, CC0) als data-URL fuer das Objekt TON."""
+    return json.dumps({f.stem: "data:audio/mpeg;base64," + base64.b64encode(f.read_bytes()).decode() for f in sorted((SRC / "ton").glob("*.mp3"))})
+
 def baue():
     if not (GRAFIK / "sprites.json").exists():
         sys.exit("Grafiken fehlen: git submodule update --init (Zugriff auf das private Repo thjoo/13-tonnen-grafik noetig)")
     subprocess.run([sys.executable, str(SRC / "mech.py")], check=True, cwd=SRC, stdout=subprocess.DEVNULL)
     t = lies(SRC / "template.html")
     for k, v in [("__FONTS__", lies(SRC / "fonts.css")), ("__TEXTS__", lies(SRC / "texts.json")), ("__MECH__", lies(SRC / "mech.json")),
-                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet())]:
+                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet()), ("__TON__", toene())]:
         t = t.replace(k, v)
-    return t
+    return webp(t)
 
 if __name__ == "__main__":
     html = baue()
