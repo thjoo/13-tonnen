@@ -54,7 +54,7 @@ img.icn.dim{opacity:.3}
 .seg .sl{position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:400 11px var(--mono);text-transform:uppercase;padding:4px 7px 3px;white-space:nowrap;opacity:0;pointer-events:none;z-index:70;transition:opacity .1s}
 .seg:first-child .sl{left:0;transform:none}.seg:nth-child(5) .sl{left:auto;right:0;transform:none}
 .seg .sic{position:absolute;left:3px;top:0;width:16px;height:100%;display:grid;place-items:center;z-index:2;pointer-events:none;line-height:0}.seg .sic img{display:block}
-.seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
+.seg:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}.seg:hover .sl,.seg:focus .sl{opacity:1}.seg:hover,.seg:focus{filter:brightness(.85)}
 .hebel{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}.hebel .v{font-family:var(--titel);font-size:26px}
 .refl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.refl .ibox{margin:0}
 .endmores{margin-top:26px;border-top:2px dotted var(--g4)}
@@ -160,6 +160,7 @@ h1.big{font-size:80px;line-height:.9;margin:6px 0 12px}
 .fa.walk{animation-duration:.6s}
 @keyframes faIdle{to{background-position-x:120%}}
 .fa.hop{animation:faIdle 1s steps(6) infinite,hop .4s steps(4)}
+.fa.jump{animation:faIdle 1s steps(6) infinite,jump .8s steps(8)}
 @keyframes hop{0%,100%{transform:none}50%{transform:translateY(-8px)}}
 @keyframes jump{0%,100%{transform:none}20%{transform:translateY(-16px)}40%{transform:none}60%{transform:translateY(-12px)}80%{transform:none}}
 .fa.sad{animation:faIdle 2s steps(6) infinite,sad 1.2s steps(6)}
@@ -328,14 +329,14 @@ details.rules>summary{font-size:13px}
 .coach{position:fixed;left:24px;bottom:24px;z-index:50;background:#fff;max-width:380px;padding:14px 16px;margin:3px;
  box-shadow:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink),9px 9px 0 0 rgba(55,53,47,.3)}
 .coachme{outline:3px dashed var(--ink);outline-offset:8px;animation:blink 1s steps(2) infinite;scroll-margin-top:calc(var(--hdh,72px) + 40px)}
-.coachov{position:fixed;inset:0;z-index:90}
+.coachov{position:fixed;inset:0;z-index:90;pointer-events:none}.coachov .coach,.coachov .cblk{pointer-events:auto}.cblk{position:fixed}
 .coachhole{position:fixed;pointer-events:none;box-shadow:0 0 0 200vmax rgba(255,255,255,.66);transition:left .2s,top .2s,width .2s,height .2s}
 .coachov .coach{position:fixed!important;right:auto!important;bottom:auto!important;max-width:380px;width:calc(100vw - 32px);margin:0;left:50%;top:50%;transform:translate(-50%,-50%)}
 .coachov .coach.placed{transform:none}
 @keyframes blink{50%{outline-color:transparent}}
 /* Spielgefühl */
 .fdelta{position:absolute;right:10px;top:8px;font-family:var(--titel);font-weight:400;font-size:20px;opacity:0;pointer-events:none}
-.fdelta.go{animation:floatup .9s steps(6) forwards}
+.fdelta.go{animation:floatup .9s steps(6) forwards}.fdelta.big{font-size:24px}.fdelta.big.go{animation-duration:1.3s}
 @keyframes floatup{0%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateY(-18px)}}
 .seg{transition:width .45s steps(5)}
 .cbar{position:relative}
@@ -361,7 +362,7 @@ details.rules>summary{font-size:13px}
 .kt.in{animation:kin .3s steps(3)}@keyframes kin{0%{transform:scale(1.35)}100%{transform:none}}
 .kt.j{background:#4f7f4c;color:#fff}.kt.n{background:#b2523f;color:#fff}
 .vcount{margin-top:10px}
-.vjn{position:relative;height:16px;background:#b2523f}
+.vjn{position:relative;height:16px;background:var(--g5)}.vjn.on{background:#b2523f}
 .vjn .vj{position:absolute;left:0;top:0;bottom:0;background:#4f7f4c;transition:width .25s steps(4)}
 .vjn .v50{position:absolute;left:50%;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink)}
 .vres .hint{display:block;margin-top:2px}
@@ -530,7 +531,7 @@ details>summary{font-family:var(--fliess)!important;text-transform:none!importan
 
 
 /* Outro 21.11.2026 */
-.stufenx .sx{display:flex;gap:10px;align-items:flex-start;padding:5px 0;border-bottom:1px dotted var(--g4)}.stufenx .sx .n{flex:0 0 26px;height:26px;display:grid;place-items:center;border:2px solid var(--g4);font-weight:700}.stufenx .sx.ok .n{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stufenx .sx.pop .n{animation:kin .3s steps(3)}.stufenx .sx{display:flex;gap:10px;align-items:flex-start;padding:5px 0;border-bottom:1px dotted var(--g4)}.stufenx .sx .n{flex:0 0 26px;height:26px;display:grid;place-items:center;border:2px solid var(--g4);font-weight:700}.stufenx .sx.ok .n{background:var(--ink);color:#fff;border-color:var(--ink)}
 .ovl.outro{z-index:90;padding:10px}.ovl.outro .oszene{min-height:0;background:transparent;padding:0;width:100%;display:block}
 .ovl.outro .iframe{margin:0 auto}
 /* UX-Test 21.11.2026: Touch, Handy, Tastatur */
@@ -606,7 +607,7 @@ button.primary:disabled{background:var(--g4);border-color:var(--g4);color:var(--
  .top-in .wishi{display:inline-block}
  .hdtog{display:inline-grid}
  .top .bar{height:8px}.top .seg .sic{display:none}
- .chip.big{position:relative}.fdelta{top:calc(100% + 5px)!important;right:-2px!important;font-size:15px!important;z-index:5;background:#fff;padding:0 4px;line-height:1.2}
+ .chip.big{position:relative}.fdelta{top:calc(100% + 5px)!important;right:-2px!important;font-size:15px!important;z-index:5;background:#fff;padding:0 4px;line-height:1.2}.fdelta.big{font-size:20px!important}
  .top.open .top-in{flex-wrap:wrap}
  .top.open .hdtog{margin-left:auto}
  .top.open .chips{order:4;flex:1 1 100%;flex-wrap:wrap!important;justify-content:flex-start;padding:4px 0 2px}
@@ -741,14 +742,30 @@ function sparks(delay=0){if(RM()||!document.querySelector)return;setTimeout(()=>
 function applyFx(){const k=FX;FX=[];if(typeof document==="undefined"||!document.querySelector)return;
  for(const e of k){
   if(e==="hop"){figClass("hop",400);bubble(FXI("check"),900);}
+  else if(e==="hopbig"){figClass("jump",800);sparks(150);bubble(FXI("check")+FXI("check"),1200);}
+  else if(e==="hopsmall"){bubble(FXI("check"),700);}
   else if(e==="heart"){bubble(IC("herz",16),800);}
   else if(e==="yay"){figClass("hop",400,1300);sparks(1350);bubble(FXI("bang")+FXI("bang"),1400,1300);}
   else if(e==="sad"){figClass("sad",1200,1300);bubble(FXI("dots"),1500,1300);}
   else if(e==="bang"){figClass("shake",500,350);bubble(FXI("bang"),1400,350);}
   else if(e==="wishgone"){bubble(`<span class="wb">${IC("herz",12,true)}</span>`+FXI("dots"),1500);}
   else if(e==="walk")walkOverlay();
-  else if(e==="end"){const ok=val(2050,ACT)<6&&sum(2026,2050,ACT)<200,mid=val(2050,ACT)<val(2050,NO);const d=RM()?0:2500;
+  else if(e==="end"){endAnim();const ok=val(2050,ACT)<6&&sum(2026,2050,ACT)<200,mid=val(2050,ACT)<val(2050,NO);const d=RM()?0:2500;
    if(ok){figClass("hop",400,d);sparks(d+50);bubble(FXI("bang")+FXI("bang"),1400,d);}else if(mid){figClass("hop",400,d);bubble(FXI("check"),1200,d);}else{figClass("sad",1200,d);bubble(FXI("dots"),1500,d);}}}}
+/* Schluss: Fussabdruck zaehlt von 12.8 t herunter, Punkte zaehlen hoch, der Weg zu 0.6 t fuellt sich, dann werden die Etappen einzeln abgehakt (Review 26.11.2026).
+   Ohne Animation (Bewegung reduzieren) steht sofort alles da. */
+function endAnim(){if(RM()||!document.querySelector||S.screen!=="end")return;
+ const nums=[...document.querySelectorAll(".endnums .v")],sx=[...document.querySelectorAll(".stufenx .sx.ok")],bars=[...document.querySelectorAll(".paris .cbar i")];
+ const ziel=nums.map(n=>n.textContent),T=1400,t0=performance.now();
+ const alle=[...document.querySelectorAll(".stufenx .sx")],nOf=x=>x.querySelector(".n"),alt=sx.map(x=>nOf(x)&&nOf(x).textContent);
+ sx.forEach(x=>{x.classList.remove("ok");const n=nOf(x);if(n)n.textContent=String(alle.indexOf(x)+1);});
+ const bw=bars.map(b=>b.style.width);bars.forEach(b=>{b.style.transition="none";b.style.width="0%";});
+ requestAnimationFrame(()=>requestAnimationFrame(()=>bars.forEach((b,i)=>{b.style.transition=`width ${T}ms steps(12)`;b.style.width=bw[i];})));
+ const zahl=(el,txt,k)=>{const m=txt.match(/^([−-]?[\d.]+)(.*)$/);if(!m)return;const neg=m[1][0]==="−",to=parseFloat(m[1].replace("−","-")),dez=(m[1].split(".")[1]||"").length,from=k===0?START:0;
+  const zeig=x=>(neg&&x<0?"−"+Math.abs(x).toFixed(dez):x.toFixed(dez))+m[2];el.textContent=zeig(from);
+  const f=n=>{const q=Math.min(1,(n-t0)/T),e=1-Math.pow(1-q,3);el.textContent=zeig(from+(to-from)*e);if(q<1&&el.isConnected)requestAnimationFrame(f);else el.textContent=txt;};requestAnimationFrame(f);};
+ nums.forEach((el,k)=>zahl(el,ziel[k],k));
+ sx.forEach((x,i)=>setTimeout(()=>{if(!x.isConnected)return;x.classList.add("ok","pop");const n=nOf(x);if(n)n.textContent=alt[i];},T+250+i*450));}
 function walkOverlay(){if(RM()||!document.body||!document.createElement)return;
  const yrs=PER.map(p=>p.a).concat([2050]),to=S.screen==="end"?yrs.length-1:S.r,from=Math.max(0,to-1);
  const W=Math.min(640,(window.innerWidth||800)-60),x=i=>20+i*(W-60)/(yrs.length-1);
@@ -949,9 +966,10 @@ function choose(id){
  } else {
   if(blocked(id))return;
   S.hearts-=costH(id);const g=costG(id);if(g>0)S.money-=g;else if(g<0)S.moneyNext=(S.moneyNext||0)-g;
-  const wasWish=wish()&&!wishBroken();
+  const wasWish=wish()&&!wishBroken(),e=effOwn(id);
   S.chosen[id]=PER[S.r].a;S.thisRound.push(id);
-  fx(wasWish&&wishBroken()?"wishgone":"hop");
+  // Rueckmeldung waechst mit der Wirkung (Review 26.11.2026): grosse Karten springen mit Funken, kleine bekommen nur das Haekchen
+  fx(wasWish&&wishBroken()?"wishgone":e>=0.4?"hopbig":e>=0.15?"hop":"hopsmall");
  }
  render();
 }
@@ -1190,7 +1208,7 @@ function voteShow(done){if(typeof document==="undefined"||!document.body||!docum
  const cnt=U.map(()=>({n:0,w:0,s:0,ja:0,st:0}));
  const showK=(i,c)=>{const u=U[i],r=rows[i],t=r.querySelector(`.kt[data-k="${c}"]`);if(!t||t.classList.contains("in"))return;const y=u.k[c];
   t.classList.add("in",y>50?"j":"n");t.title=`${c}: ${f1(y)} % Ja`;const q=cnt[i];q.n++;q.w+=KW[c];q.s+=KW[c]*y;if(y>50){q.ja++;q.st+=HALB.has(c)?0.5:1;}
-  const pj=q.s/q.w;r.querySelector(".vj").style.width=pj+"%";r.querySelector(".vpct").textContent=`Ja ${f1(pj)} %`;r.querySelector(".vk").textContent=`${q.n} von 26 Kantonen`+(u.init?` · Stände ${stF(q.st)} Ja`:"");};
+  const pj=q.s/q.w;r.querySelector(".vjn").classList.add("on");r.querySelector(".vj").style.width=pj+"%";r.querySelector(".vpct").textContent=`Ja ${f1(pj)} %`;r.querySelector(".vk").textContent=`${q.n} von 26 Kantonen`+(u.init?` · Stände ${stF(q.st)} Ja`:"");};
  const final=()=>{if(end||fin)return;end=true;T0.forEach(clearTimeout);clock.textContent="17:00";
   U.forEach((u,i)=>{u.ord.forEach(c=>showK(i,c));const r=rows[i],x=S.results[i],q=cnt[i];
    r.querySelector(".vj").style.width=u.ja+"%";r.querySelector(".vpct").textContent=`Ja ${f1(u.ja)} %`;
@@ -1223,6 +1241,7 @@ function voteShow(done){if(typeof document==="undefined"||!document.body||!docum
 function voteScroll(){if(typeof innerWidth==='undefined'||innerWidth>=1000||!document.getElementById)return;setTimeout(()=>{const p=document.getElementById('panel');if(p&&p.scrollIntoView)p.scrollIntoView({block:'start',behavior:'smooth'});},120);}
 function lostH(){return Math.max(0,freeH()-1);}
 function vote(force){
+ if(S.coach!=null)coachDone();
  if(!force&&lostH()>0&&!S.waiting){S.askVote=S.r;render();const f=document.getElementById&&document.getElementById("finish2");if(f&&f.focus)f.focus();return;}
  S.askVote=null;
  S.carry=Math.min(1,freeH());
@@ -1647,7 +1666,7 @@ function viewDorf(){const d=dorfVals();
  <div><div class="lbl">Farbe im Dorf</div><div class="bmeter"><i id="szf" style="width:${(d.p0*100).toFixed(1)}%"></i></div>
  <div class="szscale"><span>${fmt(START)} t: grau</span><span>${FARBE_VOLL} t: ganz farbig</span></div><p class="hint">Ganz farbig wird das Dorf schon bei ${FARBE_VOLL} t${G?", der ersten Etappe der Gruppe":""}. Verträglich wären erst 0.6 t.</p></div></div></div></div>
  <div class="actbar"><div class="in">${B}</div></div>`;}
-function toEnd(){S.dorfFinal=false;S.screen="end";render();window.scrollTo(0,0);if(!S.outroSeen)startOutro();else fx("end");}
+function toEnd(){S.dorfFinal=false;S.screen="end";if(S.outroSeen)fx("end");render();window.scrollTo(0,0);if(!S.outroSeen)startOutro();}
 function dorfTween(){const key=S.dorfFinal?"F":S.r;if(S.dorfAnim===key)return;S.dorfAnim=key;const d=dorfVals(),DUR=S.dorfFinal?6000:3200,t0=typeof performance!=="undefined"?performance.now():0,ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
  const set=t=>{const e=ez(t),yr=Math.round(d.a0+(d.nx-d.a0)*e),q=id=>document.getElementById(id);
   for(const id of ["szj1","szj2"]){const el=q(id);if(el)el.textContent=yr;}
@@ -1866,14 +1885,23 @@ function resumeSolo(){const s=soloSave();if(!s)return;S=s;setMode(S.mode);S.last
 function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="lbl">Frage ${i+1}</div><p style="margin:4px 0 8px">${q}</p><textarea class="ta" rows="3" aria-label="Antwort auf Frage ${i+1}" oninput="lsSet('13t_q${i}',this.value)">${esc0(lsGet('13t_q'+i))}</textarea></div>`).join("")+`<p class="hint">Deine Antworten bleiben nur in diesem Browser. Für Auftrag 4.3 schreibst du sie ab.</p>`;}
 const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr, bei Fleisch und Milch 0.5 %) schreibt die Jahre 2000 bis 2023 grob fort. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Folgen der Erwärmung gibt es nur als vier Klima-Ereignisse mit geschätzter Wirkung. Rückkopplungen im Klimasystem fehlen.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
-/* Geführte erste Runde */
+/* Geführte erste Runde. Schritte mit Aufgabe (dritter Eintrag) gehen von selbst weiter, sobald sie erledigt ist (Spieltest 26.11.2026: machen statt lesen).
+   Was im Loch liegt, ist anklickbar; der Rest ist gesperrt (#cb0 bis #cb3). */
 const COACH=[["stats|.barbox","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der rote Strich das Ziel 0.6 t."],
- ["cards","Das sind deine Karten für diese Runde. Wähle so viele, wie Herzen und Geld reichen. Jede gilt ab jetzt jedes Jahr bis 2050."],
- ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Übrige Herzen kannst du fürs Engagement einsetzen. Das erhöht die Chance, dass die Vorlage angenommen wird."],
- ["finish","Oben siehst du, wie viele Herzen und wie viel Geld dir übrig bleiben. Wenn du fertig bist, stimmst du hier unten ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
-function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt0]=COACH[S.coach];const touch=typeof matchMedia!=="undefined"&&matchMedia("(hover:none)").matches,nar=typeof innerWidth!=="undefined"&&innerWidth<1000;
- const txt=txt0.replace("{HOVER}",touch?"Tippe darauf, dann erscheint eine Erklärung.":"Fahre mit der Maus darüber, dann erscheint eine Erklärung.").replace("{RECHTS}",nar?"Weiter unten":"Rechts");
- return `<div class="coachov"><div class="coachhole" id="coachhole"></div><div class="coach" id="coachbox" role="dialog" aria-modal="true"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row"><button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button><button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
+ ["cards","Das sind deine Karten für diese Runde. Jede gilt ab jetzt jedes Jahr bis 2050. <b>Wähle jetzt eine Karte.</b>","karte"],
+ ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Mit Herzen erhöhst du die Chance, dass etwas zustande kommt. <b>Setz ein Herz mit +.</b>","herz"],
+ ["finish","{REST} Wenn du fertig bist, stimmst du hier unten ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
+const COACHOK={karte:()=>S.thisRound.length>0,herz:()=>(S.palloc||0)>0||Object.values(S.alloc||{}).some(x=>x>0)};
+const COACHGEHT={karte:()=>S.hand.some(id=>!blocked(id)),herz:()=>freeH()>0};
+const COACHNICHT={karte:"Für diese Runde reichen Herzen und Geld für keine Karte.",herz:"Du hast keine Herzen mehr übrig. Wenn du dich engagieren willst, nimm eine Karte zurück."};
+function coachCheck(){if(S.coach==null||S.screen!=="round")return;const k=COACH[S.coach]&&COACH[S.coach][2];if(k&&COACHOK[k]()){S.coach++;if(S.coach>=COACH.length)coachDone();}}
+function coachHTML(){if(crisisBigOpen())return"";if(S.coach==null||S.coach>=COACH.length||S.screen!=="round")return"";const[t,txt0,auf]=COACH[S.coach];const touch=typeof matchMedia!=="undefined"&&matchMedia("(hover:none)").matches,nar=typeof innerWidth!=="undefined"&&innerWidth<1000;
+ const geht=!auf||COACHGEHT[auf](),f=freeH();
+ const rest=f>0?`Du hast noch ${HZ(f)} übrig. Du kannst ${f>1?"sie":"es"} noch verteilen oder 1 Herz in die nächste Runde mitnehmen.`:"Deine Herzen sind verteilt.";
+ let txt=txt0.replace("{HOVER}",touch?"Tippe darauf, dann erscheint eine Erklärung.":"Fahre mit der Maus darüber, dann erscheint eine Erklärung.").replace("{RECHTS}",nar?"Weiter unten":"Rechts").replace("{REST}",rest);
+ if(!geht)txt=txt.replace(/<b>.*<\/b>/,COACHNICHT[auf]);
+ const weiter=auf&&geht?"":`<button class="primary small" onclick="coachNext()">${S.coach<COACH.length-1?"Weiter":"Los geht's"}</button>`;
+ return `<div class="coachov"><div class="cblk" id="cb0"></div><div class="cblk" id="cb1"></div><div class="cblk" id="cb2"></div><div class="cblk" id="cb3"></div><div class="coachhole" id="coachhole"></div><div class="coach" id="coachbox" role="dialog" aria-modal="${auf&&geht?"false":"true"}"><div class="lbl">Erste Runde · ${S.coach+1} von ${COACH.length}</div><p style="margin:4px 0 10px">${txt}</p><div class="row">${weiter}<button class="small" onclick="coachEnd()">Überspringen</button></div></div></div>`;}
 /* Hilfe: Loch im Schleier ueber dem erklaerten Teil, Kasten daneben (Laptop) bzw. unten (Handy). Koordinaten in CSS-px (UQ: Zoom). */
 function coachTgs(){if(S.coach==null||!COACH[S.coach]||typeof document==="undefined"||!document.querySelector)return[];return COACH[S.coach][0].split("|").map(k=>k[0]==="."?document.querySelector(k):document.getElementById(k)).filter(t=>t&&t.getBoundingClientRect);}
 function placeCoach(){if(typeof document==="undefined"||!document.getElementById)return;const c=document.getElementById("coachbox"),h=document.getElementById("coachhole");
@@ -1881,6 +1909,8 @@ function placeCoach(){if(typeof document==="undefined"||!document.getElementById
  const q=UQ(),RR=tgs.map(t=>t.getBoundingClientRect()),R0={left:Math.min(...RR.map(x=>x.left)),top:Math.min(...RR.map(x=>x.top)),right:Math.max(...RR.map(x=>x.right)),bottom:Math.max(...RR.map(x=>x.bottom))},vw=innerWidth/q,vh=innerHeight/q,pad=12;
  const r={l:R0.left/q-pad,t:R0.top/q-pad,r:R0.right/q+pad,b:R0.bottom/q+pad};r.t=Math.max(r.t,-4);r.b=Math.min(r.b,vh+4);
  h.style.left=r.l+"px";h.style.top=r.t+"px";h.style.width=(r.r-r.l)+"px";h.style.height=Math.max(0,r.b-r.t)+"px";
+ const bl=(i,x,y,w,hh)=>{const e=document.getElementById("cb"+i);if(e){e.style.left=x+"px";e.style.top=y+"px";e.style.width=Math.max(0,w)+"px";e.style.height=Math.max(0,hh)+"px";}};
+ bl(0,0,0,vw,r.t);bl(1,0,r.b,vw,vh-r.b);bl(2,0,r.t,r.l,r.b-r.t);bl(3,r.r,r.t,vw-r.r,r.b-r.t);
  const cw=c.offsetWidth,ch=c.offsetHeight,gap=14,inBar=tg.closest&&tg.closest(".actbar");let x,y;
  if(vw<700){x=(vw-cw)/2;y=inBar?r.t-ch-gap:vh-ch-10;if(!inBar&&r.b>y-gap)y=Math.max(r.b+gap,vh-ch-10);}
  else if(inBar){x=Math.min(vw-cw-16,Math.max(16,r.r-cw));y=r.t-ch-gap;}
@@ -1893,7 +1923,14 @@ function coachFollow(){if(typeof requestAnimationFrame==="undefined"||typeof per
 if(typeof addEventListener!=="undefined")addEventListener("scroll",()=>{if(S&&S.coach!=null)try{placeCoach()}catch(e){}},{passive:true});
 if(typeof addEventListener!=="undefined")addEventListener("resize",()=>{try{placeCoach()}catch(e){}});
 function coachNext(){S.coach++;if(S.coach>=COACH.length)coachEnd();else render();}
-function coachEnd(){S.coach=null;window.NEUSTART=0;lsSet("13t_tut","1");render();}
+/* Escape schliesst, was sich schliessen laesst (Review 26.11.2026): Fehlerkarte, Zeitsprung, Hinweis zum Ereignis, Anleitung */
+if(typeof addEventListener!=="undefined")addEventListener("keydown",e=>{if(e.key!=="Escape"||!document.querySelector)return;
+ const c=document.getElementById("crash");if(c){c.remove();return;}
+ const w=document.querySelector(".walkov");if(w){w.remove();return;}
+ if(crisisBigOpen()&&document.getElementById("crisisBig")){crisisAway();return;}
+ if(S.coach!=null&&S.screen==="round")coachEnd();});
+function coachDone(){S.coach=null;window.NEUSTART=0;lsSet("13t_tut","1");}
+function coachEnd(){coachDone();render();window.scrollTo(0,0);}
 
 /* Spielgefühl: Zahl zählt, Balken wandert */
 let LASTFOOT=null,LASTW=null;
@@ -1904,7 +1941,7 @@ function juice(){
   if(LASTFOOT!=null&&Math.abs(to-LASTFOOT)>=0.005){const from=LASTFOOT,steps=6;let i=0;
    el.textContent=fmt(from)+" t";
    const iv=setInterval(()=>{i++;el.textContent=fmt(from+(to-from)*i/steps)+" t";if(i>=steps)clearInterval(iv)},55);
-   const fd=document.getElementById("fdelta");if(fd){fd.textContent=sgn(to-from)+" t";fd.classList.remove("go");void fd.offsetWidth;fd.classList.add("go");}}
+   const fd=document.getElementById("fdelta");if(fd){fd.textContent=sgn(to-from)+" t";fd.classList.remove("go");fd.classList.toggle("big",Math.abs(to-from)>=0.4);void fd.offsetWidth;fd.classList.add("go");}}
   LASTFOOT=to;}
  const segs=(document.querySelectorAll&&typeof requestAnimationFrame!=="undefined")?document.querySelectorAll(".top .seg"):[];
  if(segs.length){const nw=[...segs].map(s=>s.style.width);
@@ -1952,7 +1989,7 @@ function costWhy(id){const out=[];const f=fig(),mod=f.mod[id]||0;
 function totalVorl(k){const a=vorlFrom(S.r);let s=0;for(let y=a;y<=2050;y++)s+=val(y,ACT)-val(y,{...ACT,extraVorl:k});return s;}
 function cheaperBy(k){const s=M.SYN[k];if(!s)return[];return [...new Set([...(s.h||[]),...(s.g||[])])].filter(id=>!fig().ban.includes(id)&&S.chosen[id]===undefined);}
 
-function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()));
+function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()));coachCheck();window.DORF_FIT=S.screen==="dorf"&&typeof innerWidth!=="undefined"&&innerWidth>=1000;
  const openD=[...document.querySelectorAll?document.querySelectorAll("details"):[]].map((d,i)=>d.open?i:-1).filter(i=>i>=0);
  const v={lobby:()=>Group.viewLobby(),start:viewStart,round:viewRound,event:viewSummary,summary:viewSummary,dorf:viewDorf,intro:viewIntro,end:viewEnd,teacher:viewTeacher}[S.screen];
  if(S.screen!=="round"&&document.querySelector){const ov=document.querySelector(".vov");if(ov)ov.remove();}
