@@ -1,6 +1,6 @@
 # 13 Tonnen
 
-Ein Lernspiel zum CO₂-Fussabdruck in der Schweiz für den Geografieunterricht (Kantonsschule Kreuzlingen, Einheit Klimawandel).
+Ein Lernspiel zum CO₂-Fussabdruck in der Schweiz für den Geografieunterricht (Kantonsschule Küsnacht, Einheit Klimawandel).
 
 Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibhausgasen pro Jahr startet, und versuchst, ihren Fussabdruck bis 2050 zu senken: mit eigenen Entscheiden und mit Engagement für politische Vorlagen. Man spielt allein oder in der Gruppe, jede Person auf ihrem eigenen Gerät.
 
