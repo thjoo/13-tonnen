@@ -716,27 +716,55 @@ h3.vrule.tip::after{right:auto;left:0}
 const T=__TEXTS__;
 const M=__MECH__;
 const SPR=__SPR__;
-/* ---------- Ton (26.11.2026): Kenney Interface Sounds und Music Jingles, CC0, siehe src/ton/QUELLEN.md. Zu Beginn aus; der Schalter bleibt im Browser gespeichert.
-   Web Audio: kurze Puffer, je Ton hoechstens alle 50 ms, hoechstens 6 gleichzeitig; im Hintergrund pausiert. */
-const TON=__TON__;
-let TONCTX=null,TONAKTIV=0,TONZEIT=0;const TONBUF={},TONLAST={};
-function tonAn(){return lsGet("13t_ton")==="1";}
+/* ---------- Ton und Musik (26.11.2026): Kenney-Pakete und Musik von Juhani Junkala und neonarkade, alles CC0, siehe src/ton/QUELLEN.md.
+   Zu Beginn an (Browser spielen erst nach der ersten Beruehrung). Der Schalter wechselt «Musik und Ton», «Nur Ton», «Ton aus» und bleibt gespeichert.
+   Toene: kurze Puffer in der Datei, mehrere Varianten pro Ton (name_1, name_2 ...), leicht verstimmt, je Ton hoechstens alle 50 ms, hoechstens 8 gleichzeitig.
+   Musik: liegt neben index.html in musik/ und wird erst geladen, wenn sie gebraucht wird; fehlt sie (Datei offline geoeffnet), bleibt es still.
+   Jedes Stueck laeuft als genaue Schleife, Wechsel blenden ueber; bei Abstimmung und grossen Momenten wird sie leiser. Im Hintergrund ist alles pausiert. */
+const TON=__TON__,MUSIK=__MUSIK__;
+let TONCTX=null,TONAKTIV=0,TONZEIT=0,TONMIX=null,MUSMIX=null,MUSJETZT=null,MUSQ=null,MUSG=null,MUSWUNSCH=null,MUSTIEF=0;
+const TONBUF={},TONLAST={},TONVAR={},MUSPUF={},MUSLAED={},MUSVOL=0.42;
+for(const k in TON){const b=k.replace(/_\d+$/,"");(TONVAR[b]=TONVAR[b]||[]).push(k);}
+const TONWACKEL={klick:1,waehlen:1,zurueck:1,herz:1,herzweg:1,kanton:1,schritt:1,bauen:1,geld:1,seite:1,figur:1};
+const TONGROSS={ja:1.6,nein_abst:1.2,schluss:2.2,krise:1,chance:0.9,glocke:1.4};
+function tonAn(){return lsGet("13t_ton")!=="0";}
+function musikAn(){return tonAn()&&lsGet("13t_musik")!=="0";}
 function tonStart(){if(TONCTX||typeof window==="undefined")return;const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
  try{TONCTX=new C();}catch(e){return;}
+ TONMIX=TONCTX.createGain();TONMIX.connect(TONCTX.destination);MUSMIX=TONCTX.createGain();MUSMIX.gain.value=MUSVOL;MUSMIX.connect(TONCTX.destination);
  for(const k in TON)fetch(TON[k]).then(r=>r.arrayBuffer()).then(b=>TONCTX.decodeAudioData(b,d=>{TONBUF[k]=d},()=>{})).catch(()=>{});}
-function ton(k,delay=0){if(!tonAn()||typeof performance==="undefined")return;tonStart();if(!TONCTX)return;const now=performance.now();
- if(TONLAST[k]&&now-TONLAST[k]<50)return;TONLAST[k]=now;TONZEIT=now;
- const go=()=>{const b=TONBUF[k];if(!b||!tonAn()||TONAKTIV>=6)return;if(TONCTX.state==="suspended")TONCTX.resume();
-  const q=TONCTX.createBufferSource();q.buffer=b;q.connect(TONCTX.destination);TONAKTIV++;q.onended=()=>{TONAKTIV--};q.start();};
+function ton(k,delay=0,rate=0){if(!tonAn()||typeof performance==="undefined")return;tonStart();if(!TONCTX)return;TONZEIT=performance.now();
+ const go=()=>{const now=performance.now();if(TONLAST[k]&&now-TONLAST[k]<50)return;const vs=TONVAR[k]||[k],key=vs[Math.floor(Math.random()*vs.length)],b=TONBUF[key];
+  if(!b||!tonAn()||TONAKTIV>=8)return;TONLAST[k]=now;if(TONCTX.state==="suspended")TONCTX.resume();
+  const q=TONCTX.createBufferSource();q.buffer=b;q.playbackRate.value=rate||(TONWACKEL[k]?0.95+Math.random()*0.1:1);q.connect(TONMIX);TONAKTIV++;q.onended=()=>{TONAKTIV--};q.start();
+  if(TONGROSS[k])musikTief(TONGROSS[k]);};
  delay?setTimeout(go,delay):go();}
-function tonSchalten(){lsSet("13t_ton",tonAn()?"0":"1");if(tonAn()){tonStart();setTimeout(()=>ton("klick"),120);}render();}
-function tonBtn(){const an=tonAn();return `<button class="tonbtn small" aria-pressed="${an}" title="Ton ${an?"ausschalten":"einschalten"}" onclick="tonSchalten()"><span aria-hidden="true">♪</span> Ton ${an?"an":"aus"}</button>`;}
+// Musik
+function musikFuer(){const s=S&&S.screen;if(s==="round"||s==="event")return "runde"+(S.r%3+1);if(s==="summary"||s==="dorf")return "abend";if(s==="end")return "schluss";return "dorf";}
+function musikPegel(s=0.6){if(!MUSMIX)return;const t=TONCTX.currentTime,f=performance.now()<MUSTIEF?0.3:(typeof document!=="undefined"&&document.querySelector&&document.querySelector(".vov")?0.45:1);
+ MUSMIX.gain.cancelScheduledValues(t);MUSMIX.gain.setValueAtTime(MUSMIX.gain.value,t);MUSMIX.gain.linearRampToValueAtTime(musikAn()?MUSVOL*f:0,t+s);}
+function musikTief(sek){MUSTIEF=Math.max(MUSTIEF,performance.now()+sek*1000);musikPegel(0.12);setTimeout(()=>musikPegel(0.8),sek*1000+20);}
+function musik(k){MUSWUNSCH=k;if(!TONCTX)return;if(!musikAn()){musikStopp();return;}if(MUSJETZT===k)return;
+ if(MUSPUF[k])return musikSpielen(k);if(MUSLAED[k]||!MUSIK[k])return;MUSLAED[k]=1;
+ fetch("musik/"+k+".mp3").then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(b=>TONCTX.decodeAudioData(b,d=>{MUSPUF[k]=d;if(MUSWUNSCH===k)musikSpielen(k);},()=>{})).catch(()=>{});}
+function musikSpielen(k){if(!musikAn()||MUSJETZT===k)return;musikStopp();const b=MUSPUF[k],i=MUSIK[k],ch=b.getChannelData(0);
+ // Schleife genau setzen: erstes hoerbares Sample im Puffer gegen das im Original (MP3-Vorlauf je nach Browser)
+ let j=0;while(j<ch.length&&Math.abs(ch[j])<=0.003)j++;const st=Math.max(0,j/b.sampleRate-i.lead/44100),en=Math.min(b.duration,st+i.n/44100);
+ const q=TONCTX.createBufferSource(),g=TONCTX.createGain(),t=TONCTX.currentTime;q.buffer=b;q.loop=true;q.loopStart=st;q.loopEnd=en;
+ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(1,t+1.5);q.connect(g);g.connect(MUSMIX);q.start(t,st);MUSQ=q;MUSG=g;MUSJETZT=k;musikPegel();}
+function musikStopp(){if(MUSQ&&TONCTX){const q=MUSQ,g=MUSG,t=TONCTX.currentTime;g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0,t+1.2);setTimeout(()=>{try{q.stop()}catch(e){}},1300);}MUSQ=MUSG=null;MUSJETZT=null;}
+// Schalter: Musik und Ton -> Nur Ton -> Ton aus -> Musik und Ton
+function tonStufe(){return !tonAn()?0:musikAn()?2:1;}
+function tonSchalten(){const s=tonStufe();if(s===2){lsSet("13t_musik","0");musikStopp();}else if(s===1){lsSet("13t_ton","0");musikStopp();}else{lsSet("13t_ton","1");lsSet("13t_musik","1");tonStart();musik(musikFuer());setTimeout(()=>ton("klick"),120);}render();}
+function tonBtn(){const s=tonStufe(),txt=["Ton aus","Nur Ton","Musik und Ton"][s],nx=["Musik und Ton einschalten","Ton ausschalten","Musik ausschalten"][s];
+ return `<button class="tonbtn small" aria-pressed="${s>0}" title="${nx}" aria-label="${txt}. Klicken: ${nx}" onclick="tonSchalten()"><span aria-hidden="true">${s===2?"♫":"♪"}</span> ${txt}</button>`;}
 if(typeof addEventListener!=="undefined"){
  // Browser lassen Ton erst nach einer Beruehrung oder Taste zu
- const weck=()=>{if(!tonAn())return;tonStart();if(TONCTX&&TONCTX.state==="suspended")TONCTX.resume();};
+ const weck=()=>{if(!tonAn())return;tonStart();if(TONCTX&&TONCTX.state==="suspended")TONCTX.resume();musik(musikFuer());};
  addEventListener("pointerdown",weck,true);addEventListener("keydown",weck,true);
- // Knoepfe ohne eigenen Ton bekommen den Klick (eigene Toene laufen im onclick davor und setzen TONZEIT)
- addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("button,.pick,.fig");if(!b||b.classList.contains("tonbtn")||b.disabled)return;if(performance.now()-TONZEIT>40)ton("klick");});
+ // Knoepfe ohne eigenen Ton bekommen den Klick, «Mehr dazu» eine Buchseite (eigene Toene laufen im onclick davor und setzen TONZEIT)
+ addEventListener("click",e=>{const t=e.target&&e.target.closest&&e.target;if(!t)return;const sm=t.closest("summary");if(sm){ton("seite");return;}
+  const b=t.closest("button,.pick,.fig");if(!b||b.classList.contains("tonbtn")||b.disabled)return;if(performance.now()-TONZEIT>40)ton("klick");});
  if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{if(!TONCTX)return;if(document.hidden)TONCTX.suspend();else if(tonAn())TONCTX.resume();});}
 /* Fehler fangen: statt eines stehenden Bildschirms eine Karte mit «Neu laden». Der Spielstand ist gespeichert (saveGame). */
 function showCrash(msg,stack){if(typeof document==="undefined"||!document.body||document.getElementById("crash"))return;
@@ -790,7 +818,7 @@ function endAnim(){if(RM()||!document.querySelector||S.screen!=="end")return;
   const f=n=>{const q=Math.min(1,(n-t0)/T),e=1-Math.pow(1-q,3);el.textContent=zeig(from+(to-from)*e);if(q<1&&el.isConnected)requestAnimationFrame(f);else el.textContent=txt;};requestAnimationFrame(f);};
  nums.forEach((el,k)=>zahl(el,ziel[k],k));
  setTimeout(()=>ton("schluss"),T+400+sx.length*450);
- sx.forEach((x,i)=>setTimeout(()=>{if(!x.isConnected)return;ton("etappe");x.classList.add("ok","pop");const n=nOf(x);if(n)n.textContent=alt[i];},T+250+i*450));}
+ sx.forEach((x,i)=>setTimeout(()=>{if(!x.isConnected)return;ton("etappe",0,1+i*0.08);x.classList.add("ok","pop");const n=nOf(x);if(n)n.textContent=alt[i];},T+250+i*450));}
 function walkOverlay(){if(RM()||!document.body||!document.createElement)return;
  const yrs=PER.map(p=>p.a).concat([2050]),to=S.screen==="end"?yrs.length-1:S.r,from=Math.max(0,to-1);
  const W=Math.min(640,(window.innerWidth||800)-60),x=i=>20+i*(W-60)/(yrs.length-1);
@@ -1150,7 +1178,7 @@ function drawHand(){
  const ord="IWNC";hand.sort((x,y)=>ord.indexOf(x[0])-ord.indexOf(y[0]));
  S.hand=hand;
 }
-function startFig(f){S.fig=f;S.r=0;S.money=M.START[f];S.projList=pickProj();beginRound();}
+function startFig(f){ton("figur");S.fig=f;S.r=0;S.money=M.START[f];S.projList=pickProj();beginRound();}
 function beginRound(){
  if(S.r===0){LASTFOOT=null;LASTW=null;}
  S.wishH=(wish()&&!wishBroken()&&wishBonusRound(S.r))?1:0;
@@ -1177,7 +1205,7 @@ const SPENDE=2,SPENDEP=15;
 function chance(k){
  if(G){const g=G.totals(k);return Math.min(MAXC,Math.round(M.VORL[k].c*100+bonus(k)+g.h*30/G.n()+g.d*SPENDEP/G.n()));}
  return Math.min(MAXC,Math.round(M.VORL[k].c*100)+bonus(k)+S.alloc[k]*30+(S.don[k]?SPENDEP:0))}
-function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;}else{if(moneyFree()<SPENDE)return;S.don[k]=1;S.money-=SPENDE;}if(G)G.push();render();}
+function donate(k){if(S.results||S.waiting)return;if(S.don[k]){S.don[k]=0;S.money+=SPENDE;ton("zurueck");}else{if(moneyFree()<SPENDE){ton("nein");return;}S.don[k]=1;S.money-=SPENDE;ton("geld");}if(G)G.push();render();}
 function alloc(k,d){if(S.results||S.waiting)return;
  if(d>0&&freeH()<=0){ton("nein");return;}if(d<0&&S.alloc[k]==0)return;S.alloc[k]+=d;ton(d>0?"herz":"herzweg");if(d>0)fx("heart");if(G)G.push();render();}
 function mStep(n){if(typeof innerWidth!=='undefined'&&innerWidth>=700)return;const MO=S.mopen||(S.mopen={1:true,2:true});MO[n]=!MO[n];render();const h=document.querySelectorAll('.colhd.mstp')[n-1];if(h&&h.scrollIntoView)h.scrollIntoView({block:'start'});}
@@ -1211,7 +1239,7 @@ const f1=x=>x.toFixed(1);
 function voteShow(done){if(typeof document==="undefined"||!document.body||!document.createElement||!S.results){done&&done();return;}
  const old=document.querySelector(".vov");if(old)old.remove();
  const U=S.results.map(urne),yr=vorlFrom(S.r)-1;
- const o=document.createElement("div");o.className="vov";
+ const o=document.createElement("div");o.className="vov";ton("glocke");
  o.innerHTML=`<div class="vbox urne" role="dialog" aria-modal="true"><div class="vhd"><div><div class="lbl">Abstimmungssonntag ${yr}</div><h2 style="margin:2px 0 0">Die Schweiz stimmt ab</h2></div><div class="vclock" id="vclock">12:00</div></div>
  <div class="vnews"><div class="anchor" id="vanc" style="background-image:url(${SPR.anchor||""})"></div><div class="vsay" id="vsay"><span class="pname">Studio</span><p id="vtick"></p><span class="dnext" id="vnx">▼</span></div></div>
  <div class="vsum" id="vsum" hidden></div><div class="vcols">${S.results.map((x,i)=>`<div class="vrow" data-i="${i}"><div class="vti">${esc(T[x.k].title)}</div>
@@ -1663,7 +1691,7 @@ function dorfBubble(k,box,cls){const T0=DORFTXT[k];if(!T0||!box)return null;cons
 function dorfTap(){const d=document.getElementById&&document.getElementById("dorf");if(!d||d.dataset.tap||!window.dorfHit)return;d.dataset.tap=1;
  d.addEventListener("click",e=>{const r=d.getBoundingClientRect(),h=window.dorfHit((e.clientX-r.left)/UQ(),(e.clientY-r.top)/UQ()),o=document.getElementById("dtap");if(!o)return;
   if(!h||!DORFTXT[h.k]){o.innerHTML="";return;}const T0=DORFTXT[h.k];o.innerHTML=`<div class="ibox"><div class="lbl">${h.k[0]==="P"?"Projekt":"Vorlage"}: ${esc(h.k[0]==="P"?PROJ[h.k].t:T[h.k].title)}</div><b>${T0[0]}</b><p style="margin:4px 0">${T0[1]}</p><p class="hint" style="margin:0">${dorfEff(h.k)}</p></div>`;});}
-function dorfPops(){try{dorfTap()}catch(e){}if(typeof innerWidth==="undefined"||innerWidth<1000||!document.querySelector)return;
+function dorfPops(){try{dorfTap()}catch(e){}if(typeof performance!=="undefined")(window.DORF_FOCUS||[]).forEach(f=>ton("bauen",Math.max(0,f.t+(dorfNarrow()?1100:500)-performance.now())));if(typeof innerWidth==="undefined"||innerWidth<1000||!document.querySelector)return;
  const host=document.querySelector(".szene .dorfkopf");if(!host||!window.dorfBox)return;
  const now=performance.now(),F=(window.DORF_FOCUS||[]),tok=window.DORF_TOK=(window.DORF_TOK||0)+1;
  F.forEach(f=>{const wait=Math.max(0,f.t+500-now);setTimeout(()=>{if(S.screen!=="dorf"||window.DORF_TOK!==tok)return;const b=dorfBubble(f.k,window.dorfBox(f.k),"pin");if(b)b.dataset.k=f.k;},wait);});
@@ -1724,7 +1752,7 @@ function introNext(){const I=S.intro;if(!I)return;
  if(I.ph==="type"){I.typ=1e9;return;}
  if(I.ph!=="done")return;
  if(I.i>=INTRO.length-1)return introEnd();
- I.i++;I.ph="walk";window.DORF_WALK=IST[I.i].x;const t=document.getElementById("dtxt");if(t)t.textContent="";const b0=document.getElementById("pbub");if(b0)b0.classList.remove("on");
+ I.i++;ton("seite");I.ph="walk";window.DORF_WALK=IST[I.i].x;const t=document.getElementById("dtxt");if(t)t.textContent="";const b0=document.getElementById("pbub");if(b0)b0.classList.remove("on");
  document.querySelectorAll(".idots i").forEach((d,j)=>d.classList.toggle("on",j<=I.i));}
 function introDone(anim){lsSet("13t_intro","1");window.DORF_FOLLOW=null;window.DORF_WALK=null;window.DORF_WALK0=null;window.DORF_OUT=null;window.DORF_P=0;window.DORF_ON={};S.intro=null;S.introOut=0;S.screen="start";render();window.scrollTo(0,0);
  if(anim&&document.querySelector){const hd=document.querySelector("header.dorfkopf"),w=document.querySelector(".wrap");if(hd)hd.classList.add("drop");if(w)w.classList.add("fadein");}}
@@ -1744,13 +1772,14 @@ function introEnd(){if(S.introOut)return;const fr=document.querySelector&&docume
   kopf.style.setProperty("--ds",String(ds0+(ds1-ds0)*f));dispatchEvent(new Event("resize"));
   if(t<1750)requestAnimationFrame(step);else introDone(true);};
  requestAnimationFrame(step);}
+function schritte(o){const n=performance.now();if(o.ph==="walk"&&!RM()&&n-(o.st||0)>340){o.st=n;ton("schritt");}}
 function introTick(){if(S.screen!=="intro"||!S.intro)return;const I=S.intro,now=performance.now();
  const bb=document.getElementById("pbub"),t=document.getElementById("dtxt"),nx=document.getElementById("dnext"),go=document.getElementById("igo");
  if(I.ph==="walk"&&window.dorfArrived&&window.dorfArrived()){I.ph="type";I.typ=0;I.t0=now+250;const st=IST[I.i];
-  if(st.on)st.on.forEach((k,j)=>window.DORF_ON[k]=now+500+j*350);
+  if(st.on)st.on.forEach((k,j)=>{window.DORF_ON[k]=now+500+j*350;ton("bauen",500+j*350);});
   if(st.p){const t0=now,p0=window.DORF_P||0;const f=n=>{if(S.screen!=="intro")return;const q=Math.min(1,(n-t0)/1800);window.DORF_P=p0+(st.p-p0)*q;if(q<1)requestAnimationFrame(f)};requestAnimationFrame(f);}}
  if(I.ph==="type"){const full=INTRO[I.i](I.n);I.typ=Math.max(I.typ,Math.floor((now-I.t0)/30));const n=Math.max(0,Math.min(full.length,I.typ));if(t&&t.textContent.length!==n)t.textContent=full.slice(0,n);if(n>=full.length)I.ph="done";}
- if(bb)bb.classList.toggle("on",I.ph!=="walk");
+ schritte(I);if(bb)bb.classList.toggle("on",I.ph!=="walk");
  if(nx)nx.style.visibility=I.ph==="done"?"visible":"hidden";
  const db=document.getElementById("dbar");if(db)db.classList.toggle("on",I.i===1&&I.ph!=="walk");
  if(go){go.textContent=I.ph==="done"&&I.i>=INTRO.length-1?"Los geht's":"Weiter";}
@@ -1785,7 +1814,7 @@ function outroNext(){const O=S.outro;if(!O)return;
  if(O.ph==="walk"){if(window.dorfSkipWalk)window.dorfSkipWalk();return;}
  if(O.ph==="type"){O.typ=1e9;return;}
  if(O.i>=O.T.length-1)return outroEnd();
- O.i++;O.ph="walk";window.DORF_WALK=OST[O.i].x;const t=document.getElementById("dtxt");if(t)t.textContent="";const b=document.getElementById("pbub");if(b)b.classList.remove("on");
+ O.i++;ton("seite");O.ph="walk";window.DORF_WALK=OST[O.i].x;const t=document.getElementById("dtxt");if(t)t.textContent="";const b=document.getElementById("pbub");if(b)b.classList.remove("on");
  document.querySelectorAll(".outro .idots i").forEach((d,j)=>d.classList.toggle("on",j<=O.i));}
 function outroEnd(){const o=document.querySelector&&document.querySelector(".ovl.outro");if(o)o.remove();
  window.DORF_FOLLOW=null;window.DORF_WALK=null;window.DORF_WALK0=null;window.DORF_JUMP=null;S.outro=null;S.outroSeen=true;fx("end");render();window.scrollTo(0,0);}
@@ -1793,7 +1822,7 @@ function outroTick(){const O=S.outro;if(!O)return;const now=performance.now();
  const bb=document.getElementById("pbub"),t=document.getElementById("dtxt"),nx=document.getElementById("dnext"),go=document.getElementById("igo");
  if(O.ph==="walk"&&window.dorfArrived&&window.dorfArrived()){O.ph="type";O.typ=0;O.t0=now+250;window.DORF_JUMP=now;window.DORF_JAMP=O.amp;}
  if(O.ph==="type"){const full=O.T[O.i];O.typ=RM()?1e9:Math.max(O.typ,Math.floor((now-O.t0)/28));const n=Math.max(0,Math.min(full.length,O.typ));if(t&&t.textContent.length!==n)t.textContent=full.slice(0,n);if(n>=full.length)O.ph="done";}
- if(bb)bb.classList.toggle("on",O.ph!=="walk");
+ schritte(O);if(bb)bb.classList.toggle("on",O.ph!=="walk");
  if(nx)nx.style.visibility=O.ph==="done"?"visible":"hidden";
  if(go)go.textContent=O.ph==="done"&&O.i>=O.T.length-1?"Zur Auswertung":"Weiter";
  const p=window.dorfEnt&&window.dorfEnt();
@@ -2036,6 +2065,7 @@ function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()))
  saveGame();
  applyFx();
  if(S.screen==="dorf")dorfTween();
+ musik(musikFuer());musikPegel();
  if(!WT&&typeof requestAnimationFrame!=="undefined"&&typeof document!=="undefined"&&document.querySelectorAll){WT=1;requestAnimationFrame(wanderTick);}
  if(document.querySelectorAll){const ds=document.querySelectorAll("details");openD.forEach(i=>{if(ds[i])ds[i].open=true});}
 }

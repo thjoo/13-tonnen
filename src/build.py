@@ -51,7 +51,7 @@ def baue():
     subprocess.run([sys.executable, str(SRC / "mech.py")], check=True, cwd=SRC, stdout=subprocess.DEVNULL)
     t = lies(SRC / "template.html")
     for k, v in [("__FONTS__", lies(SRC / "fonts.css")), ("__TEXTS__", lies(SRC / "texts.json")), ("__MECH__", lies(SRC / "mech.json")),
-                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet()), ("__TON__", toene())]:
+                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet()), ("__TON__", toene()), ("__MUSIK__", lies(ROOT / "musik" / "musik.json"))]:
         t = t.replace(k, v)
     return webp(t)
 
