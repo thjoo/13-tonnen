@@ -20,7 +20,7 @@ Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibh
 
 - `src/`: Code (`template.html`, `dorf_anim.js`), Texte der Karten (`texts.json`), Zahlen (`mech.py` erzeugt `mech.json`), Schriften und Stil. `src/build.py` baut daraus die eine Datei `index.html`, die GitHub Pages ausliefert.
 - `grafik/`: privates Submodul (thjoo/13-tonnen-grafik) mit den Grafiken von Kenmi und den Dorfdaten. Die Lizenz erlaubt keine Weiterverbreitung der Grafiken als einzelne Dateien, darum sind sie nur eingebettet im fertigen Spiel öffentlich.
-- `tests/`: automatische Tests, siehe unten. `werkzeuge/`: ältere Hilfsskripte.
+- `tests/`: automatische Tests, siehe unten.
 
 Bauen (mit Zugriff auf das private Repo):
 
@@ -35,6 +35,7 @@ Bei jedem Push prüft GitHub das Spiel automatisch (Reiter «Actions»). Geteste
 
 - `tests/test_modell.py`: Rechenmodell und Regeln (Start 12.8 t, Trend bis 2050, Heizung mit und ohne K3, Volks- und Ständemehr, schrittweise Einführung, Stufen, Outro).
 - `tests/test_partien.py`: ganze Partien mit allen Figuren sowie 9 Zufallspartien über die Knöpfe auf Laptop, iPad und Handy. Geprüft werden unter anderem Fussabdruck, Geld, Herzen, «NaN» im Text und seitliches Scrollen.
+- `tests/test_gruppe.py`: Gruppenspiel mit drei Geräten gegen einen nachgebauten Speicher (`tests/gruppe.js`, braucht Node): gleiche Vorlagen, Resultate und Punkte für alle, alle kommen ans Ende.
 - `tests/test_zugang.py`: Barrierefreiheit nach WCAG 2.1 AA (axe-core) und Bedienung mit der Tastatur.
 - `tests/manuell/gruppe_testmodus.py`: Gruppenspiel mit Testfiguren gegen die echte Datenbank, nur von Hand starten.
 

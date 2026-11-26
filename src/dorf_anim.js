@@ -22,7 +22,6 @@ let K=1,SNAP=false,camFr=0,camX=0,cv=null,ctx=null,S=.75,VW=0,vx0=0,ents=[],last
 function shadowOf(src){const c=document.createElement('canvas'),i=im(src);const mkS=()=>{c.width=i.width;c.height=i.height;const x=c.getContext('2d');x.drawImage(i,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);};if(i.complete)mkS();else i.addEventListener('load',mkS);return c;}
 function lane(){return rnd(D.band[0],D.band[1]);}
 function wdx(a,b){return(((b-a)%D.W)+D.W*1.5)%D.W-D.W/2;}
-function setSt(o,st){o.st=st;}
 function face(o,vx,vy){const s=o.set;if(!s.up||Math.abs(vx)>=Math.abs(vy)){o.st=s.side;o.flip=vx<0;}else{o.st=vy<0?s.up:s.down;o.flip=false;}}
 function rest(o,back){const s=o.set;o.st=back&&s.idleB?s.idleB:(s.idleF||s.side);o.flip=false;}
 function isFol(o){return window.DORF_FOLLOW&&o.set&&o.set.side&&o.set.side.name===window.DORF_FOLLOW;}
@@ -179,7 +178,6 @@ setup();
 new MutationObserver(()=>{const d=document.getElementById('dorf');if(d&&!d.dataset.ok){d.dataset.ok=1;cv=null;camX=D.W/2;if(window.DORF_FOLLOW){const o=folEnt();if(o){o.hid=false;o.wait=0;o.q=[];if(window.DORF_WALK0!=null){o.x=window.DORF_WALK0;o.y=(D.band[0]+D.band[1])/2;}camX=o.x;}}if(layout()){im(D.base).decode?.().then(render).catch(()=>{});render();}}}).observe(document.documentElement,{childList:true,subtree:true});
 addEventListener('resize',()=>{if(layout())render();});
 for(const src of [D.base,D.baseF,D.wasser,D.sailimg,D.atlasimg,D.animimg])im(src).addEventListener('load',()=>render());
-window.dorfEnts=()=>ents;// fuer Tests
 window.dorfRender=()=>{if(cv&&document.getElementById('dorf')&&document.getElementById('dorf').contains(cv))render();};
 if(!RM)raf=requestAnimationFrame(loop);
 })();
