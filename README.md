@@ -7,6 +7,8 @@ Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibh
 - Alle Zahlen und Quellen stehen im Spiel unter «Mehr dazu» auf jeder Karte.
 - Gruppenspiel: Firebase Realtime Database (Standort Belgien), anonyme Anmeldung, keine Namen. Räume lassen sich nach 24 Stunden nicht mehr verändern und werden beim Eröffnen neuer Räume gelöscht.
 - Die Startseite zeigt ein belebtes Dorf in Pixelart. Es wird auf einer Canvas gezeichnet; bei «Bewegung reduzieren» im Betriebssystem steht es still.
+- Spielnummer: Mit `?spiel=4A` am Ende der Adresse bekommen alle, die allein spielen, dieselben Karten, Ereignisse und Abstimmungen. So lassen sich Entscheide in der Nachbesprechung vergleichen. Ohne Zusatz gibt es pro Partie eine neue Nummer; sie steht am Schluss in der Auswertung.
+- Eine angefangene Partie bleibt im Browser gespeichert und lässt sich nach dem Neuladen auf der Startseite fortsetzen.
 - Das Spiel ist eine einzige Datei (`index.html`) ohne Abhängigkeiten ausser Firebase für das Gruppenspiel.
 
 ## Grafiken und Schriften
@@ -36,6 +38,8 @@ Bei jedem Push prüft GitHub das Spiel automatisch (Reiter «Actions»). Geteste
 - `tests/test_modell.py`: Rechenmodell und Regeln (Start 12.8 t, Trend bis 2050, Heizung mit und ohne K3, Volks- und Ständemehr, schrittweise Einführung, Stufen, Outro).
 - `tests/test_partien.py`: ganze Partien mit allen Figuren sowie 9 Zufallspartien über die Knöpfe auf Laptop, iPad und Handy. Geprüft werden unter anderem Fussabdruck, Geld, Herzen, «NaN» im Text und seitliches Scrollen.
 - `tests/test_gruppe.py`: Gruppenspiel mit drei Geräten gegen einen nachgebauten Speicher (`tests/gruppe.js`, braucht Node): gleiche Vorlagen, Resultate und Punkte für alle, alle kommen ans Ende.
+- `tests/test_balance.py`: Balance mit Bots (`tests/balance.js`, braucht Node): starke, mittlere und schwache Spielweise in je 150 Partien pro Version. `node tests/balance.js --zeigen` druckt die Tabelle.
+- `tests/test_speichern.py`: Weiterspielen nach Neuladen, Fehlerkarte und gleiche Lose bei gleicher Spielnummer.
 - `tests/test_zugang.py`: Barrierefreiheit nach WCAG 2.1 AA (axe-core) und Bedienung mit der Tastatur.
 - `tests/manuell/gruppe_testmodus.py`: Gruppenspiel mit Testfiguren gegen die echte Datenbank, nur von Hand starten.
 

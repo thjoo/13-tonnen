@@ -105,6 +105,7 @@ img.icn.dim{opacity:.3}
 .card .ti,.vote .ti{font-family:var(--titel);font-weight:400;font-size:20px;line-height:1.1;margin:2px 0 4px}
 .card .tx{font-size:14px}
 .card .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:6px}
+.card .ft>button,.card .ft>.lbl{margin-left:auto}
 .cost{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
 .why{font-size:12.5px;color:var(--muted);font-style:italic}
 details{font-size:13px;color:var(--text)}
@@ -712,6 +713,17 @@ h3.vrule.tip::after{right:auto;left:0}
 const T=__TEXTS__;
 const M=__MECH__;
 const SPR=__SPR__;
+/* Fehler fangen: statt eines stehenden Bildschirms eine Karte mit «Neu laden». Der Spielstand ist gespeichert (saveGame). */
+function showCrash(msg,stack){if(typeof document==="undefined"||!document.body||document.getElementById("crash"))return;
+ const e=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";"),info=[msg,(stack||"").split("\n").slice(0,4).join("\n"),
+  "Bildschirm: "+(typeof S!=="undefined"&&S?S.screen+", Runde "+(S.r+1)+", Spielnummer "+S.seed:"–"),"Adresse: "+location.href].join("\n");
+ const d=document.createElement("div");d.id="crash";d.className="ovl";d.setAttribute("role","alertdialog");d.setAttribute("aria-modal","true");
+ d.innerHTML=`<div class="crisis big"><div class="lbl">Fehler</div><h3>Da ist etwas schiefgelaufen</h3><p class="tx">Dein Spielstand ist gespeichert. Lade die Seite neu, dann geht es dort weiter, wo du warst.</p><div class="row" style="margin-top:12px"><button class="primary" onclick="location.reload()">Neu laden</button><button onclick="document.getElementById('crash').remove()">Trotzdem weiterspielen</button></div><details><summary>Angaben für die Lehrperson</summary><pre style="white-space:pre-wrap;font-size:12px">${e(info)}</pre></details></div>`;
+ document.body.appendChild(d);const b=d.querySelector("button");if(b&&b.focus)b.focus();}
+if(typeof addEventListener!=="undefined"){
+ addEventListener("error",ev=>{if(/^(chrome|moz|safari)-extension:/.test(ev.filename||"")||/ResizeObserver/.test(ev.message||""))return;showCrash(ev.message,ev.error&&ev.error.stack);});
+ // Nur Programmfehler; Netzfehler im Gruppenspiel (Firebase) zeigen keine Karte
+ addEventListener("unhandledrejection",ev=>{const r=ev.reason;if(r instanceof TypeError||r instanceof ReferenceError)showCrash(r.message,r.stack);});}
 function figAnim(f,sc=4,kind="idle"){const a=SPR.anim&&SPR.anim[f];if(!a)return figImg(f,sc);const h=kind==="walk"?24:22;
  return `<span class="fa ${kind}" role="img" aria-label="${f}" style="width:${17*sc}px;height:${h*sc}px;background-image:url(${a[kind]})"></span>`;}
 /* ---------- Bewegung: Sprechblasen, Hüpfer, Gang durch die Zeit ---------- */
@@ -750,11 +762,12 @@ function walkOverlay(){if(RM()||!document.body||!document.createElement)return;
 function wanderFig(f,sc=4){if(!SPR.anim||!SPR.anim[f])return figImg(f,sc);const a=SPR.anim[f];
  return `<span class="wander" data-f="${f}" data-sc="${sc}"><span class="fa idle" style="width:${17*sc}px;height:${22*sc}px;background-image:url(${a.idle})"></span><span class="fa walk" style="width:${17*sc}px;height:${24*sc}px;background-image:url(${a.walk})"></span></span>`;}
 let WT=null,WLAST=0;
-function wanderTick(ts){if(typeof requestAnimationFrame!=="undefined")requestAnimationFrame(wanderTick);if(RM()||!document.querySelectorAll)return;
+function wanderTick(ts){if(typeof requestAnimationFrame!=="undefined")requestAnimationFrame(wanderTick);if(!document.querySelectorAll)return;const rm=RM();
  const now=Date.now(),dt=Math.min(0.1,WLAST?(now-WLAST)/1000:0);WLAST=now;
  document.querySelectorAll(".stage").forEach(st=>{const ws=[...st.querySelectorAll(".wander")];const W=st.clientWidth;if(!W)return;
   ws.forEach((w,i)=>{const sc=+w.dataset.sc,fw=17*sc;
    let s=w._s;if(!s){const x=ws.length>1?(W/(ws.length+1))*(i+1)-fw/2:(W-fw)/2;s=w._s={x,tx:x,next:now+800+Math.random()*3000,walking:false};w.style.left=x+"px";w.dataset.init=1;}
+   if(rm)return; // Bewegung reduziert: Figuren stehen still, sind aber sichtbar
    const setWalk=on=>{if(on===s.walking)return;s.walking=on;w.classList.toggle("walking",on);};
    if(s.x!==s.tx){const step=40*dt,d=s.tx-s.x;s.x=Math.abs(d)<=step?s.tx:s.x+Math.sign(d)*step;w.style.left=Math.round(s.x)+"px";setWalk(true);if(s.x===s.tx){setWalk(false);s.next=now+2000+Math.random()*3500;}return;}
    if(now<s.next)return;
@@ -806,7 +819,14 @@ function uiZoom(){if(typeof document==="undefined"||!document.documentElement||t
 const UQ=()=>(typeof window!=="undefined"&&window.UZF)||1;
 if(typeof addEventListener!=="undefined"){addEventListener("resize",()=>{const o=window.UIZ;uiZoom();if(o!==window.UIZ&&typeof render==="function")try{render()}catch(e){}});}
 let S, G=null;
-function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
+/* Spielnummer: Alles, was das Spiel auslost (Karten, Ereignisse, Abstimmungen, Projekte), haengt nur von ihr ab.
+   Mit ?spiel=4A im Link spielt die ganze Klasse mit denselben Losen; ohne gibt es eine neue Nummer pro Partie.
+   Wackeln, Laufen und anderes Aussehen bleibt bei Math.random. */
+const SEED0=(()=>{try{return (new URLSearchParams(location.search).get("spiel")||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8)}catch(e){return ""}})();
+function newSeed(){return SEED0||Math.random().toString(36).slice(2,7).toUpperCase();}
+// Eigener Zufallsstrom pro Zweck und Runde: Was jemand waehlt, verschiebt die Lose der anderen Zwecke nicht.
+function rng(tag){return rngS(hashS(S.seed+"|"+S.r+"|"+tag));}
+function fresh(){const md=(S&&S.mode)||"kurz";setMode(md);S={mode:md,screen:"start",seed:newSeed(),fig:null,r:0,chosen:{},thisRound:[],adopted:{},voted:[],hearts:3,money:0,
  flags:{},pdone:{},plog:{},palloc:0,carry:0,events:[],happened:[],ballot:[],alloc:{},results:null,event:null,log:[],snap:[]};}
 fresh();
 try{uiZoom()}catch(e){}
@@ -984,8 +1004,8 @@ function projResultHTML(){const s=projState(S.r);if(!s)return"";const p=PROJ[s.p
  if(s.fail)return `<div class="callout"><span class="ic">✗</span><span>«${esc0(p.t)}» ist gescheitert: ${s.acc} von ${s.need} Herzen.</span></div>`;
  if(!s.done)return `<div class="callout"><span class="ic">…</span><span>«${esc0(p.t)}»: ${s.acc} von ${s.need} Herzen. Es fehlen noch ${s.need-s.acc}, nächste Runde ist die letzte Chance.</span></div>`;
  return"";}
-function shuffle(a){return a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);}
-function pickProj(){return shuffle(Object.keys(PROJ));}
+function shuffle(a,R=Math.random){return a.map(x=>[R(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);}
+function pickProj(){return shuffle(Object.keys(PROJ),rng("proj"));}
 
 /* ---------- Krisen offen ---------- */
 const EVKIND={E1:"Krise",E2:"Krise",E2m:"Krise",E3:"Gelegenheit",E4:"Krise",E5:"Klima",E6:"Klima",E7:"Klima",E8:"Klima",E9:"Weltweit"};
@@ -1081,8 +1101,9 @@ function drawHand(){
  const take=id=>{if(pool.includes(id)&&!hand.includes(id))hand.push(id)};
  if(S.flags.e2==S.r)take("W2"); if(S.flags.e3==S.r)take("N2");
  if(S.nextEvent=="E2")take("W2"); if(S.nextEvent=="E2m")take("W2b"); if(S.nextEvent=="E4")take("C4");
- for(const a of "IWNC"){if(hand.length>=HAND)break;const c=shuffle(pool.filter(k=>k[0]==a&&!hand.includes(k)));if(c.length)hand.push(c[0]);}
- for(const k of shuffle(pool.filter(k=>!hand.includes(k)))){if(hand.length>=HAND)break;hand.push(k);}
+ const R=rng("hand");
+ for(const a of "IWNC"){if(hand.length>=HAND)break;const c=shuffle(pool.filter(k=>k[0]==a&&!hand.includes(k)),R);if(c.length)hand.push(c[0]);}
+ for(const k of shuffle(pool.filter(k=>!hand.includes(k)),R)){if(hand.length>=HAND)break;hand.push(k);}
  const ord="IWNC";hand.sort((x,y)=>ord.indexOf(x[0])-ord.indexOf(y[0]));
  S.hand=hand;
 }
@@ -1108,7 +1129,7 @@ function beginRound(){
  S.screen="round";render();window.scrollTo(0,0);
 }
 function setBallot(b){S.ballot=b||[];S.alloc={};S.don={};S.ballot.forEach(k=>{S.alloc[k]=0;S.don[k]=0});}
-function drawBallot(){setBallot(pickBallot(S.adopted,S.ballot||[]));}
+function drawBallot(){setBallot(pickBallot(S.adopted,S.ballot||[],rng("ballot")));}
 const SPENDE=2,SPENDEP=15;
 function chance(k){
  if(G){const g=G.totals(k);return Math.min(MAXC,Math.round(M.VORL[k].c*100+bonus(k)+g.h*30/G.n()+g.d*SPENDEP/G.n()));}
@@ -1208,7 +1229,7 @@ function vote(force){
  S.myHR=S.myHR||{};S.myHR[S.r]={};for(const k in S.alloc)S.myHR[S.r][k]=(S.alloc[k]||0)+(S.don&&S.don[k]?1:0);
  if(G){G.ready();return;}
  S.plog[S.r]=projState(S.r)&&!projState(S.r).done?(S.palloc||0):0;updPdone();
- S.results=S.ballot.map(k=>{const c=chance(k),roll=Math.floor(Math.random()*100);const ok=roll<c;
+ S.results=S.ballot.map(k=>{const c=chance(k),roll=Math.floor(rng("vote|"+k)()*100);const ok=roll<c;
   if(ok)S.adopted[k]=vorlFrom(S.r);else{S.rejects=S.rejects||{};S.rejects[k]=(S.rejects[k]||0)+1;}return {k,c,ok,roll}});
  logRound();
  voteShow(()=>toEvent());
@@ -1222,7 +1243,7 @@ function toEvent(){
   if(e!=="ruhig"){S.happened.push(e);}
   if(e=="E1")S.events.push({id:"E1",from:nextY});
   if(e=="E2"){if(k3()){S.e2Res="wp";S.events.push({id:"E2wp",from:nextY});}else{S.e2Res="oel";S.flags.e2=S.r+1;}}
-  if(e=="E2m"){S.e2mRes=k3()||Math.random()<E2WP?"wp":"oel";if(S.e2mRes=="wp")S.events.push({id:"E2wp",from:nextY});else S.flags.w2locked=true;}
+  if(e=="E2m"){S.e2mRes=k3()||rng("e2m")()<E2WP?"wp":"oel";if(S.e2mRes=="wp")S.events.push({id:"E2wp",from:nextY});else S.flags.w2locked=true;}
   if(e=="E3")S.flags.e3=S.r+1;
   if(e=="E4"){S.money=Math.max(0,S.money-2);S.events.push({id:"E4",from:nextY});}
   if(e=="E9")S.cop=nextY;
@@ -1262,7 +1283,7 @@ function header(){
   <div class="chip big tip" tabindex="0" data-tip="${tf}" style="position:relative"><span class="cl">${y}</span><span class="cv" id="footv" data-v="${a.toFixed(3)}">${fmt(a)} t</span><span id="fdelta" class="fdelta"></span></div>
   <div class="chip tip" tabindex="0" data-tip="${th}"${hn&&S.hnSeen!==S.r?` onmouseenter="hnSeen()" onfocus="hnSeen()"`:""}><span class="cv">${freeH()}</span>${IC("herz",18)}${hn&&S.hnSeen!==S.r?`<span class="cbadge" aria-hidden="true">!</span>`:""}</div>
   <div class="chip tip" tabindex="0" data-tip="${tg}"><span class="cv">${moneyFree()}</span>${IC("geld",18)}${moneyLock()?`<span class="csub">+${moneyLock()} gesperrt</span>`:""}${S.moneyNext?`<span class="csub">+${S.moneyNext} nächste Runde</span>`:""}</div>
-  <div class="chip tip warm" tabindex="0" data-tip="${y<=2026?`Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025). Bis 2050 kommen rund ${f1(warmToday(2050))} °C dazu, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt.`:`Bis ${y} wird es in der Schweiz rund ${f1(warmToday(y))} °C wärmer als heute, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt. Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025).`}"><span class="cv">+${f1(warmToday(y))}</span><span class="csub">°C ab heute</span></div>
+  <div class="chip tip warm" tabindex="0" data-tip="${y<=2026?`Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025). Bis 2050 kommen rund ${f1(warmToday(2050))} °C dazu, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt.`:`${y} ist es in der Schweiz rund ${f1(warmCH(y))} °C wärmer als vor 150 Jahren, also ${f1(warmToday(y))} °C mehr als heute, wenn die Welt ihre heutige und geplante Klimapolitik umsetzt. Heute ist es in der Schweiz schon rund 3 °C wärmer als vor 150 Jahren, weltweit rund 1.3 °C. Die Schweiz erwärmt sich etwa doppelt so schnell, weil sich Land stärker aufheizt als das Meer (MeteoSchweiz, Klima CH2025).`}"><span class="cv">+${f1(warmCH(y))} °C</span><span class="csub">seit 1875</span></div>
   ${wishChip()}
  </div><button class="hdtog" type="button" onclick="hdToggle()" aria-expanded="false" aria-label="Mehr anzeigen: Wunsch, Geld und Bereiche"><i aria-hidden="true"></i></button></div><div class="barbox">${barHTML(v)}</div></div></div>`;
 }
@@ -1387,7 +1408,7 @@ function viewStart(){window.DORF_P=0;window.DORF_SMOKEOFF=0;window.DORF_ON={};wi
  const sm=S.startMode;
  const back=`<a href="#" class="back" onclick="S.startMode=null;render();window.scrollTo(0,0);return false">‹ zurück zur Auswahl</a>`;
  let body;
- if(!sm)body=`${!G&&lsGet("13t_lastroom")?`<div class="callout"><span class="ic">↻</span><span>Du warst im Gruppenspiel <b>${esc0(lsGet("13t_lastroom"))}</b>. <button class="primary small" onclick="Group.join(lsGet('13t_lastroom'))">Zurück ins Spiel</button></span></div>`:""}<div class="sec"><h2>Wie spielt ihr?</h2></div>
+ if(!sm)body=`${soloSave()?`<div class="callout"><span class="ic">↻</span><span>Du hast eine Partie mit <b>${esc0(soloSave().fig)}</b> angefangen, Runde ${soloSave().r+1} von ${MODES[soloSave().mode].length}. <button class="primary small" onclick="resumeSolo()">Weiterspielen</button></span></div>`:""}${!G&&lsGet("13t_lastroom")?`<div class="callout"><span class="ic">↻</span><span>Du warst im Gruppenspiel <b>${esc0(lsGet("13t_lastroom"))}</b>. <button class="primary small" onclick="Group.join(lsGet('13t_lastroom'))">Zurück ins Spiel</button></span></div>`:""}<div class="sec"><h2>Wie spielt ihr?</h2></div>
   <div class="choose2">
    <div class="pick" tabindex="0" onclick="S.startMode='solo';S.chal='keine';setMode('kurz');S.mode='kurz';render();window.scrollTo(0,0)" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${wanderFig("Lia",4)}</div><h3>Allein</h3><p>Du spielst eine Figur und entscheidest allein bis 2050. Kurz mit vier Runden, etwa 15 Minuten, oder lang mit acht Runden, etwa 30 Minuten.</p><div class="fgo">Allein spielen ›</div></div>
    <div class="pick" tabindex="0" onclick="S.startMode='group';render();window.scrollTo(0,0)" onkeydown="if(event.key==='Enter')this.click()"><div class="pfigs stage">${["Noah","Ruth","Elif"].map(f=>wanderFig(f,4)).join("")}</div><h3>In der Gruppe</h3><p>Jede Person spielt auf ihrem Gerät eine eigene Figur. Bei Projekten und Abstimmungen zählen die Herzen aller, und ihr habt ein gemeinsames Ziel.</p><div class="fgo">In der Gruppe spielen ›</div></div>
@@ -1459,7 +1480,7 @@ function viewEnd(){
  ${S.log.map(l=>`<tr><td class="mono" data-l="Runde">${PER[l.r].l}</td><td data-l="Karten">${l.cards.map(c=>esc(T[c].title)).join(", ")||"–"}</td><td class="mono" data-l="Engagement">${HZ(l.hearts)}${l.don?", "+GD(l.don):""}</td><td data-l="Abstimmungen">${l.votes.map(v=>esc(T[v.k].title)+(v.ok?" ✓":" ✗")).join("<br>")}</td><td data-l="Ereignis">${l.event=="ruhig"?"ruhig":l.event=="abgewendet"?"abgewendet":esc(T[l.event].title)}</td></tr>`).join("")}</table>`)}
  ${G?more("Eure Gruppe",G.endTable()):""}
  </div>
- <div class="row" style="margin-top:22px"><button class="primary" onclick="if(G)G.leave();fresh();render()">Neues Spiel</button></div></div>`;
+ <div class="row" style="margin-top:22px"><button class="primary" onclick="if(G)G.leave();else lsDel('13t_solo');fresh();render()">Neues Spiel</button></div>${G?"":`<p class="hint" style="margin-top:10px">Spielnummer <b>${esc0(S.seed)}</b>. Wer am Ende der Adresse <b>?spiel=${esc0(S.seed)}</b> anhängt, bekommt dieselben Karten, Ereignisse und Abstimmungen.</p>`}</div>`;
 }
 /* ===== Erweiterungen nach Game-Design-Recherche ===== */
 const PFAD=Math.round((START+ZIEL)/2*25);
@@ -1512,12 +1533,12 @@ function eventCands(){const f=fig(),c=[];
  if(copOn()&&!S.happened.includes("E9"))c.push("E9");
  return c;}
 // Ersatzzyklus: Eine Heizung haelt 20 bis 25 Jahre. Hat sie bis zur zweitletzten Runde nicht versagt, geht sie dann sicher kaputt.
-function announceEvent(){if(S.r===0){S.nextEvent="ruhig";return;}
+function announceEvent(){if(S.r===0){S.nextEvent="ruhig";return;}const R=rng("event");
  if(copOn()&&PER[S.r]&&PER[S.r].a===COPY&&!S.happened.includes("E9")){S.nextEvent="E9";return;}
  const must=["E2","E2m"].find(e=>eventCands().includes(e));if(must&&S.r>=LAST-1){S.nextEvent=must;return;}
  const k=KLIMA.filter(e=>!S.happened.includes(e));
- if(k.length&&Math.random()<klimaP()){S.nextEvent=k[Math.floor(Math.random()*k.length)];return;}
- const c=eventCands().filter(e=>!KLIMA.includes(e)&&e!=="E9");c.push("ruhig");S.nextEvent=c[Math.floor(Math.random()*c.length)];}
+ if(k.length&&R()<klimaP()){S.nextEvent=k[Math.floor(R()*k.length)];return;}
+ const c=eventCands().filter(e=>!KLIMA.includes(e)&&e!=="E9");c.push("ruhig");S.nextEvent=c[Math.floor(R()*c.length)];}
 const E2WP=0.5; // Anteil erneuerbar beim Heizungsersatz je nach Kanton 16 bis 58 % (EBP 2024)
 const AVERT={E2m:"Du hast schon überzeugt: Statt Öl kommt eine Wärmepumpe.",E1:"Du fährst kein E-Auto. Der Rebound trifft dich nicht.",E2:"Deine Heizung ist schon ersetzt. Der Ausfall kostet dich nichts.",E3:"Du isst schon vegetarisch.",E4:"Du kaufst bewusst weniger. Die Aktionen lassen dich kalt."};
 
@@ -1829,9 +1850,19 @@ function pfadBis(y){let s=0;for(let q=2026;q<=y;q++)s+=START+(ZIEL-START)*(q-202
 const FRAGEN=["Welche Entscheidung hat bei dir am meisten gebracht, und warum gerade diese?","Was war schwierig? Lag es an Herzen, Geld, Zufall oder an deiner Figur?","Welche Vorlage aus dem Spiel gibt es in der Schweiz wirklich? Wie stehen ihre Chancen?"];
 function lsGet(k){try{return localStorage.getItem(k)||""}catch(e){return""}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 // Gruppenspiel: eigener Spielstand pro Raum, damit Neuladen oder ein gesperrtes Handy nicht alles zuruecksetzt
-function gSave(){if(!G||!S||S.screen==="lobby"||!S.fig)return;try{localStorage.setItem("13t_g_"+G.code,JSON.stringify(S));localStorage.setItem("13t_lastroom",G.code)}catch(e){}}
-function gLoad(code){try{const v=localStorage.getItem("13t_g_"+code);return v?JSON.parse(v):null}catch(e){return null}}
+// Spielstand pro Geraet, allein und in der Gruppe, damit Neuladen oder ein gesperrtes Tablet nicht alles zuruecksetzt.
+// SAVEV erhoehen, wenn sich der Aufbau von S aendert: alte Staende werden dann nicht mehr geladen.
+const SAVEV=1;
+function saveGame(){if(!S||!S.fig||!["round","summary","dorf","end"].includes(S.screen))return;
+ try{localStorage.setItem(G?"13t_g_"+G.code:"13t_solo",JSON.stringify({v:SAVEV,S}));if(G)localStorage.setItem("13t_lastroom",G.code)}catch(e){}}
+function loadSave(key){try{const o=JSON.parse(localStorage.getItem(key)||"null"),s=o&&o.v===SAVEV&&o.S;
+ return s&&M.FIG[s.fig]&&MODES[s.mode]&&Number.isInteger(s.r)&&s.r>=0&&s.r<MODES[s.mode].length?s:null}catch(e){return null}}
+function soloSave(){const s=!G&&loadSave("13t_solo");return s&&s.screen!=="end"?s:null}
+function resumeSolo(){const s=soloSave();if(!s)return;S=s;setMode(S.mode);S.lastScr=null;
+ if(S.dorfFinal){S.dorfFinal=false;S.outroSeen=true;S.screen="end";}else if(S.screen==="dorf")S.screen="summary";
+ render();window.scrollTo(0,0);}
 function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="lbl">Frage ${i+1}</div><p style="margin:4px 0 8px">${q}</p><textarea class="ta" rows="3" aria-label="Antwort auf Frage ${i+1}" oninput="lsSet('13t_q${i}',this.value)">${esc0(lsGet('13t_q'+i))}</textarea></div>`).join("")+`<p class="hint">Deine Antworten bleiben nur in diesem Browser. Für Auftrag 4.3 schreibst du sie ab.</p>`;}
 const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr, bei Fleisch und Milch 0.5 %) schreibt die Jahre 2000 bis 2023 grob fort. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Folgen der Erwärmung gibt es nur als vier Klima-Ereignisse mit geschätzter Wirkung. Rückkopplungen im Klimasystem fehlen.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
@@ -1895,6 +1926,7 @@ function viewTeacher(){
   return `<tr><td class="mono">${esc0(code)}</td><td>${esc0(r.klasse||"–")}</td><td>${r.mode=="lang"?"lang":"kurz"}</td><td>${r.status=="play"?(ends.length==ps.length&&ps.length?"fertig":"spielt"):"Lobby"}${r.test?' <span class="hint">Test</span>':""}</td><td>${esc0(ps.map(p=>p.fig).join(", "))}</td><td class="n">${av==null?"–":fmt(av)}</td><td class="n">${avs==null?"–":fmt(avs,0)}</td><td class="n">${hz}</td><td>${Object.keys(ad).filter(k=>T[k]).map(k=>esc(T[k].title)).join(", ")||"–"}</td></tr>`;};
  return `<div class="wrap"><div class="lbl">13 Tonnen · Lehrperson</div><h1 style="margin:4px 0 10px">Übersicht der Räume</h1>
  <p class="sub">Alle Gruppenräume der letzten 24 Stunden, live. Einzelspiele erscheinen hier nicht. Filtere nach dem Klassenkürzel, das beim Eröffnen eingegeben wurde.</p>
+ <p class="hint">Tipp für Einzelspiele: Hängt ihr <b>?spiel=4A</b> an die Adresse an, bekommen alle dieselben Karten, Ereignisse und Abstimmungen. So lassen sich die Entscheide in der Nachbesprechung direkt vergleichen.</p>
  <div class="row"><input class="codein" style="width:9em" placeholder="KLASSE" value="${esc0(S.tfilter||"")}" onchange="S.tfilter=this.value;render()"><button onclick="S.screen='start';render()">Zurück</button>${nTest?`<label class="hint"><input type="checkbox" ${S.tshowTest?"checked":""} onchange="S.tshowTest=this.checked;render()"> Testräume zeigen (${nTest})</label>`:""}</div>
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
  <div class="sec"></div><div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="min-width:760px"><tr><th>Raum</th><th>Klasse</th><th>Version</th><th>Stand</th><th>Figuren</th><th class="n">Ø 2050</th><th class="n">Ø Budget</th><th class="n">Herzen Engagement</th><th>Angenommene Vorlagen</th></tr>${rooms.map(row).join("")||`<tr><td colspan="9" class="hint">${TROOMS==null?"Lade …":"Keine Räume."}</td></tr>`}</table></div>
@@ -1938,7 +1970,7 @@ function render(){if(S&&S.screen!=="intro")lsSet("13t_aktiv",String(Date.now()))
  placeCoach();
  if(S.results&&S.screen==="round"&&S.revealed!==S.r){const rr=S.r;setTimeout(()=>{if(S.r===rr)S.revealed=rr},1300);}
  juice();
- if(G)gSave();
+ saveGame();
  applyFx();
  if(S.screen==="dorf")dorfTween();
  if(!WT&&typeof requestAnimationFrame!=="undefined"&&typeof document!=="undefined"&&document.querySelectorAll){WT=1;requestAnimationFrame(wanderTick);}
@@ -2036,10 +2068,10 @@ const Group={
  }
 };
 
-function pickBallot(adopted,prev){
+function pickBallot(adopted,prev,R=Math.random){
  let pool=Object.keys(M.VORL).filter(k=>adopted[k]===undefined&&!prev.includes(k));
  if(pool.length<2)pool=Object.keys(M.VORL).filter(k=>adopted[k]===undefined);
- const b=[];while(b.length<2&&pool.length)b.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+ const b=[];while(b.length<2&&pool.length)b.push(pool.splice(Math.floor(R()*pool.length),1)[0]);
  return b;
 }
 function adoptedFrom(room){
@@ -2121,7 +2153,7 @@ function onRoom(){
    const me=ROOM.players[NET.uid];
    S.mode=ROOM.mode;setMode(ROOM.mode);
    // Wiederbeitritt nach Neuladen: eigenen Spielstand aus diesem Browser holen (UX-Test 21.11.)
-   const sv=gLoad(G.code);if(sv&&sv.fig===me.fig&&sv.r!=null){S=sv;setMode(S.mode);S.lastScr=null;if(!["round","summary","dorf","end","event"].includes(S.screen))S.screen="round";render();onRoom();return;}
+   const sv=loadSave("13t_g_"+G.code);if(sv&&sv.fig===me.fig&&sv.r!=null){S=sv;setMode(S.mode);S.lastScr=null;if(!["round","summary","dorf","end","event"].includes(S.screen))S.screen="round";render();onRoom();return;}
    S.fig=me.fig;S.r=0;S.money=M.START[S.fig];beginRound();return;
   }
   render();return;
