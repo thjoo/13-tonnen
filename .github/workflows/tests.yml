@@ -52,6 +52,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html .nojekyll _site/
+          # Musik wird erst beim Spielen nachgeladen, die Bilder brauchen README und Link-Vorschau
+          cp -r musik bilder _site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
