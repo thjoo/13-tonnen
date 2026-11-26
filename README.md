@@ -1,5 +1,9 @@
 # 13 Tonnen
 
+![Pixeldorf mit dem Schriftzug «13 Tonnen»](bilder/titelbild.png)
+
+**Spielen:** https://thjoo.github.io/13-tonnen/
+
 Ein Lernspiel zum CO₂-Fussabdruck in der Schweiz für den Geografieunterricht (Kantonsschule Küsnacht, Einheit Klimawandel).
 
 Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibhausgasen pro Jahr startet, und versuchst, ihren Fussabdruck bis 2050 zu senken: mit eigenen Entscheiden und mit Engagement für politische Vorlagen. Man spielt allein oder in der Gruppe, jede Person auf ihrem eigenen Gerät.
@@ -18,6 +22,7 @@ Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibh
 - Bereichs-Icons: «1-bit Pixel Icons» von Nikoichu (CC0).
 - Autos: «TopDown Vehicles» von MinZiin (https://minzinn.itch.io/), Lizenz CC BY 4.0, in Graustufen.
 - Schriften: Jersey 10, Silkscreen und Open Sans (SIL Open Font License), eingebettet.
+- `bilder/titelbild.png` und `bilder/vorschau.png` sind Screenshots der Startseite (für dieses README und die Link-Vorschau). Sie zeigen die Grafiken von Kenmi im Spiel; die Grafiken selbst liegen weiterhin nur im privaten Repo.
 
 ## Aufbau
 
