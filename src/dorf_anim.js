@@ -155,7 +155,9 @@ function layout(){const d=document.getElementById('dorf');if(!d)return false;
  if(!cv||!d.contains(cv)){d.innerHTML='';cv=document.createElement('canvas');d.appendChild(cv);ctx=cv.getContext('2d');}
  S=+getComputedStyle(d).getPropertyValue('--ds')||.75;SNAP=!!(d.closest&&d.closest('.szene')&&!d.closest('.nosnap'));
  const cw=d.clientWidth;
- if(SNAP){const dpr=(window.devicePixelRatio||1)*(window.UIZ||1);K=Math.max(1,Math.round(S*dpr));S=K/dpr;VW=Math.ceil(cw/S)+2;cv.width=Math.ceil(VW*K);cv.height=D.H*K;cv.style.width=(cv.width/dpr)+'px';cv.style.height=(D.H*S)+'px';d.style.height=(D.H*S)+'px';}
+ if(SNAP){// Pixeldichte begrenzen: Bei 3x zeichnet ein Handy 9-mal so viele Pixel, die Ueberblendung grau zu farbig sogar doppelt.
+  // Das Bild wird danach vom Browser pixelgenau hochskaliert (image-rendering: pixelated).
+  const dpr=Math.min(matchMedia('(pointer: coarse)').matches?1.5:2,window.devicePixelRatio||1)*(window.UIZ||1);K=Math.max(1,Math.round(S*dpr));S=K/dpr;VW=Math.ceil(cw/S)+2;cv.width=Math.ceil(VW*K);cv.height=D.H*K;cv.style.width=(cv.width/dpr)+'px';cv.style.height=(D.H*S)+'px';d.style.height=(D.H*S)+'px';}
  else{K=1;VW=Math.ceil(cw/S)+1;cv.width=VW;cv.height=D.H;cv.style.width=(VW*S)+'px';cv.style.height=(D.H*S)+'px';d.style.height='';}
  ctx.imageSmoothingEnabled=false;if(!camX)camX=D.W/2;vx0=Math.round(camX-VW/2);return true;}
 // Kamera: auf schmalen Bildschirmen zum Element fahren, das gerade neu erscheint (window.DORF_FOCUS)
