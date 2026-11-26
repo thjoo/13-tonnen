@@ -7,7 +7,7 @@ Du spielst eine Figur, die 2026 mit dem Schweizer Durchschnitt von 12.8 t Treibh
 - Alle Zahlen und Quellen stehen im Spiel unter «Mehr dazu» auf jeder Karte.
 - Gruppenspiel: Firebase Realtime Database (Standort Belgien), anonyme Anmeldung, keine Namen. Räume lassen sich nach 24 Stunden nicht mehr verändern und werden beim Eröffnen neuer Räume gelöscht.
 - Die Startseite zeigt ein belebtes Dorf in Pixelart. Es wird auf einer Canvas gezeichnet; bei «Bewegung reduzieren» im Betriebssystem steht es still.
-- Spielnummer: Mit `?spiel=4A` am Ende der Adresse bekommen alle, die allein spielen, dieselben Karten, Ereignisse und Abstimmungen. So lassen sich Entscheide in der Nachbesprechung vergleichen. Ohne Zusatz gibt es pro Partie eine neue Nummer; sie steht am Schluss in der Auswertung.
+- Spielnummer: Mit `?spiel=4A` am Ende der Adresse bekommen alle, die allein spielen, dieselben Abstimmungen, Würfe und Ereignisse. Die Karten sind nur bei gleicher Figur und gleichen Entscheiden gleich. So lassen sich Entscheide in der Nachbesprechung vergleichen. Ohne Zusatz gibt es pro Partie eine neue Nummer; sie steht am Schluss in der Auswertung.
 - Ton und Musik: Zu Beginn an, sie starten mit der ersten Berührung. Der Schalter unten in der Leiste und auf der Startseite wechselt zwischen «Musik und Ton», «Nur Ton» und «Ton aus» und bleibt im Browser gespeichert. Die Musik liegt in `musik/` und wird nur geladen, wenn sie spielt; wer `index.html` allein öffnet, hat Töne ohne Musik. Alles CC0, siehe `src/ton/QUELLEN.md`.
 - Eine angefangene Partie bleibt im Browser gespeichert und lässt sich nach dem Neuladen auf der Startseite fortsetzen.
 - Das Spiel ist eine einzige Datei (`index.html`) ohne Abhängigkeiten ausser Firebase für das Gruppenspiel und der Musik in `musik/`.
@@ -42,6 +42,7 @@ Bei jedem Push prüft GitHub das Spiel automatisch (Reiter «Actions»). Geteste
 - `tests/test_balance.py`: Balance mit Bots (`tests/balance.js`, braucht Node): starke, mittlere und schwache Spielweise in je 150 Partien pro Version. `node tests/balance.js --zeigen` druckt die Tabelle.
 - `tests/test_speichern.py`: Weiterspielen nach Neuladen, Fehlerkarte und gleiche Lose bei gleicher Spielnummer.
 - `tests/test_einfuehrung.py`: erste Runde zum Mitmachen, Dorf ohne Scrollen am Computer, Ton und Musik zu Beginn an, als Schleife, in drei Stufen schaltbar.
+- `tests/test_didaktik.py`: Vorhersage vor der Bilanz, Hinweis ohne Engagement für Vorlagen, Punkte für die Wirkung auf die Schweiz.
 - `tests/test_zugang.py`: Barrierefreiheit nach WCAG 2.1 AA (axe-core) und Bedienung mit der Tastatur.
 - `tests/manuell/gruppe_testmodus.py`: Gruppenspiel mit Testfiguren gegen die echte Datenbank, nur von Hand starten.
 

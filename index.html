@@ -1639,27 +1639,32 @@ function wishBonusRound(r){return r%2==1}
 
 
 /* ---------- Punkte (Bestenliste am 24.11.2026 entfernt, Eintraege bleiben in Firebase) ---------- */
-const PTS={B:5,E:100,V:25,P:40,ZIEL:100};
+// S (Review Didaktik 26.11.2026): Wirkung fuer die ganze Schweiz zaehlt mit. Bots (je 150 Partien): nur eigene Karten und nur Politik
+// kommen damit etwa gleich hoch (kurz 940 und 925, lang 1290 und 1410 Punkte), beides zusammen kurz am hoechsten. Vorher holte Politik allein rund 30 % weniger.
+const PTS={B:5,E:100,V:25,P:40,S:20,ZIEL:100};
+function chMio(){return Math.max(0,(val(2050,NO)-val(2050,VO))*9);}
 function myParts(){const a=val(2050,ACT),no=val(2050,NO);
  return {b:+(sum(2026,2050,NO)-sum(2026,2050,ACT)).toFixed(1),e:+(no-a).toFixed(2),m:S.money+(S.moneyNext||0)};}
 function scoreOf(o){ // o: {b,e,m (Schnitt pro Person), v,p (Gruppe), ziel}
- const r={B:Math.round(o.b*PTS.B),E:Math.round(o.e*PTS.E),V:o.v*PTS.V,P:o.p*PTS.P,Z:o.ziel?PTS.ZIEL:0};
- r.tot=Math.max(0,r.B+r.E+r.V+r.P+r.Z);return r;}
+ const r={B:Math.round(o.b*PTS.B),E:Math.round(o.e*PTS.E),V:o.v*PTS.V,P:o.p*PTS.P,S:Math.round((o.s||0)*PTS.S),Z:o.ziel?PTS.ZIEL:0};
+ r.tot=Math.max(0,r.B+r.E+r.V+r.P+r.S+r.Z);return r;}
 function scoreNow(){ // null, wenn in der Gruppe noch nicht alle fertig sind
  const v=Object.keys(S.adopted).length,p=Object.keys(S.pdone||{}).length;
- if(!G){const x=myParts();return {n:1,...x,v,p,ziel:false};}
+ const s=+chMio().toFixed(1);
+ if(!G){const x=myParts();return {n:1,...x,v,p,s,ziel:false};}
  const ps=G.players().filter(q=>q.fig);if(ps.some(q=>!q.end||q.end.b==null))return null;
  const av=k=>ps.reduce((s,q)=>s+q.end[k],0)/ps.length;
  const ga=groupAvg("end");
- return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,ziel:ga!=null&&ga<zielT()};}
+ return {n:ps.length,b:av("b"),e:av("e"),m:av("m"),v,p,s,ziel:ga!=null&&ga<zielT()};}
 function scoreHTML(){const o=scoreNow();
  if(!o)return `<div class="sec"><h2>Punkte</h2></div><p class="hint">Sobald alle fertig sind, rechnet das Spiel eure Punkte.</p>`;
  const sc=scoreOf(o),n=o.n;
  const per=n>1?" im Schnitt pro Person":"";
- return `<div class="sec"><h2>Punkte</h2><p class="sub">${n>1?`Eure Gruppe zu ${n}: Gezählt wird der Schnitt pro Person und die gemeinsame Leistung.`:"Gezählt wird, was du gespart hast, wo du 2050 stehst und was politisch durchkam."}</p></div>
+ return `<div class="sec"><h2>Punkte</h2><p class="sub">${n>1?`Eure Gruppe zu ${n}: Gezählt wird der Schnitt pro Person und die gemeinsame Leistung.`:"Gezählt wird, was du gespart hast, wo du 2050 stehst und was deine Vorlagen für die ganze Schweiz bringen."}</p></div>
  <table class="pts"><tr><td>Treibhausgase gespart 2026 bis 2050${per}, gegenüber «weiter wie bisher»</td><td class="n">${fmt(o.b,0)} t × ${PTS.B}</td><td class="n">${sc.B}</td></tr>
  <tr><td>2050 unter «weiter wie bisher»${per}</td><td class="n">${fmt(o.e)} t × ${PTS.E}</td><td class="n">${sc.E}</td></tr>
  <tr><td>Angenommene Vorlagen</td><td class="n">${o.v} × ${PTS.V}</td><td class="n">${sc.V}</td></tr>
+ <tr><td>Was die Vorlagen der Schweiz 2050 sparen, für alle 9 Mio. Menschen</td><td class="n">${fmt(o.s)} Mio. t × ${PTS.S}</td><td class="n">${sc.S}</td></tr>
  <tr><td>Projekte im Quartier</td><td class="n">${o.p} × ${PTS.P}</td><td class="n">${sc.P}</td></tr>
  ${n>1?`<tr><td>Erste Etappe als Gruppe (im Schnitt unter ${fmt(zielT())} t)</td><td class="n">${o.ziel?"ja":"nein"}</td><td class="n">${sc.Z}</td></tr>`:""}
  <tr class="sum"><td>Total</td><td></td><td class="n">${sc.tot}</td></tr></table>
@@ -1693,6 +1698,10 @@ function beginRound(){
   else{const d=Math.min(1,S.money);S.money-=d;note.push("Flugticketabgabe: Du fliegst noch und zahlst 1 Geld.");}
  }
  if(S.freeNote){note.push(S.freeNote);S.freeNote=null;}
+ // Hinweise auf der Prozessebene (Review Didaktik 26.11.2026), je hoechstens einmal pro Partie
+ const eig=Object.keys(S.chosen);
+ if(!S.tipK&&S.r>=1&&S.r<=2&&eig.length&&eig.reduce((s,id)=>s+effOwn(id),0)/eig.length<0.1){S.tipK=1;note.push("Tipp: Deine Karten bringen bisher je weniger als 0.1 t pro Jahr. Schau auf die Zahl auf jeder Karte: Welche bringt am meisten für deine Herzen und dein Geld?");}
+ if(!S.tipV&&S.r===2&&CHAL[S.chal||"keine"].ban!=="alle"&&!Object.values(S.myHR||{}).some(o=>Object.values(o).some(x=>x>0))){S.tipV=1;note.push("Tipp: Du hast noch kein Herz für eine Vorlage gesetzt. Eine Vorlage wirkt für alle 9 Mio. Menschen. Vergleich einmal, was sie für die Schweiz bringt und was deine beste Karte bringt.");}
  // Herkunft der Herzen steht im Tooltip des Herz-Chips (mit «!», bis man ihn ansieht), nicht mehr als Hinweis ueber den Karten
  S.heartNote=(S.carry||S.wishH)?"Diese Runde hast du "+S.hearts+" Herzen: 3"+(S.carry?", 1 mitgenommen":"")+(S.wishH?", 1 von deinem Wunsch":"")+".":null;
  S.carry=0;
@@ -1847,7 +1856,7 @@ function barHTML(v){
 }
 function header(){
  const atEnd=S.screen==='summary'||S.screen==='dorf',p=PER[S.r],y=atEnd?(S.r<LAST?PER[S.r+1].a:2050):p.a,v=subs(y,ACT),a=tot(v),n=val(y,NO),used=y>2026,so=used?sum(2026,y-1,ACT):0;
- const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her. Wie viel du heizt, fährst, fliegst, isst und kaufst, ändert sich nicht von selbst. Dein Ziel: so nah wie möglich an 0.6 t. Eine erste Etappe ist 2050 unter ${fmt(zielT())} t, so viel wie ein Mensch heute im weltweiten Durchschnitt. ${ZIELVGL}`;
+ const tf=`Fussabdruck ${y}: ${fmt(a)} t pro Jahr. Ohne deine Karten und ohne neue Vorlagen wären es ${fmt(n)} t. Das schafft der Wandel um dich herum: Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her, weil es dort Gesetze, Preise und Vorschriften gibt. Wie viel du heizt, fährst, fliegst, isst und kaufst, ändert sich nicht von selbst. Dein Ziel: so nah wie möglich an 0.6 t. Eine erste Etappe ist 2050 unter ${fmt(zielT())} t, so viel wie ein Mensch heute im weltweiten Durchschnitt. ${ZIELVGL}`;
  const hn=S.screen==="round"&&!S.results&&S.heartNote?S.heartNote:"";
  const th=`${hn?hn+" ":""}Herzen: dein Einsatz in dieser Runde. Du brauchst sie für Karten, fürs Projekt und für Vorlagen. 1 übriges Herz nimmst du in die nächste Runde mit.`;
  const tg=`Geld: brauchst du für manche Karten und für Kampagnen (2 Geld). Übriges Geld nimmst du mit.${moneyLock()?` ${moneyLock()} Geld sind gesperrt: «${T[S.nextEvent].title}» nach dieser Runde kostet dich so viel.${S.nextEvent=="E4"?" Ausser du wählst noch «"+T.C4.title+"».":""}`:""}${S.moneyNext?` ${S.moneyNext} Geld bekommst du in der nächsten Runde zurück.`:""}`;
@@ -1909,20 +1918,20 @@ function persN(mio){const n=mio*1e6/START,r=n>=100000?10000:n>=10000?1000:100;re
 function persTxt(mio){return persN(mio).toLocaleString("de-CH").replace(/[’']/g,"\u00a0");}
 function vEff(k){const y=RAMP[k]?2050:vorlFrom(S.r);return val(y,ACT)-val(y,{...ACT,extraVorl:k});}
 function ballotHTML(){
- const rg=G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`;
+ const rg=(G?`Ihr seid ${G.n()}: Ein Herz bringt +${fmt(30/G.n(),0)} Prozentpunkte, eine Kampagne (2 Geld) +${fmt(SPENDEP/G.n(),0)}. Es zählt die ganze Gruppe.`:`Ein Herz +30 %, eine Kampagne (2 Geld) +15 %.`)+" Ein Herz steht für dich und deine Leute: Unterschriften sammeln, Flyer verteilen, mit Nachbar:innen reden.";
  // Regel nur in Runde 1 als Satz, danach im Tooltip des Titels
  let h=`<div class="lbl">Abstimmungssonntag</div><h3 style="margin:2px 0 6px"${S.r>0?` class="tip vrule" tabindex="0" data-tip="${rg}"`:""}>Zwei Vorlagen, wirken ab ${vorlFrom(S.r)}</h3>
  ${S.r===0?`<p class="hint">${rg}</p>`:""}`;
  for(const k of S.ballot){const t=T[k],r=S.results&&S.results.find(x=>x.k==k),c=chance(k);
   const ve=vEff(k),nopers=Math.abs(ve)<0.0005,chv=chCH(k);
   h+=`<div class="vote"><div class="hd" style="display:flex;justify-content:space-between;gap:8px"><span class="lbl">${vorlCat(k)?CATIC(vorlCat(k)):""}${stratTag(k)} · ${nopers?"wirkt auf die Schweiz":(RAMP[k]?"bis 2050 ":"")+sgn(-ve,Math.abs(ve)<0.01?3:2)+" t pro Jahr für dich"}</span></div>
-  <div class="ti">${esc(t.title)}</div><div class="hint">${typTxt(k)}</div><div class="tx" style="font-size:14px">${esc(t.front)}</div>
+  <div class="ti">${esc(t.title)}</div>${S.r>0?`<div class="hint">${typTxt(k)}</div>`:""}<div class="tx" style="font-size:14px">${esc(t.front)}</div>
   <div class="chrow"><span class="lbl">Chance</span><div class="cbar"><i style="width:${c}%"></i>${S.results?`<b class="roll ${S.revealed===S.r?"":"anim"}" style="left:${r.roll}%"></b>`:""}</div><span class="chance">${c} %</span></div>
   ${bonus(k)?`<div class="hint">Kommt wieder, besser vorbereitet: +${bonus(k)} Prozentpunkte.</div>`:""}
   ${nopers?`<div class="meta2"><span>${sameTxt(k)||"Wirkt kaum auf deinen Fussabdruck."}</span></div>`:""}
-  ${chv>=0.005?`<div class="vpers">${r&&r.ok?"Spart":r?"Hätte gespart":"Spart"} in der Schweiz ${RAMP[k]?"bis 2050 ":""}jedes Jahr <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b>: so viel, wie rund <b>${persTxt(chv)} Menschen</b> heute ausstossen.</div>`:""}
+  ${chv>=0.005?`<div class="vpers">${r&&r.ok?"Spart":r?"Hätte gespart":"Spart"} in der Schweiz ${RAMP[k]?"bis 2050 ":""}jedes Jahr <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b>${S.r>0?`: so viel, wie rund <b>${persTxt(chv)} Menschen</b> heute ausstossen`:""}.</div>`:""}
   ${G?`<div class="hint">Gruppe: ${HZ(G.totals(k).h)} · ${G.totals(k).d} Kampagnen</div>`:""}
-  ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}</span></div>`:
+  ${S.results?`<div class="res ${S.revealed===S.r?"":"late"}" style="font-size:18px;margin-top:4px">${r.ok?"Angenommen":"Abgelehnt"} <span class="hint" style="font-weight:400">Wurf ${r.roll}, angenommen unter ${r.c}</span></div>${S.r===0?`<p class="hint" style="margin:2px 0 0">Bei ${r.c} % Chance kommt eine Vorlage ${r.c>=95?"fast immer":r.c<5?"fast nie":`in etwa ${Math.round(r.c/10)} von 10 Fällen`} durch.${k===S.ballot[S.ballot.length-1]?" Auch echte Abstimmungen sind oft knapp: Das CO₂-Gesetz scheiterte 2021 mit 48.4 % Ja.":""}</p>`:""}`:
   `<div class="ctl"><button class="small" onclick="alloc('${k}',-1)">−</button><span class="mono">${HZ(S.alloc[k])}</span><button class="small" onclick="alloc('${k}',1)">+</button>
    <label class="hint" style="margin-left:auto"><input type="checkbox" ${S.don[k]?"checked":""} ${!S.don[k]&&moneyFree()<SPENDE?"disabled":""} onchange="donate('${k}')"> Kampagne, 2 Geld</label></div>`}
   <details><summary>Mehr dazu</summary>${nopers?"":`<p>Angenommen bringt die Vorlage bis 2050 <b>${sgn(-totalVorl(k),0)} t</b> für dich und <b>${fmt(chv,chv<0.1?2:1)} Mio. t</b> pro Jahr für die Schweiz.</p>`}${CONTRA[k]?`<p><b>Dagegen spricht:</b> ${CONTRA[k]}</p>`:""}<p>${esc(t.back)}</p>${t.why?`<p>${esc(t.why)}</p>`:""}${t.game?`<p><i>Im Spiel:</i> ${esc(t.game)}</p>`:""}</details></div>`;}
@@ -2009,7 +2018,7 @@ function restHTML(a,parts,own){const get=n=>(parts.find(x=>x[0]==n)||[0,0])[1];
  const du=Math.max(0,-get("Du")),vo=Math.max(0,-get("Vorlagen")),wa=Math.max(0,-get("Wandel")),aus=a*0.69,ch=a-aus;
  const nx=own.length&&own[0].d>0.05?`Erzähl deinen Kolleg:innen, welche Karte bei dir am meisten gebracht hat («${esc(T[own[0].id].title)}»), und frag, was bei ihnen am meisten bringen würde.`:`Schau, worüber in der Schweiz als Nächstes abgestimmt wird, und rede mit deinen Kolleg:innen darüber.`;
  return `<div class="ibox rest"><div class="lbl">Wer macht den Rest?</div>
-  <div class="rrow"><span class="rk">Geschafft</span><span><b>−${fmt(du+vo+wa)} t</b> seit 2026: ${fmt(du)} t mit deinen Karten, ${fmt(vo)} t mit Vorlagen, ${fmt(wa)} t durch den Wandel um dich herum.</span></div>
+  <div class="rrow"><span class="rk">Geschafft</span><span><b>−${fmt(du+vo+wa)} t</b> seit 2026: ${fmt(du)} t mit deinen Karten, ${fmt(vo)} t mit Vorlagen, ${fmt(wa)} t durch den Wandel um dich herum, also durch Firmen und die Klimapolitik anderer Länder.</span></div>
   <div class="rrow"><span class="rk">Schweizer Politik</span><span>Von deinen ${fmt(a)} t entstehen rund <b>${fmt(ch)} t</b> in der Schweiz: Gebäude, Verkehr, Strom, Landwirtschaft, Schulen und Spitäler. Hier helfen weitere Vorlagen.</span></div>
   <div class="rrow"><span class="rk">Firmen und andere Länder</span><span>Rund <b>${fmt(aus)} t</b> entstehen im Ausland, bei der Herstellung von dem, was du kaufst (BAFU/EBP 2025). Das ändern Firmen und Regierungen dort.</span></div>
   <div class="rrow nx"><span class="rk">Dein nächster Schritt</span><span>${nx}</span></div></div>`;}
@@ -2018,7 +2027,7 @@ function viewEnd(){
  const Y=2050,a=val(Y,ACT),vo=val(Y,VO),no=val(Y,NO);
  const own=Object.keys(S.chosen).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
  const mineK=new Set(Object.values(S.myHR||{}).flatMap(o=>Object.keys(o).filter(k=>o[k]>0)));
- const pol=Object.keys(S.adopted).filter(id=>mineK.has(id)).map(id=>({id,d:val(Y,{...ACT,without:id})-a})).sort((x,y)=>y.d-x.d);
+ const pol=Object.keys(S.adopted).filter(id=>mineK.has(id)).map(id=>({id,d:val(Y,{...ACT,without:id})-a,ch:(val(Y,{...VO,without:id})-vo)*9})).sort((x,y)=>y.d-x.d);
  const ch=(no-vo)*9,o=scoreNow(),sc=o?scoreOf(o):null;
  const SL=stufenL(),st=stufenOk().map((ok,i)=>[SL[i][0],ok]),top=st.filter(x=>x[1]).length,zOk=a<zielT();
  const pts=scoreHTML();
@@ -2043,7 +2052,7 @@ function viewEnd(){
   <div class="lbl">Deine grössten Hebel · für Auftrag 4.3</div>
   <div class="hebel">
    <div class="ibox"><div class="lbl">Eigener Hebel</div><div class="v">${own.length?sgn(-own[0].d)+" t":"–"}</div><div>${own.length?esc(T[own[0].id].title):"keine eigene Karte gewählt"}</div></div>
-   <div class="ibox"><div class="lbl">Politischer Hebel</div><div class="v">${pol.length?sgn(-pol[0].d)+" t":"–"}</div><div>${pol.length?esc(T[pol[0].id].title):Object.keys(S.adopted).length?"keine angenommene Vorlage mit deinen Herzen":"keine Vorlage angenommen"}</div></div>
+   <div class="ibox"><div class="lbl">Politischer Hebel</div><div class="v">${pol.length?sgn(-pol[0].d)+" t":"–"}</div><div>${pol.length?esc(T[pol[0].id].title):Object.keys(S.adopted).length?"keine angenommene Vorlage mit deinen Herzen":"keine Vorlage angenommen"}</div>${pol.length&&pol[0].ch>=0.05?`<div class="hint">So viel für dich. Für die ganze Schweiz: −${fmt(pol[0].ch)} Mio. t pro Jahr. In Wirklichkeit braucht es dafür Tausende, die so handeln wie du.</div>`:""}</div>
   </div>
  </div></div>
  <div class="sec"><h2>Nachdenken</h2></div><div class="refl">${reflectHTML()}</div>
@@ -2056,7 +2065,7 @@ function viewEnd(){
  ${S.log.map(l=>`<tr><td class="mono" data-l="Runde">${PER[l.r].l}</td><td data-l="Karten">${l.cards.map(c=>esc(T[c].title)).join(", ")||"–"}</td><td class="mono" data-l="Engagement">${HZ(l.hearts)}${l.don?", "+GD(l.don):""}</td><td data-l="Abstimmungen">${l.votes.map(v=>esc(T[v.k].title)+(v.ok?" ✓":" ✗")).join("<br>")}</td><td data-l="Ereignis">${l.event=="ruhig"?"ruhig":l.event=="abgewendet"?"abgewendet":esc(T[l.event].title)}</td></tr>`).join("")}</table>`)}
  ${G?more("Eure Gruppe",G.endTable()):""}
  </div>
- <div class="row" style="margin-top:22px"><button class="primary" onclick="if(G)G.leave();else lsDel('13t_solo');fresh();render()">Neues Spiel</button></div>${G?"":`<p class="hint" style="margin-top:10px">Spielnummer <b>${esc0(S.seed)}</b>. Wer am Ende der Adresse <b>?spiel=${esc0(S.seed)}</b> anhängt, bekommt dieselben Karten, Ereignisse und Abstimmungen.</p>`}</div>`;
+ <div class="row" style="margin-top:22px"><button class="primary" onclick="if(G)G.leave();else lsDel('13t_solo');fresh();render()">Neues Spiel</button></div>${G?"":`<p class="hint" style="margin-top:10px">Spielnummer <b>${esc0(S.seed)}</b>. Wer am Ende der Adresse <b>?spiel=${esc0(S.seed)}</b> anhängt, bekommt dieselben Abstimmungen, Würfe und Ereignisse. Die Karten sind nur bei gleicher Figur und gleichen Entscheiden gleich.</p>`}</div>`;
 }
 /* ===== Erweiterungen nach Game-Design-Recherche ===== */
 const PFAD=Math.round((START+ZIEL)/2*25);
@@ -2347,9 +2356,11 @@ function viewSummary(){
  const before=S.snap[S.r]?S.snap[S.r].act:val(a0,ACT);
  const now=val(nx,ACT),dt=val(nx,NO)-val(a0,NO),dv=(val(nx,VO)-val(nx,NO))-(val(a0,VO)-val(a0,NO)),d=now-before;
  const dvA=(now-val(nx,OWNV))-(val(a0,ACT)-val(a0,OWNV)),ov=Math.max(0,dvA-dv),ovOn=ov>=0.05,dme=d-dt-dvA;
- const parts=[["der Wandel um dich herum","Wandel",dt],["die Vorlagen","Vorlagen",dvA],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
+ const parts=[["der Wandel um dich herum, also Firmen und Politik im In- und Ausland","Wandel",dt],["die Vorlagen","Vorlagen",dvA],["dein Alltag",S.event&&S.event!=="ruhig"&&S.event!=="abgewendet"?"Du und Ereignis":"Du",dme]];
  const big=parts.filter(x=>x[0]).sort((a,b)=>d<=0?a[2]-b[2]:b[2]-a[2])[0];
- const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht "+(big[1]==="Vorlagen"?"haben":"hat"):"Am meisten dazu beigetragen "+(big[1]==="Vorlagen"?"haben":"hat")} ${big[0]}.${big[1]==="Wandel"&&Math.abs(dme)>=0.05?` Dein Alltag: ${sgn(dme)} t.`:""}`;
+ // Erst vorhersagen, dann die Bilanz sehen (Review Didaktik 26.11.2026): einmal pro Runde, ein Klick
+ const bk=big[1]==="Du und Ereignis"?"Du":big[1],gs=(S.guess||{})[S.r],frag=Math.abs(d)>=0.05&&gs==null;
+ const title=Math.abs(d)<0.05?`${S.fig} stösst gleich viel aus wie zu Beginn der Runde.`:frag?`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus.`:`${S.fig} stösst jetzt ${fmt(Math.abs(d))} t ${d<0?"weniger":"mehr"} aus. ${d<0?"Am meisten gebracht "+(big[1]==="Vorlagen"?"haben":"hat"):"Am meisten dazu beigetragen "+(big[1]==="Vorlagen"?"haben":"hat")} ${big[0]}.${big[1]==="Wandel"&&Math.abs(dme)>=0.05?` Dein Alltag: ${sgn(dme)} t.`:""}`;
  const used=sum(2026,nx-1,ACT),pf=pfadBis(nx-1),over=used>pf+0.5;
  const B=`<span>${S.r<LAST?"Nächste Runde: "+PER[S.r+1].l:"Das war die letzte Runde."}</span><button class="primary" onclick="nextRound()">${S.r<LAST?"Weiter zur nächsten Runde":"Zur Auswertung"}</button>`;
  return header()+`<div class="wrap">
@@ -2359,9 +2370,10 @@ function viewSummary(){
   <div class="ibox"><div class="lbl">Wo sich etwas verändert hat</div>${catHTML(S.snap[S.r]&&S.snap[S.r].c?S.snap[S.r].c:bycat(subs(a0,ACT)),bycat(subs(nx,ACT)),a0,nx)}</div>
  </div><div>
   <div class="ibox evbox" style="padding:14px 18px">${eventBox()}</div>
-  <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt, pro Jahr, ${a0} bis ${nx}</div>${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}${ovOn?`<p class="hint">Ohne deine Karten brächten die Vorlagen diese Runde ${fmt(-dv)} t, bei dir sind es ${fmt(-dvA)} t: ${fmt(ov)} t hattest du schon mit eigenen Karten umgesetzt. Das zählt nur einmal.</p>`:""}</div>
+  <div class="ibox" style="margin-top:18px"><div class="lbl">Woher die Veränderung kommt, pro Jahr, ${a0} bis ${nx}</div>${frag?`<p style="margin:6px 0 10px"><b>Was schätzt du: Was hat diese Runde am meisten verändert?</b></p><div class="row guess">${[["Wandel","Wandel (Firmen, andere Länder)"],["Vorlagen","Vorlagen"],["Du","Dein Alltag"]].map(([k,l])=>`<button onclick="guess('${k}')">${l}</button>`).join("")}</div>`:`${gs!=null&&Math.abs(d)>=0.05?`<p class="hint" style="margin:4px 0 6px">${gs===bk?"Richtig geschätzt.":`Du hast «${{Wandel:"Wandel",Vorlagen:"Vorlagen",Du:"Dein Alltag"}[gs]}» geschätzt. Am meisten bewirkt hat ${big[0]}.`}</p>`:""}${waterfallSVG(parts.map(x=>[x[1],x[2]]),d)}`}${ovOn?`<p class="hint">Ohne deine Karten brächten die Vorlagen diese Runde ${fmt(-dv)} t, bei dir sind es ${fmt(-dvA)} t: ${fmt(ov)} t hattest du schon mit eigenen Karten umgesetzt. Das zählt nur einmal.</p>`:""}</div>
   ${G?`<div style="margin-top:18px">${groupPanel()}</div>`:""}
  </div></div></div><div class="actbar"><div class="in">${B}</div></div>`;}
+function guess(k){S.guess=S.guess||{};S.guess[S.r]=k;render();}
 function chWrap(svg,attrs){return `<div class="chwrap" ${attrs||""} onpointermove="chHover(event,this)" onpointerdown="chHover(event,this)" onpointerleave="this.classList.remove('on')">${svg}<i class="xh"></i><div class="chtip"></div></div>`}
 /* Bilanz: Fussabdruck nach Bereichen, vorher und nachher */
 function catHTML(c0,c1,y0,y1){const mx=Math.max(...CATS.map(x=>Math.max(c0[x],c1[x])))*1.04,pc=v=>(v/mx*100).toFixed(2);
@@ -2386,7 +2398,7 @@ function chHover(e,w){const tip=w.querySelector(".chtip"),xh=w.querySelector(".x
 /* Wasserfall der Veraenderung: von 0 ueber die Teile zur Summe */
 function waterfallSVG(parts,d){
  const nar=typeof innerWidth!=='undefined'&&innerWidth<700,W=nar?340:520,H=180,T=34,Bm=22,n=parts.length+1,bw=nar?56:64,gap=(W-n*bw)/(n+1);
- const EXP={Wandel:"<b>Wandel um dich herum</b><br>Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her, rund 1 % pro Jahr, bei Fleisch und Milch 0.5 %. Wie viel du verbrauchst, ändert sich dadurch nicht, und deine Heizung, dein Auto und deine Flüge auch nicht.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern.",Abgedeckt:"<b>Schon durch Vorlage abgedeckt</b><br>So viel bringen die Vorlagen bei dir nicht, weil du das schon mit eigenen Karten umgesetzt hast. Es wird nur einmal gezählt."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
+ const EXP={Wandel:"<b>Wandel um dich herum</b><br>Fabriken, Bauernhöfe und Kraftwerke im In- und Ausland stellen sauberer her, rund 1 % pro Jahr, bei Fleisch und Milch 0.5 %. Das passiert nicht von selbst: Firmen und andere Länder senken ihre Emissionen, weil es dort Gesetze, Preise und Vorschriften gibt. Wie viel du verbrauchst, ändert sich dadurch nicht, und deine Heizung, dein Auto und deine Flüge auch nicht.",Vorlagen:"<b>Vorlagen</b><br>Angenommene Vorlagen wirken für alle, ab der Runde nach der Abstimmung.",Du:"<b>Dein Alltag</b><br>Was deine gewählten Karten in dieser Zeit verändern.","Du und Ereignis":"<b>Dein Alltag und das Ereignis</b><br>Was deine Karten und das Ereignis dieser Runde verändern.",Abgedeckt:"<b>Schon durch Vorlage abgedeckt</b><br>So viel bringen die Vorlagen bei dir nicht, weil du das schon mit eigenen Karten umgesetzt hast. Es wird nur einmal gezählt."},ht=(k,v)=>` data-ht="${(EXP[k]||k).replace(/"/g,"&quot;")}<br><b>${sgn(v)} t</b> pro Jahr"`;
  let run=0;const lo=Math.min(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d),hi=Math.max(0,...parts.map((_,i)=>parts.slice(0,i+1).reduce((s,x)=>s+x[1],0)),d);
  const span=Math.max(0.5,hi-lo),Y=v=>Math.round((T+(hi-v)/span*(H-T-Bm))/2)*2;
  let g=`<line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--g3)" stroke-width="1"/>`;
@@ -2424,7 +2436,7 @@ function benchRound(){if(!G||!ROOM)return"";const ps=G.players().filter(p=>p.fig
 function pfadBis(y){let s=0;for(let q=2026;q<=y;q++)s+=START+(ZIEL-START)*(q-2026)/24;return s;}
 
 /* Nachbereitung */
-const FRAGEN=["Welche Entscheidung hat bei dir am meisten gebracht, und warum gerade diese?","Was war schwierig? Lag es an Herzen, Geld, Zufall oder an deiner Figur?","Welche Vorlage aus dem Spiel gibt es in der Schweiz wirklich? Wie stehen ihre Chancen?"];
+const FRAGEN=["Welche Entscheidung hat bei dir am meisten gebracht, und warum gerade diese?","Was war schwierig? Lag es an Herzen, Geld, Zufall oder an deiner Figur?","Was könntest du in deinem Leben selbst entscheiden, was nur mit deiner Familie oder anderen, und was nur über Abstimmungen oder andere Länder? Nenne je ein Beispiel."];
 function lsGet(k){try{return localStorage.getItem(k)||""}catch(e){return""}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
@@ -2441,13 +2453,13 @@ function resumeSolo(){const s=soloSave();if(!s)return;S=s;setMode(S.mode);S.last
  if(S.dorfFinal){S.dorfFinal=false;S.outroSeen=true;S.screen="end";}else if(S.screen==="dorf")S.screen="summary";
  render();window.scrollTo(0,0);}
 function reflectHTML(){return FRAGEN.map((q,i)=>`<div class="ibox"><div class="lbl">Frage ${i+1}</div><p style="margin:4px 0 8px">${q}</p><textarea class="ta" rows="3" aria-label="Antwort auf Frage ${i+1}" oninput="lsSet('13t_q${i}',this.value)">${esc0(lsGet('13t_q'+i))}</textarea></div>`).join("")+`<p class="hint">Deine Antworten bleiben nur in diesem Browser. Für Auftrag 4.3 schreibst du sie ab.</p>`;}
-const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr, bei Fleisch und Milch 0.5 %) schreibt die Jahre 2000 bis 2023 grob fort. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Folgen der Erwärmung gibt es nur als vier Klima-Ereignisse mit geschätzter Wirkung. Rückkopplungen im Klimasystem fehlen.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
+const VEREINFACHT=["Alle Figuren starten beim Schweizer Durchschnitt. Echte Menschen liegen oft weit darüber oder darunter.","Der Wandel um dich herum (1 % pro Jahr, bei Fleisch und Milch 0.5 %) schreibt die Jahre 2000 bis 2023 grob fort. Er kommt von Firmen und von der Klimapolitik anderer Länder, nicht von selbst. In Wirklichkeit geht es nicht in allen Bereichen gleich schnell.","Wie viel eine Vorlage bis 2050 bringt, ist eine Modellannahme. Ob sie angenommen wird, entscheidet ein Würfel.","Folgen der Erwärmung gibt es nur als vier Klima-Ereignisse mit geschätzter Wirkung. Rückkopplungen im Klimasystem fehlen.","Wirkungen werden einfach verrechnet. Den Rebound-Effekt gibt es nur als Ereignis."];
 
 /* Geführte erste Runde. Schritte mit Aufgabe (dritter Eintrag) gehen von selbst weiter, sobald sie erledigt ist (Spieltest 26.11.2026: machen statt lesen).
    Was im Loch liegt, ist anklickbar; der Rest ist gesperrt (#cb0 bis #cb3). */
 const COACH=[["stats|.barbox","Oben steht dein Fussabdruck pro Jahr, daneben Herzen, Geld und dein Wunsch. {HOVER} Der Balken zeigt die fünf Bereiche, der rote Strich das Ziel 0.6 t."],
  ["cards","Das sind deine Karten für diese Runde. Jede gilt ab jetzt jedes Jahr bis 2050. <b>Wähle jetzt eine Karte.</b>","karte"],
- ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Mit Herzen erhöhst du die Chance, dass etwas zustande kommt. <b>Setz ein Herz mit +.</b>","herz"],
+ ["panel","{RECHTS} stehen ein Projekt im Quartier und zwei Vorlagen. Mit Herzen erhöhst du die Chance, dass etwas zustande kommt. <b>Setz ein Herz mit +: beim Projekt oder bei einer Vorlage, wo es dir mehr bringt.</b>","herz"],
  ["finish","{REST} Wenn du fertig bist, stimmst du hier unten ab. Danach siehst du das Ereignis und die Bilanz der Runde."]];
 const COACHOK={karte:()=>S.thisRound.length>0,herz:()=>(S.palloc||0)>0||Object.values(S.alloc||{}).some(x=>x>0)};
 const COACHGEHT={karte:()=>S.hand.some(id=>!blocked(id)),herz:()=>freeH()>0};
@@ -2521,7 +2533,7 @@ function viewTeacher(){
   return `<tr><td class="mono">${esc0(code)}</td><td>${esc0(r.klasse||"–")}</td><td>${r.mode=="lang"?"lang":"kurz"}</td><td>${r.status=="play"?(ends.length==ps.length&&ps.length?"fertig":"spielt"):"Lobby"}${r.test?' <span class="hint">Test</span>':""}</td><td>${esc0(ps.map(p=>p.fig).join(", "))}</td><td class="n">${av==null?"–":fmt(av)}</td><td class="n">${avs==null?"–":fmt(avs,0)}</td><td class="n">${hz}</td><td>${Object.keys(ad).filter(k=>T[k]).map(k=>esc(T[k].title)).join(", ")||"–"}</td></tr>`;};
  return `<div class="wrap"><div class="lbl">13 Tonnen · Lehrperson</div><h1 style="margin:4px 0 10px">Übersicht der Räume</h1>
  <p class="sub">Alle Gruppenräume der letzten 24 Stunden, live. Einzelspiele erscheinen hier nicht. Filtere nach dem Klassenkürzel, das beim Eröffnen eingegeben wurde.</p>
- <p class="hint">Tipp für Einzelspiele: Hängt ihr <b>?spiel=4A</b> an die Adresse an, bekommen alle dieselben Karten, Ereignisse und Abstimmungen. So lassen sich die Entscheide in der Nachbesprechung direkt vergleichen.</p>
+ <p class="hint">Tipp für Einzelspiele: Hängt ihr <b>?spiel=4A</b> an die Adresse an, bekommen alle dieselben Abstimmungen, Würfe und Ereignisse. Die Karten sind nur bei gleicher Figur und gleichen Entscheiden gleich. So lassen sich die Entscheide in der Nachbesprechung direkt vergleichen.</p>
  <div class="row"><input class="codein" style="width:9em" placeholder="KLASSE" value="${esc0(S.tfilter||"")}" onchange="S.tfilter=this.value;render()"><button onclick="S.screen='start';render()">Zurück</button>${nTest?`<label class="hint"><input type="checkbox" ${S.tshowTest?"checked":""} onchange="S.tshowTest=this.checked;render()"> Testräume zeigen (${nTest})</label>`:""}</div>
  ${S.netErr?`<div class="callout"><span class="ic">!</span><span>${esc0(S.netErr)}</span></div>`:""}
  <div class="sec"></div><div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="min-width:760px"><tr><th>Raum</th><th>Klasse</th><th>Version</th><th>Stand</th><th>Figuren</th><th class="n">Ø 2050</th><th class="n">Ø Budget</th><th class="n">Herzen Engagement</th><th>Angenommene Vorlagen</th></tr>${rooms.map(row).join("")||`<tr><td colspan="9" class="hint">${TROOMS==null?"Lade …":"Keine Räume."}</td></tr>`}</table></div>
