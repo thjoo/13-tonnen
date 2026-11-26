@@ -41,13 +41,17 @@ def webp(html):
         return "data:image/webp;base64," + base64.b64encode(w).decode() if len(w) < len(raw) else m.group(0)
     return re.sub(r"data:image/png;base64,([A-Za-z0-9+/=]+)", neu, html)
 
+def toene():
+    """Kurze Toene (src/ton/*.mp3, CC0) als data-URL fuer das Objekt TON."""
+    return json.dumps({f.stem: "data:audio/mpeg;base64," + base64.b64encode(f.read_bytes()).decode() for f in sorted((SRC / "ton").glob("*.mp3"))})
+
 def baue():
     if not (GRAFIK / "sprites.json").exists():
         sys.exit("Grafiken fehlen: git submodule update --init (Zugriff auf das private Repo thjoo/13-tonnen-grafik noetig)")
     subprocess.run([sys.executable, str(SRC / "mech.py")], check=True, cwd=SRC, stdout=subprocess.DEVNULL)
     t = lies(SRC / "template.html")
     for k, v in [("__FONTS__", lies(SRC / "fonts.css")), ("__TEXTS__", lies(SRC / "texts.json")), ("__MECH__", lies(SRC / "mech.json")),
-                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet())]:
+                 ("__SPR__", lies(GRAFIK / "sprites.json")), ("__DORF__", dorf_snippet()), ("__TON__", toene())]:
         t = t.replace(k, v)
     return webp(t)
 
